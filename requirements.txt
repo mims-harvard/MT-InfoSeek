@@ -1,0 +1,31 @@
+# Core data and progress utilities
+pandas>=2.0
+numpy>=1.24
+tqdm>=4.66
+orjson>=3.9
+pyyaml>=6.0          # YAML --model-config files for run_eval.py
+
+# Dataset construction
+networkx>=3.0
+sympy>=1.12
+func-timeout>=4.3
+# GeneReg-MT: SAT-based fixed-point enumeration for larger Boolean networks
+# (import name: pysat). Only needed when regenerating the GRN attractor cache.
+python-sat>=0.1.8
+
+# Model APIs and local OpenAI-compatible servers
+openai>=1.0
+httpx>=0.25
+requests>=2.31
+tenacity>=8.2
+transformers>=4.40
+
+# Gemini / Vertex AI backends
+google-genai>=1.0
+google-auth>=2.0
+
+# Croissant metadata (only needed when regenerating croissant.json)
+mlcroissant>=1.0
+
+# Notebooks (data_postprocessing.ipynb, boolean_network_stats.ipynb)
+jupyter>=1.0
