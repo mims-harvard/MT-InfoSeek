@@ -262,12 +262,18 @@ def build_env(base, ds, args, data_root, results_dir):
         models = args.models_dir or base.get("MODELS_DIR")
         if not cache or not models:
             return None, ("genereg_mt needs CACHE_DIR and MODELS_DIR. Run "
-                          "`bash setup.sh` and set them in .env, or pass "
+                          "`bash setup.sh` to create .env, or pass "
                           "--cache-dir/--models-dir.")
         if not os.path.isdir(cache):
-            return None, f"GeneReg cache directory is missing: {cache}"
+            return None, (
+                f"GeneReg cache directory is missing: {cache}. "
+                "Run `bash setup.sh`, or pass --cache-dir / update CACHE_DIR."
+            )
         if not os.path.isdir(models):
-            return None, f"Kadelka models directory is missing: {models}"
+            return None, (
+                f"Kadelka models directory is missing: {models}. "
+                "Run `bash setup.sh`, or pass --models-dir / update MODELS_DIR."
+            )
         env["CACHE_DIR"], env["MODELS_DIR"] = cache, models
     return env, None
 

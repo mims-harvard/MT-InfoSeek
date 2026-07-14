@@ -57,15 +57,18 @@ Use Azure OpenAI environment variables instead of `OPENAI_API_KEY` if needed.
 For `--datasets all`, `gpt-5-mini` is also the default 20Q examiner and offline
 judge.
 
-### Local model we evaluated (`Qwen/Qwen3.5-4B`)
+### Local models we evaluated (example: `Qwen/Qwen3.5-4B`)
 
 Run the first line in a GPU/server terminal; it stays running. Run the second
 line from the repo in another terminal after the server is ready.
 
 ```bash
-bash setup.sh --with-vllm && bash scripts/serve_vllm.sh Qwen/Qwen3.5-4B
+bash setup.sh --with-vllm && REASONING_PARSER=qwen3 bash scripts/serve_vllm.sh Qwen/Qwen3.5-4B
 VLLM_PORT=8011 .venv/bin/python run_eval.py --datasets all --model Qwen/Qwen3.5-4B --examiner-model Qwen/Qwen3.5-4B --no-20q-offline
 ```
+
+The launcher also infers the parser for registered Qwen and gpt-oss models;
+the example keeps it explicit so the server configuration is visible.
 
 Omit the 20Q flags to keep the default `gpt-5-mini` examiner and offline judge;
 that requires GPT credentials.

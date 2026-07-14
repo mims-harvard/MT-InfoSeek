@@ -68,12 +68,30 @@ KV_CACHE_DTYPE="${KV_CACHE_DTYPE:-fp8}"
 
 # Reasoning parser: explicit override, else look it up in the shared registry.
 if [ -z "${REASONING_PARSER:-}" ]; then
-    REASONING_PARSER="$(PYTHONPATH="${ROOT_DIR}" "${PYTHON:-python}" -c "
+    if [ -z "${PYTHON:-}" ]; then
+        if [ -x "${ROOT_DIR}/.venv/bin/python" ]; then
+            PYTHON="${ROOT_DIR}/.venv/bin/python"
+        elif command -v python >/dev/null 2>&1; then
+            PYTHON="$(command -v python)"
+        elif command -v python3 >/dev/null 2>&1; then
+            PYTHON="$(command -v python3)"
+        fi
+    fi
+    if [ -z "${PYTHON:-}" ]; then
+        echo "ERROR: could not find Python to infer the vLLM reasoning parser." >&2
+        echo "       Run bash setup.sh first, or set REASONING_PARSER=<parser|none>." >&2
+        exit 1
+    fi
+    if ! REASONING_PARSER="$(PYTHONPATH="${ROOT_DIR}" "${PYTHON}" -c "
 import sys
 import model_registry
 p = model_registry.get_reasoning_parser(sys.argv[1])
 print(p or 'none')
-" "$MODEL_NAME" 2>/dev/null || echo "none")"
+" "$MODEL_NAME")"; then
+        echo "ERROR: failed to infer the vLLM reasoning parser with ${PYTHON}." >&2
+        echo "       Set REASONING_PARSER=<parser|none> explicitly to override." >&2
+        exit 1
+    fi
 fi
 
 echo "============================================================"
@@ -82,6 +100,7 @@ echo "    executable       : ${VLLM_BIN}"
 echo "    model            : ${MODEL_NAME}"
 echo "    host:port        : ${VLLM_HOST}:${VLLM_PORT}"
 echo "    GPUs             : ${GPU_DEVICES} (tensor-parallel ${TP_SIZE})"
+echo "    python           : ${PYTHON:-not used}"
 echo "    reasoning-parser : ${REASONING_PARSER}"
 echo "    kv-cache-dtype   : ${KV_CACHE_DTYPE}"
 echo "============================================================"
