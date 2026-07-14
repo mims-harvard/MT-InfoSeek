@@ -6,20 +6,18 @@
 bash setup.sh
 ```
 
-This creates `.venv`, installs `requirements.txt`, and prepares the GeneReg-MT
-assets. Use `bash setup.sh --no-genereg` when GeneReg-MT is not needed.
+This creates `.env`, creates `.venv`, installs `requirements.txt`, and prepares
+the GeneReg-MT assets. Use `bash setup.sh --no-genereg` when GeneReg-MT is not
+needed.
 `bash setup.sh --verify` checks the environment and assets without changing
 them. The script requires [uv](https://docs.astral.sh/uv/).
 
 Use `.venv/bin/python run_eval.py ...`, or activate the environment with
 `source .venv/bin/activate`.
 
-An `.env` file is optional when credentials are exported in the shell. To store
-credentials and path overrides, copy the template and set `PROJECT_ROOT`:
-
-```bash
-cp .env.example .env
-```
+The `.env` file is required and is created automatically from `.env.example` on
+the first setup run. `setup.sh` fills `PROJECT_ROOT`; edit `.env` only for
+credentials, path overrides, or a local model endpoint.
 
 For reproducibility the end-to-end run used Python 3.10.16, NumPy 2.2.6, pandas 2.3.3,
 OpenAI 2.45.0, Transformers 5.13.1, PyYAML 6.0.3, tqdm 4.68.4, and NetworkX
@@ -122,16 +120,19 @@ incomparable.
 models. Other models may need a different chat template or reasoning parser.
 
 ```bash
-bash scripts/serve_vllm.sh Qwen/Qwen3.5-4B                       # single GPU
-VLLM_PORT=8011 TP_SIZE=4 bash scripts/serve_vllm.sh Qwen/Qwen3.5-122B-A10B-FP8
+REASONING_PARSER=qwen3 bash scripts/serve_vllm.sh Qwen/Qwen3.5-4B                       # single GPU
+VLLM_PORT=8011 TP_SIZE=4 REASONING_PARSER=qwen3 bash scripts/serve_vllm.sh Qwen/Qwen3.5-122B-A10B-FP8
 ```
+
+The launcher also infers the parser for registered Qwen and gpt-oss models;
+the examples keep it explicit so the server configuration is visible.
 
 Its defaults match the paper and assume an **H100 or newer** (`--kv-cache-dtype
 fp8` needs compute capability ≥ 8.9). On an **A100**, turn that one
 optimisation off:
 
 ```bash
-KV_CACHE_DTYPE=auto bash scripts/serve_vllm.sh Qwen/Qwen3.5-4B
+KV_CACHE_DTYPE=auto REASONING_PARSER=qwen3 bash scripts/serve_vllm.sh Qwen/Qwen3.5-4B
 ```
 
 Copy and adapt the script for other models.
@@ -152,7 +153,7 @@ Local model we evaluated. Run line 1 in the GPU/server terminal; it stays
 running. Run line 2 from the repo in another terminal after the server is ready:
 
 ```bash
-bash setup.sh --with-vllm && bash scripts/serve_vllm.sh Qwen/Qwen3.5-4B
+bash setup.sh --with-vllm && REASONING_PARSER=qwen3 bash scripts/serve_vllm.sh Qwen/Qwen3.5-4B
 VLLM_PORT=8011 .venv/bin/python run_eval.py --datasets all --model Qwen/Qwen3.5-4B --examiner-model Qwen/Qwen3.5-4B --no-20q-offline
 ```
 
@@ -160,7 +161,7 @@ Custom local model. Set `REASONING_PARSER` to the parser your model needs, or
 `none`:
 
 ```bash
-bash setup.sh --with-vllm && REASONING_PARSER=none bash scripts/serve_vllm.sh my-org/custom-7b
+bash setup.sh --with-vllm && REASONING_PARSER=my_reasoning_parser bash scripts/serve_vllm.sh my-org/custom-7b
 VLLM_PORT=8011 .venv/bin/python run_eval.py --datasets all --model my-org/custom-7b --examiner-model my-org/custom-7b --no-20q-offline
 ```
 

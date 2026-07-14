@@ -8,9 +8,9 @@
 # vLLM is optional because its build depends on the serving hardware. Install it
 # on the GPU machine with --with-vllm; it is kept in .venv-vllm.
 #
-# Idempotent: re-running verifies and skips work already done. Never touches
-# data/ or any result. Writes only under the locations named in .env (or the
-# defaults below).
+# Idempotent: re-running verifies and skips work already done. Creates .env on
+# first run, but never overwrites an existing .env. Never touches data/ or any
+# result. Writes only under the locations named in .env.
 #
 #   bash setup.sh                 # evaluator + all released datasets
 #   bash setup.sh --with-vllm     # also install vLLM (run on the GPU machine)
@@ -43,9 +43,58 @@ for arg in "$@"; do
     esac
 done
 
-# Pull paths from .env if present.
+# Create .env on first run so run_eval.py and dataset scripts have one source of
+# truth for repo-local paths. Existing .env files may contain credentials, so do
+# not rewrite them.
 _ENV_FILE="${ROOT_DIR}/.env"
+ensure_env_file() {
+    if [ -f "$_ENV_FILE" ]; then
+        return
+    fi
+    if [ "$VERIFY_ONLY" -eq 1 ]; then
+        yellow "[env] MISSING (${_ENV_FILE}); run without --verify to create it"
+        VERIFY_MISSING=1
+        return
+    fi
+    [ -f "${ROOT_DIR}/.env.example" ] || die ".env.example not found"
+
+    local project_root_q
+    printf -v project_root_q "%q" "$ROOT_DIR"
+    while IFS= read -r line || [ -n "$line" ]; do
+        case "$line" in
+            export\ PROJECT_ROOT=*) printf "export PROJECT_ROOT=%s\n" "$project_root_q" ;;
+            *) printf "%s\n" "$line" ;;
+        esac
+    done < "${ROOT_DIR}/.env.example" > "$_ENV_FILE"
+    green "[env] created ${_ENV_FILE}"
+}
+
+validate_env_file() {
+    local msg=""
+    if [ ! -f "$_ENV_FILE" ]; then
+        return
+    fi
+    if [ -z "${PROJECT_ROOT:-}" ]; then
+        msg=".env must set PROJECT_ROOT to this repository's absolute path"
+    elif [ "${PROJECT_ROOT}" = "/absolute/path/to/multiturn-info-seek" ]; then
+        msg=".env still has the PROJECT_ROOT placeholder; set it to ${ROOT_DIR}"
+    elif [ "$SKIP_GENEREG" -eq 0 ] && { [ -z "${CACHE_DIR:-}" ] || [ -z "${MODELS_DIR:-}" ]; }; then
+        msg=".env must set CACHE_DIR and MODELS_DIR for GeneReg-MT"
+    fi
+    if [ -z "$msg" ]; then
+        return
+    fi
+    if [ "$VERIFY_ONLY" -eq 1 ]; then
+        yellow "[env] INVALID: ${msg}"
+        VERIFY_MISSING=1
+    else
+        die "$msg"
+    fi
+}
+
+ensure_env_file
 [ -f "$_ENV_FILE" ] && set -a && source "$_ENV_FILE" && set +a
+validate_env_file
 
 # Pinned Kadelka commit. Attractor labels are index-based, so a different commit
 # could reorder them; keep this fixed for reproducibility.
@@ -63,6 +112,7 @@ VLLM_VENV="${ROOT_DIR}/.venv-vllm"
 
 echo "============================================================"
 echo "  MT-InfoSeek setup${VERIFY_TAG}"
+echo "    env file    : ${_ENV_FILE}"
 echo "    evaluator   : ${EVAL_VENV}"
 if [ "$WITH_VLLM" -eq 1 ]; then
     echo "    vLLM        : ${VLLM_VENV}"
