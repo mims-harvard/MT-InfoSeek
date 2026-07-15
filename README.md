@@ -5,12 +5,10 @@ seeking** in LLMs.
 
 Many reasoning benchmarks assume the input question is fully specified. In
 practice, a model often has to identify what information is missing, ask for
-it, and then solve the task. MT-InfoSeek measures that loop across Logic-Q-MT,
-GSME-Q-MT, GSME-Q-MT-Ext, GeneReg-MT, 20 Questions, and ClinGuide-MT.
+it, and then solve the task. MT-InfoSeek measures information seeking across logical, mathematical, biological, clinical, and common knowledge domains.
 
 See [data/README.md](data/README.md) for the released dataset files, schemas,
-and task descriptions. ClinGuide-MT tooling is included, but the curated
-clinical records are not released in this repository.
+and task descriptions. 
 
 ## Repository layout
 
@@ -46,7 +44,7 @@ run-time knobs.
 The smoke split is the default. Each path below sets up the suite and starts a
 smoke evaluation in two command lines.
 
-### API model (`gpt-5-mini`)
+### API model (example: `gpt-5-mini`)
 
 ```bash
 bash setup.sh
@@ -92,17 +90,6 @@ Defaults match the paper protocol. Results and a combined `summary.md` /
 Rerunning resumes there by default; pass `--fresh-run` for a separate,
 timestamped result directory.
 
-### Coding-agent setup
-
-Example prompt from the repository root:
-
-> Follow `SETUP.md` to set up this repository. Ask me for the model name,
-> API keys or local endpoint, GPU constraints, and whether to run smoke or full
-> evaluation. Do not invent credentials. If 20Q is selected, tell me that its
-> examiner and offline judge default to `gpt-5-mini`, then confirm whether to
-> keep those defaults or use local models. Show me the exact command before
-> starting evaluation.
-
 ### Running a single dataset directly
 
 Each dataset has an env-var-driven shell script. For example:
@@ -119,6 +106,17 @@ pipeline:
 - [gsme_q_mt/README.md](gsme_q_mt/README.md)
 - [genereg_mt/README.md](genereg_mt/README.md)
 - [20q/README.md](20q/README.md)
+
+## Coding-agent-assisted setup
+
+Example prompt from the repository root:
+
+> Follow `SETUP.md` to set up this repository. Ask me for the model name,
+> API keys or local endpoint, GPU constraints, and whether to run smoke or full
+> evaluation. Do not invent credentials. If 20Q is selected, tell me that its
+> examiner and offline judge default to `gpt-5-mini`, then confirm whether to
+> keep those defaults or use local models. Show me the exact command before
+> starting evaluation.
 
 ## Citation
 

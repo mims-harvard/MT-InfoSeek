@@ -7,7 +7,7 @@ enough evidence.
 
 The runnable smoke subsets live in [smoke/](smoke/) and are used by
 `python run_eval.py --datasets all --model <model>` by default. Pass `--full`
-to evaluate the released full-data split.
+to evaluate the released full non-clinical dataset. ClinGuide-MT data curation scripts are included, but the curated clinical algorithms are not released in this repository.
 
 ## Files
 
@@ -21,7 +21,7 @@ to evaluate the released full-data split.
 | [smoke/](smoke/) | smoke subsets | mixed | Small subsets for setup validation and fast end-to-end checks. |
 
 The full evaluation uses Logic-Q-MT, GSME-Q-MT, GSME-Q-MT-Ext, the GeneReg-MT
-task families selected by `run_eval.py`, and both 20Q Common and THING200. The
+task families in `run_eval.py`, and both 20Q Common and THING200. The
 smoke evaluation uses small representative subsets and only the first six 20Q
 Common targets.
 
