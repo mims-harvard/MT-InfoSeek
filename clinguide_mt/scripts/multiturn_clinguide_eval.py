@@ -1,6 +1,6 @@
 """Multi-turn Clinical Guideline (ClinGuide) evaluation script.
 
-Run from the repo root (multiturn-info-seek/) so that model_utils and
+Run from the repo root (MT-InfoSeek/) so that model_utils and
 evaluators are on the Python path:
 
     export PYTHONPATH=.
