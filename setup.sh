@@ -76,7 +76,7 @@ validate_env_file() {
     fi
     if [ -z "${PROJECT_ROOT:-}" ]; then
         msg=".env must set PROJECT_ROOT to this repository's absolute path"
-    elif [ "${PROJECT_ROOT}" = "/absolute/path/to/multiturn-info-seek" ]; then
+    elif [ "${PROJECT_ROOT}" = "/absolute/path/to/MT-InfoSeek" ]; then
         msg=".env still has the PROJECT_ROOT placeholder; set it to ${ROOT_DIR}"
     elif [ "$SKIP_GENEREG" -eq 0 ] && { [ -z "${CACHE_DIR:-}" ] || [ -z "${MODELS_DIR:-}" ]; }; then
         msg=".env must set CACHE_DIR and MODELS_DIR for GeneReg-MT"

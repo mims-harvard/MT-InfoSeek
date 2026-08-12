@@ -21,8 +21,8 @@ REPO_ROOT = pathlib.Path(__file__).resolve().parent
 DATA_DIR = REPO_ROOT / "data"
 OUT_PATH = REPO_ROOT / "croissant.json"
 
-REPO_URL = "https://github.com/mims-harvard/multiturn-info-seek"
-DATA_URL_BASE = "https://raw.githubusercontent.com/mims-harvard/multiturn-info-seek/main/data"
+REPO_URL = "https://github.com/mims-harvard/MT-InfoSeek"
+DATA_URL_BASE = "https://raw.githubusercontent.com/mims-harvard/MT-InfoSeek/main/data"
 
 VERSION = "1.0.0"
 RELEASE_DATE = _dt.datetime(2026, 5, 7)
@@ -338,7 +338,7 @@ twentyq_rs = mlc.RecordSet(
 
 
 metadata = mlc.Metadata(
-    name="multi-turn-info-seek",
+    name="MT-InfoSeek",
     description=(
         "A benchmark release for multi-turn information seeking, framed as solving "
         "an under-specified constraint satisfaction problem with k unknown variables. "

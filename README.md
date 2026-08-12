@@ -1,5 +1,12 @@
 # MT-InfoSeek
 
+[![Project Page](https://img.shields.io/badge/Project_Page-MT--InfoSeek-2ea44f)](https://zitniklab.hms.harvard.edu/MT-InfoSeek)
+![Paper](https://img.shields.io/badge/arXiv-coming_soon-red)
+[![Dataset](https://img.shields.io/badge/Dataset-MT--InfoSeek-yellow)](data/)
+[![Code License](https://img.shields.io/badge/Code_License-Apache_2.0-blue)](LICENSE)
+
+![MT-InfoSeek overview: multi-turn information seeking across logical, mathematical, biological, clinical, and common-knowledge domains](docs/assets/overview.png)
+
 This repository contains code and data for evaluating **multi-turn information
 seeking** in LLMs.
 
@@ -7,13 +14,19 @@ Many reasoning benchmarks assume the input question is fully specified. In
 practice, a model often has to identify what information is missing, ask for
 it, and then solve the task. MT-InfoSeek measures information seeking across logical, mathematical, biological, clinical, and common knowledge domains.
 
-See [data/README.md](data/README.md) for the released dataset files, schemas,
-and task descriptions. 
+**[Website](https://zitniklab.hms.harvard.edu/MT-InfoSeek)** · **[Dataset](data/)** · **[Setup guide](#getting-started)**
+
+## Dataset
+
+The released benchmark files live in [`data/`](data/), with schemas and task
+descriptions in [data/README.md](data/README.md). A machine-readable
+[Croissant](https://github.com/mlcommons/croissant) metadata file is provided
+in [croissant.json](croissant.json).
 
 ## Repository layout
 
 ```
-multiturn-info-seek/
+MT-InfoSeek/
 ├── run_eval.py                    # one-command driver for the whole suite
 ├── analyze_results.py             # combined summary (summary.md / summary.json)
 ├── setup.sh                       # evaluator environment, data assets, optional vLLM
@@ -28,14 +41,19 @@ multiturn-info-seek/
 ├── 20q/                           # 20-Questions inference + offline evaluator
 ├── clinguide_mt/                  # ClinGuide-MT extraction pipeline + evaluator (data withheld)
 ├── build_croissant.py             # regenerates croissant.json from data/
-├── SETUP.md                      # setup instructions
+├── croissant.json                 # machine-readable dataset metadata
+├── validate_croissant.py          # checks croissant.json against data/
+├── docs/                          # README assets (overview figure)
+├── LICENSE                        # per-component licenses and upstream provenance
+├── SETUP.md                       # setup instructions
 ├── .env.example                   # template for the env vars the scripts read
 └── requirements.txt
 ```
 
-Each task folder is self-contained: a top-level `README.md`, a Python entry
-point, a `scripts/` folder with env-var-driven shell templates, and, where
-applicable, a `data_generation/` folder with the regeneration pipeline. See
+Each released task folder (`logic_q_mt/`, `gsme_q_mt/`, `genereg_mt/`, `20q/`)
+is self-contained: a top-level `README.md`, a Python entry point, a `scripts/`
+folder with env-var-driven shell templates, and, where applicable, a
+`data_generation/` folder with the regeneration pipeline. See
 [data/README.md](data/README.md) for dataset contents, and each task README for
 run-time knobs.
 
@@ -123,7 +141,16 @@ Example prompt from the repository root:
 ```bibtex
 @misc{huang2026mtinfoseek,
   title  = {Do LLMs Know What to Ask and When? Evaluating Multi-Turn Information Seeking},
-  author = {Yepeng Huang, Jiawen Zhang, Michelle Dai, Xiaorui Su, Shanghua Gao, Zi Wang, Marinka Zitnik},
+  author = {Yepeng Huang and Jiawen Zhang and Michelle Dai and Xiaorui Su and Shanghua Gao and Zi Wang and Marinka Zitnik},
   year   = {2026},
 }
 ```
+
+## License
+
+Code in this repository is released under the
+[Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0). Released
+dataset files under [`data/`](data/) are licensed
+[CC BY 4.0](https://creativecommons.org/licenses/by/4.0/), inherited from
+upstream sources where applicable. See [LICENSE](LICENSE) for per-component
+provenance and upstream terms.
