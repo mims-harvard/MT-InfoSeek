@@ -17,17 +17,15 @@ it, and then solve the task. MT-InfoSeek measures multi-turn information seeking
 
 ## Dataset
 
-The released benchmark files live in [`data/`](data/), with schemas and task
-descriptions in [data/README.md](data/README.md). A machine-readable
-[Croissant](https://github.com/mlcommons/croissant) metadata file is provided
-in [croissant.json](croissant.json).
+The released benchmark files live in [`data/`](data/), with schemas and task descriptions provided. A machine-readable Croissant metadata file is provided in [croissant.json](croissant.json).
 
 ## Getting started
 
-The smoke split is the default. Each path below sets up the suite and starts a
-smoke evaluation in two command lines.
+The smoke split is the default. Each path below sets up the suite and starts a smoke evaluation in two command lines. Full setup instructions are in [SETUP.md](SETUP.md). 
 
-### API model (example: `gpt-5-mini`)
+### Quick start
+
+#### API model (example: `gpt-5-mini`)
 
 ```bash
 bash setup.sh
@@ -38,7 +36,7 @@ Use Azure OpenAI environment variables instead of `OPENAI_API_KEY` if needed.
 For `--datasets all`, `gpt-5-mini` is also the default 20Q examiner and offline
 judge.
 
-### Local models we evaluated (example: `Qwen/Qwen3.5-4B`)
+#### Local models we evaluated (example: `Qwen/Qwen3.5-4B`)
 
 Run the first line in a GPU/server terminal; it stays running. Run the second
 line from the repo in another terminal after the server is ready.
@@ -54,7 +52,7 @@ the example keeps it explicit so the server configuration is visible.
 Omit the 20Q flags to keep the default `gpt-5-mini` examiner and offline judge;
 that requires GPT credentials.
 
-### Custom local model
+#### Custom local model
 
 Run the first line in a GPU/server terminal; set `REASONING_PARSER` to the
 parser your model needs, or `none`.
