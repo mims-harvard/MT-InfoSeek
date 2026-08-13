@@ -1,0 +1,15 @@
+model,k,n_distractors,"P(final correct | all covered, order correct)","P(final correct | all covered, wrong order)","P(final correct | partial hit, observed correct order)","P(final correct | partial hit, observed wrong order)",n_all_covered_order_correct,n_all_covered_wrong_order,n_partial_hit_order_correct,n_partial_hit_wrong_order
+Qwen_Qwen3-30B-,3,10,0.696,0.500,0.382470,0.250000,23,40,251,28
+Qwen_Qwen3-30B-,4,10,0.833,0.591,0.296053,0.378378,6,22,152,37
+Qwen_Qwen3-4B-T,3,10,0.636,0.400,0.291513,0.222222,22,45,271,27
+Qwen_Qwen3-4B-T,4,10,1.000,0.381,0.353333,0.160000,2,21,150,50
+Qwen_Qwen3.5-27,3,10,0.738,0.640,0.605839,0.388889,84,111,137,36
+Qwen_Qwen3.5-27,4,10,0.850,0.644,0.636364,0.500000,20,87,66,54
+gemini-3-flash-,3,10,0.861,0.776,0.704762,0.500000,137,116,105,12
+gemini-3-flash-,4,10,0.897,0.785,0.777778,0.636364,29,93,72,33
+gpt-5,3,10,0.857,0.733,0.597403,0.387097,105,75,154,31
+gpt-5,4,10,0.900,0.721,0.662791,0.390244,30,68,86,41
+gpt-5-mini,3,10,0.820,0.617,0.528571,0.258065,61,60,210,31
+gpt-5-mini,4,10,0.900,0.561,0.556452,0.460000,10,41,124,50
+openai_gpt-oss-,3,10,0.391,0.260,0.337900,0.152174,23,50,219,46
+openai_gpt-oss-,4,10,0.667,0.292,0.330645,0.246377,3,24,124,69

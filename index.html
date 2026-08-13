@@ -1,0 +1,2493 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Do LLMs Know What to Ask and When?</title>
+    <style>
+      :root {
+        --ink: #17201c;
+        --muted: #5f6c66;
+        --line: #d7ded9;
+        --paper: #fbfcfa;
+        --soft: #eef5f0;
+        --blue: #dceafa;
+        --rose: #fae8ee;
+        --green: #1f7a55;
+        --gold: #b07422;
+        --shadow: 0 18px 45px rgba(27, 38, 32, 0.1);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        margin: 0;
+        color: var(--ink);
+        background: var(--paper);
+        font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        line-height: 1.6;
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      img {
+        display: block;
+        max-width: 100%;
+      }
+
+      .nav {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        border-bottom: 1px solid rgba(215, 222, 217, 0.86);
+        background: rgba(251, 252, 250, 0.9);
+        backdrop-filter: blur(14px);
+      }
+
+      .nav-inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: min(1160px, calc(100% - 36px));
+        margin: 0 auto;
+        padding: 14px 0;
+      }
+
+      .brand {
+        font-weight: 760;
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 20px;
+        color: var(--muted);
+        font-size: 0.94rem;
+      }
+
+      .hero {
+        border-bottom: 1px solid var(--line);
+        background:
+          radial-gradient(circle at 20% 8%, rgba(31, 122, 85, 0.08), transparent 24rem),
+          linear-gradient(180deg, #ffffff 0%, #f5f8f4 100%);
+      }
+
+      .hero-inner {
+        display: grid;
+        grid-template-columns: minmax(0, 0.92fr) minmax(420px, 1.08fr);
+        gap: 48px;
+        align-items: center;
+        width: min(1160px, calc(100% - 36px));
+        margin: 0 auto;
+        padding: 78px 0 64px;
+      }
+
+      h1 {
+        max-width: 900px;
+        margin: 0;
+        font-size: clamp(2.05rem, 4.25vw, 4.15rem);
+        line-height: 1.02;
+        font-weight: 820;
+      }
+
+      .subtitle {
+        max-width: 780px;
+        margin: 22px 0 0;
+        color: #33413b;
+        font-size: clamp(1.05rem, 1.7vw, 1.35rem);
+      }
+
+      .authors {
+        margin: 22px 0 0;
+        color: var(--muted);
+        font-size: 0.98rem;
+        line-height: 1.55;
+      }
+
+      .authors-note {
+        margin: 4px 0 0;
+        color: var(--muted);
+        font-size: 0.9rem;
+        line-height: 1.35;
+      }
+
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 24px;
+      }
+
+      .button {
+        display: inline-flex;
+        align-items: center;
+        gap: 9px;
+        min-height: 42px;
+        padding: 10px 15px;
+        border: 1px solid #bfd3c7;
+        border-radius: 8px;
+        background: #ffffff;
+        font-weight: 720;
+        box-shadow: 0 5px 16px rgba(27, 38, 32, 0.06);
+      }
+
+      .button.primary {
+        border-color: #195d42;
+        color: #ffffff;
+        background: #195d42;
+      }
+
+      .demo-stage {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 500px;
+        padding: 28px 64px;
+        border: 1px solid #cdd8d1;
+        border-radius: 14px;
+        background:
+          radial-gradient(circle at 18% 20%, rgba(25, 93, 66, 0.08), transparent 16rem),
+          radial-gradient(circle at 82% 72%, rgba(183, 110, 31, 0.09), transparent 15rem),
+          linear-gradient(180deg, rgba(249, 252, 250, 0.92), rgba(255, 255, 255, 0.98)),
+          #ffffff;
+        box-shadow: var(--shadow);
+        overflow: hidden;
+      }
+
+      .demo-stage::before {
+        content: "";
+        position: absolute;
+        inset: 18px;
+        border: 1px solid rgba(213, 222, 216, 0.62);
+        border-radius: 12px;
+        pointer-events: none;
+      }
+
+      .stage-character {
+        position: absolute;
+        top: 50%;
+        z-index: 1;
+        display: grid;
+        place-items: center;
+        width: clamp(46px, 5.2vw, 58px);
+        aspect-ratio: 1;
+        overflow: hidden;
+        border: 1px solid rgba(205, 216, 209, 0.72);
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.9);
+        box-shadow: 0 12px 28px rgba(27, 38, 32, 0.08);
+        transform: translateY(-50%);
+        pointer-events: none;
+      }
+
+      .stage-character.agent {
+        left: clamp(14px, 3.4vw, 32px);
+      }
+
+      .stage-character.human {
+        right: clamp(14px, 3.4vw, 32px);
+      }
+
+      .stage-character img {
+        width: 112%;
+        max-width: none;
+      }
+
+      .dialogue {
+        position: relative;
+        z-index: 2;
+        width: min(410px, 100%);
+        padding: 14px;
+        border: 1px solid rgba(213, 222, 216, 0.86);
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.82);
+        box-shadow: 0 18px 46px rgba(27, 38, 32, 0.1);
+        backdrop-filter: blur(14px);
+      }
+
+      .bubble {
+        width: fit-content;
+        max-width: 88%;
+        margin: 10px 0;
+        padding: 10px 12px;
+        border: 1px solid #bdcbc3;
+        border-radius: 12px;
+        font-size: 0.82rem;
+        line-height: 1.28;
+        opacity: 0;
+        transform: translateY(8px);
+        animation: dialogue-reveal 14s infinite both;
+      }
+
+      .bubble.query {
+        background: #f3f7fb;
+        box-shadow: 0 4px 14px rgba(63, 83, 74, 0.06);
+      }
+
+      .bubble.response,
+      .bubble.answer.right {
+        margin-left: auto;
+        text-align: left;
+        background: #ffffff;
+        box-shadow: 0 4px 14px rgba(63, 83, 74, 0.05);
+      }
+
+      .bubble.answer {
+        background: var(--rose);
+        box-shadow: 0 4px 14px rgba(63, 83, 74, 0.05);
+      }
+
+      .dialogue-composer {
+        display: grid;
+        align-items: center;
+        justify-content: center;
+        margin-top: 14px;
+        min-height: 38px;
+        padding: 9px 12px;
+        border: 1px solid #d1ddd6;
+        border-radius: 999px;
+        background: #fbfcfb;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+        animation: composer-hide 14s infinite both;
+      }
+
+      .composer-dots {
+        display: inline-flex;
+        gap: 3px;
+      }
+
+      .composer-dots span {
+        width: 4px;
+        height: 4px;
+        border-radius: 999px;
+        background: #195d42;
+        opacity: 0.45;
+        animation: dot-pulse 1.2s infinite ease-in-out;
+      }
+
+      .composer-dots span:nth-child(2) {
+        animation-delay: 150ms;
+      }
+
+      .composer-dots span:nth-child(3) {
+        animation-delay: 300ms;
+      }
+
+      .bubble.step-1 { animation-name: reveal-1; }
+      .bubble.step-2 { animation-name: reveal-2; }
+      .bubble.step-3 { animation-name: reveal-3; }
+      .bubble.step-4 { animation-name: reveal-4; }
+      .bubble.step-5 { animation-name: reveal-5; }
+      .bubble.step-6 { animation-name: reveal-6; }
+      .bubble.step-7 { animation-name: reveal-7; }
+      .bubble.step-8 { animation-name: reveal-8; }
+
+      @keyframes dot-pulse {
+        0%, 80%, 100% { transform: translateY(0); opacity: 0.36; }
+        40% { transform: translateY(-3px); opacity: 0.9; }
+      }
+
+      @keyframes composer-hide {
+        0%, 68% { opacity: 1; }
+        71%, 100% { opacity: 0; }
+      }
+
+      @keyframes reveal-1 {
+        0%, 2% { opacity: 0; transform: translateY(8px); }
+        5%, 97% { opacity: 1; transform: translateY(0); }
+        100% { opacity: 0; transform: translateY(-4px); }
+      }
+
+      @keyframes reveal-2 {
+        0%, 13% { opacity: 0; transform: translateY(8px); }
+        16%, 97% { opacity: 1; transform: translateY(0); }
+        100% { opacity: 0; transform: translateY(-4px); }
+      }
+
+      @keyframes reveal-3 {
+        0%, 24% { opacity: 0; transform: translateY(8px); }
+        27%, 97% { opacity: 1; transform: translateY(0); }
+        100% { opacity: 0; transform: translateY(-4px); }
+      }
+
+      @keyframes reveal-4 {
+        0%, 35% { opacity: 0; transform: translateY(8px); }
+        38%, 97% { opacity: 1; transform: translateY(0); }
+        100% { opacity: 0; transform: translateY(-4px); }
+      }
+
+      @keyframes reveal-5 {
+        0%, 46% { opacity: 0; transform: translateY(8px); }
+        49%, 97% { opacity: 1; transform: translateY(0); }
+        100% { opacity: 0; transform: translateY(-4px); }
+      }
+
+      @keyframes reveal-6 {
+        0%, 57% { opacity: 0; transform: translateY(8px); }
+        60%, 97% { opacity: 1; transform: translateY(0); }
+        100% { opacity: 0; transform: translateY(-4px); }
+      }
+
+      @keyframes reveal-7 {
+        0%, 68% { opacity: 0; transform: translateY(8px); }
+        71%, 97% { opacity: 1; transform: translateY(0); }
+        100% { opacity: 0; transform: translateY(-4px); }
+      }
+
+      @keyframes reveal-8 {
+        0%, 78% { opacity: 0; transform: translateY(8px); }
+        81%, 97% { opacity: 1; transform: translateY(0); }
+        100% { opacity: 0; transform: translateY(-4px); }
+      }
+
+      section {
+        border-bottom: 1px solid var(--line);
+      }
+
+      .section-inner {
+        width: min(1040px, calc(100% - 36px));
+        margin: 0 auto;
+        padding: 62px 0;
+      }
+
+      .section-kicker {
+        color: var(--gold);
+        font-size: 0.82rem;
+        font-weight: 800;
+        text-transform: uppercase;
+      }
+
+      h2 {
+        margin: 8px 0 18px;
+        font-size: clamp(1.55rem, 2.45vw, 2.2rem);
+        line-height: 1.12;
+      }
+
+      .lede {
+        max-width: 820px;
+        color: #37443e;
+        font-size: 1.1rem;
+      }
+
+      #motivation h2,
+      #motivation p,
+      #motivation .stat-callout,
+      #overview h2,
+      #overview p,
+      #overview .figure-block,
+      #datasets h2,
+      #datasets p,
+      #datasets .dataset-grid,
+      #datasets .setup-strip,
+      #conclusion h2,
+      #conclusion p {
+        max-width: 1040px;
+      }
+
+      .stat-callout {
+        display: block;
+        margin: 26px 0;
+        padding: 16px 20px;
+        border: 1px solid #d5ded8;
+        border-radius: 8px;
+        background:
+          linear-gradient(135deg, rgba(238, 245, 240, 0.92), rgba(255, 255, 255, 0.98)),
+          #ffffff;
+        box-shadow: 0 10px 28px rgba(27, 38, 32, 0.06);
+      }
+
+      .stat-number {
+        color: #195d42;
+        font-size: 1.08em;
+        line-height: inherit;
+        font-weight: 840;
+        letter-spacing: 0;
+      }
+
+      .stat-caption {
+        color: #46534d;
+        font-size: 1.05rem;
+        line-height: 1.45;
+      }
+
+      .stat-caption em {
+        color: var(--ink);
+        font-style: normal;
+        font-weight: 720;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 18px;
+        margin-top: 30px;
+      }
+
+      .dataset-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+        margin-top: 28px;
+      }
+
+      .dataset-card {
+        padding: 18px;
+        border: 1px solid #d5ded8;
+        border-radius: 8px;
+        background: #ffffff;
+      }
+
+      .dataset-card h3 {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 12px;
+        margin: 0 0 8px;
+        font-size: 1rem;
+      }
+
+      .dataset-card span {
+        flex: 0 0 auto;
+        color: #195d42;
+        font-size: 0.8rem;
+        font-weight: 800;
+      }
+
+      .dataset-card p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 0.95rem;
+      }
+
+      .setup-strip {
+        margin-top: 26px;
+        padding: 20px;
+        border: 1px solid #cdd8d1;
+        border-radius: 8px;
+        background: #f7faf8;
+      }
+
+      .setup-strip h3 {
+        margin: 0 0 8px;
+        font-size: 1.02rem;
+      }
+
+      .setup-strip p {
+        margin: 0;
+        color: #4f5d56;
+      }
+
+      .card {
+        min-height: 190px;
+        padding: 22px;
+        border: 1px solid #d5ded8;
+        border-radius: 8px;
+        background: #ffffff;
+      }
+
+      .card h3 {
+        margin: 0 0 10px;
+        font-size: 1.05rem;
+      }
+
+      .card p {
+        margin: 0;
+        color: var(--muted);
+      }
+
+      .figure-band {
+        background: #ffffff;
+      }
+
+      .figure-block {
+        margin-top: 24px;
+        border: 1px solid #d5ded8;
+        border-radius: 8px;
+        background: #ffffff;
+        overflow: hidden;
+      }
+
+      .figure-block img {
+        width: 100%;
+        background: #ffffff;
+      }
+
+      .overview-figure {
+        padding: 0;
+      }
+
+      .overview-figure .overview-image-frame {
+        aspect-ratio: 16 / 7.8;
+        padding-top: 26px;
+        overflow: hidden;
+        background: #ffffff;
+      }
+
+      .overview-figure img {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center 48%;
+        transform: scale(1.55);
+      }
+
+      .web-chart {
+        position: relative;
+        width: 100%;
+        min-height: 0;
+        padding: 14px 14px 4px;
+        background: #ffffff;
+      }
+
+      .web-chart[data-chart="fig1"] {
+        min-height: 0;
+      }
+
+      .web-chart[data-chart="fig4"],
+      .web-chart[data-chart="fig5"] {
+        min-height: 0;
+      }
+
+      .web-chart svg {
+        display: block;
+        width: 100%;
+        height: auto;
+        overflow: visible;
+      }
+
+      .web-chart .selectable-mark {
+        cursor: pointer;
+        transition: opacity 160ms ease, filter 160ms ease;
+      }
+
+      .web-chart.has-selection .selectable-mark:not(.is-selected) {
+        opacity: 0.16 !important;
+      }
+
+      .web-chart .selectable-mark.is-selected {
+        opacity: 1 !important;
+        filter: drop-shadow(0 2px 4px rgba(23, 32, 28, 0.22));
+      }
+
+      .chart-tooltip {
+        position: absolute;
+        z-index: 5;
+        max-width: 260px;
+        padding: 9px 11px;
+        border: 1px solid #cbd8d1;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.96);
+        box-shadow: 0 10px 28px rgba(33, 46, 39, 0.14);
+        color: #17201c;
+        font-size: 0.78rem;
+        line-height: 1.35;
+        white-space: pre-line;
+        pointer-events: none;
+        opacity: 0;
+        transform: translate(10px, 10px);
+        transition: opacity 120ms ease;
+      }
+
+      .chart-tooltip.is-visible {
+        opacity: 1;
+      }
+
+      .web-chart .axis,
+      .web-chart .tick text {
+        color: #52615a;
+        font-size: 13px;
+      }
+
+      .web-chart .axis-title {
+        fill: #35423c;
+        font-size: 14px;
+        font-weight: 650;
+      }
+
+      .web-chart .panel-title {
+        fill: #17201c;
+        font-size: 16px;
+        font-weight: 760;
+      }
+
+      .web-chart .legend {
+        fill: #3f4c46;
+        font-size: 13px;
+      }
+
+      .web-chart-fallback {
+        display: none;
+      }
+
+      .web-chart.failed + .web-chart-fallback {
+        display: block;
+      }
+
+      .figure-pair {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+        margin-top: 30px;
+      }
+
+      .figure-pair .figure-block {
+        margin-top: 0;
+      }
+
+      #takeaway-7 .figure-pair {
+        grid-template-columns: 1fr;
+      }
+
+      .caption {
+        margin: 0;
+        padding: 10px 16px 14px;
+        color: var(--muted);
+        font-size: 0.95rem;
+      }
+
+      .takeaway-layout {
+        display: grid;
+        grid-template-columns: 190px minmax(0, 1fr);
+        gap: 38px;
+        align-items: start;
+        margin-top: 34px;
+      }
+
+      .takeaway-layout > *,
+      .takeaway-stack,
+      .takeaway-item {
+        min-width: 0;
+      }
+
+      .toc {
+        position: sticky;
+        top: 82px;
+        display: grid;
+        gap: 8px;
+        padding: 10px 0;
+      }
+
+      .toc-title {
+        margin-bottom: 4px;
+        color: var(--gold);
+        font-size: 0.76rem;
+        font-weight: 820;
+        text-transform: uppercase;
+      }
+
+      .toc a {
+        display: block;
+        padding: 9px 11px;
+        border-left: 2px solid #d5ded8;
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+
+      .toc a:hover,
+      .toc a.active {
+        border-left-color: #195d42;
+        color: var(--ink);
+        background: #f2f7f3;
+      }
+
+      .takeaway-stack {
+        display: grid;
+        gap: 48px;
+      }
+
+      .takeaway-item {
+        scroll-margin-top: 88px;
+      }
+
+      .takeaway-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 5px 9px;
+        background: var(--blue);
+        color: var(--ink);
+        font-size: 0.82rem;
+        font-weight: 820;
+      }
+
+      .takeaway-tag::before {
+        content: "●";
+        color: #4f78c8;
+        font-size: 0.72rem;
+      }
+
+      .takeaway-copy {
+        max-width: 850px;
+        margin: 14px 0 0;
+        color: #37443e;
+        font-size: 1.05rem;
+      }
+
+      .takeaway-copy strong {
+        color: var(--ink);
+      }
+
+      .reveal-on-scroll {
+        content-visibility: auto;
+        contain-intrinsic-size: 620px;
+        opacity: 0;
+        transform: translateY(18px);
+        transition: opacity 500ms ease, transform 500ms ease;
+      }
+
+      .reveal-on-scroll.is-visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      .citation pre {
+        margin: 24px 0 0;
+        padding: 18px;
+        overflow-x: auto;
+        border: 1px solid #d5ded8;
+        border-radius: 8px;
+        background: #f7faf8;
+        font-size: 0.88rem;
+        line-height: 1.45;
+      }
+
+      footer {
+        color: var(--muted);
+        padding: 30px 18px 44px;
+        background: #f8faf8;
+      }
+
+      .site-footer-inner {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 28px;
+        align-items: end;
+        width: min(1040px, calc(100% - 36px));
+        margin: 0 auto;
+      }
+
+      .footer-disclaimer {
+        margin: 0 0 8px;
+        color: var(--ink);
+        font-size: 0.98rem;
+        font-weight: 650;
+      }
+
+      .footer-meta {
+        margin: 0;
+        font-size: 0.92rem;
+      }
+
+      .footer-meta a {
+        color: #195d42;
+        font-weight: 650;
+        text-decoration: none;
+      }
+
+      .footer-meta a:hover {
+        text-decoration: underline;
+      }
+
+      .footer-logos {
+        display: grid;
+        grid-template-columns: repeat(4, 112px);
+        gap: 10px;
+        justify-content: end;
+        align-items: center;
+      }
+
+      .footer-logo {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 112px;
+        height: 54px;
+        padding: 8px;
+        border: 1px solid #dbe4df;
+        border-radius: 8px;
+        background: #ffffff;
+      }
+
+      .footer-logo img {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+      }
+
+      @media (max-width: 920px) {
+        .hero-inner {
+          grid-template-columns: 1fr;
+          padding-top: 52px;
+        }
+
+        .demo-stage {
+          min-height: 560px;
+        }
+
+        .grid,
+        .dataset-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .stat-callout {
+          grid-template-columns: 1fr;
+          gap: 10px;
+        }
+
+        .site-footer-inner {
+          grid-template-columns: 1fr;
+          align-items: start;
+        }
+
+        .footer-logos {
+          grid-template-columns: repeat(2, 112px);
+          justify-content: start;
+        }
+
+        .takeaway-layout {
+          grid-template-columns: 1fr;
+          gap: 20px;
+          overflow: hidden;
+        }
+
+        .toc {
+          position: static;
+          display: flex;
+          gap: 6px;
+          width: 100%;
+          max-width: 100%;
+          overflow-x: auto;
+          padding-bottom: 8px;
+        }
+
+        .toc-title {
+          display: none;
+        }
+
+        .toc a {
+          flex: 0 0 auto;
+          border-left: 0;
+          border-bottom: 2px solid #d5ded8;
+          white-space: nowrap;
+        }
+
+        .takeaway-stack,
+        .takeaway-item,
+        .takeaway-copy,
+        .figure-block,
+        .figure-pair {
+          width: 100%;
+          max-width: 100%;
+        }
+
+        .figure-pair {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 620px) {
+        .nav-links {
+          display: none;
+        }
+
+        .demo-stage {
+          min-height: 610px;
+          padding: 18px;
+        }
+
+        .dialogue {
+          padding: 14px;
+        }
+
+        .stage-character {
+          display: none;
+        }
+
+        .bubble {
+          max-width: 90%;
+          font-size: 0.74rem;
+        }
+
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="nav">
+      <div class="nav-inner">
+        <a class="brand" href="#">MT-InfoSeek</a>
+        <div class="nav-links">
+          <a href="#motivation">Motivation</a>
+          <a href="#overview">Overview</a>
+          <a href="#datasets">Datasets</a>
+          <a href="#takeaways">Takeaways</a>
+          <a href="#conclusion">Conclusion</a>
+        </div>
+      </div>
+    </nav>
+
+    <header class="hero">
+      <div class="hero-inner">
+        <div>
+          <h1>Do LLMs Know What to Ask and When?</h1>
+          <p class="subtitle">Evaluating multi-turn information seeking in LLMs.</p>
+          <p class="authors">
+            Yepeng Huang*, Jiawen Zhang*, Michelle Dai, Xiaorui Su, Shanghua Gao, Zi Wang, Marinka Zitnik+
+          </p>
+          <p class="authors-note">* Equal contribution</p>
+          
+          <div class="actions">
+            <a class="button" href="https://github.com/mims-harvard/MT-InfoSeek">Code</a>
+            <a class="button" href="#citation">Citation</a>
+          </div>
+        </div>
+
+        <div class="demo-stage" aria-label="Animated overview of multi-turn information seeking">
+          <div class="stage-character agent" aria-hidden="true">
+            <img src="assets/agent.png" alt="" />
+          </div>
+          <div class="dialogue">
+            <div class="bubble response step-1">A 35-year-old patient has upper-limb pain. What is the most likely diagnosis?</div>
+            <div class="bubble query step-2">Where is the pain worst: forearm, elbow, wrist, or hand?</div>
+            <div class="bubble response step-3">Hand.</div>
+            <div class="bubble query step-4">Do the fingers change color when exposed to cold?</div>
+            <div class="bubble response step-5">No.</div>
+            <div class="bubble query step-6">When the finger bends or straightens, is there clicking or catching with pain?</div>
+            <div class="bubble response step-7">Yes.</div>
+            <div class="bubble answer step-8">This pattern is most consistent with trigger finger.</div>
+            <div class="dialogue-composer" aria-hidden="true">
+              <span class="composer-dots"><span></span><span></span><span></span></span>
+            </div>
+          </div>
+          <div class="stage-character human" aria-hidden="true">
+            <img src="assets/human.png" alt="" />
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <section id="motivation">
+      <div class="section-inner">
+        <div class="section-kicker">Motivation</div>
+          <h2>A model can get the answer right without asking follow-up questions.</h2>
+          <p class="lede">
+            When a user's request is underspecified, a capable assistant should recognize that the current
+            context is insufficient, identify what information is missing, ask targeted questions, integrate
+            the responses, and commit only once the answer becomes determined. This capability is central to
+            interactive assistants, yet remains difficult to evaluate directly and systematically.
+          </p>
+          <p>
+            Existing multi-turn benchmarks often emphasize final task success, dialogue quality, or user-facing
+            outcomes, without directly specifying what information should be requested or whether the model
+            stopped only after the target became identifiable. As a result, evaluation can be confounded by
+            model priors and answer-generation ability &mdash; final accuracy may overstate information-seeking
+            ability more than it reveals it.
+          </p>
+
+          <div class="stat-callout">
+            <span class="stat-caption">
+              In MediQ, a 30B model gets <span class="stat-number">60&ndash;70%</span> of cases right from the
+              <em>initial, incomplete</em> prompt &mdash; without asking any follow-up questions.
+            </span>
+          </div>
+
+          <p>
+            Structured formulations can reduce this ambiguity. QuestBench formalizes underspecified reasoning as
+            a Constraint Satisfaction Problem and provides the ground-truth missing variable a model should query
+            &mdash; but it only covers the special case where a <em>single</em> missing variable is sufficient.
+            Multi-turn information seeking is fundamentally different: multiple variables may be jointly
+            necessary, and the model must decide not just <em>what</em> to ask, but <em>in what order</em> and
+            <em>when to stop</em>. Capturing this requires representing joint sufficiency and tracking how each
+            queried value reshapes the feasible space over successive turns &mdash; dimensions that single-turn
+            query selection or final-answer accuracy alone cannot see.
+          </p>
+        <div class="grid">
+          <div class="card">
+            <h3>Setup</h3>
+            <p>Each task starts with missing details, and the model can ask follow-up questions before it answers.</p>
+          </div>
+          <div class="card">
+            <h3>Benchmark</h3>
+            <p>MT-InfoSeek covers math, logic, biology, clinical diagnosis, and common-knowledge tasks.</p>
+          </div>
+          <div class="card">
+            <h3>Evaluation</h3>
+            <p>We check what models ask, when they ask it, and whether the answers help them solve the task.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="overview" class="figure-band">
+      <div class="section-inner">
+        <div class="section-kicker">Overview</div>
+        <h2>A controlled framework for multi-turn information seeking.</h2>
+        <p class="lede">
+          We formalize multi-turn information seeking as solving a <strong>k-underspecified constraint
+          satisfaction problem</strong>, where k denotes the number of variables jointly required to
+          determine the target. Each problem specifies constraints, observations, a target variable, and
+          minimal sufficient query sets; the model queries in multiple turns to gather missing information
+          and identify a hidden target.
+        </p>
+        <p>
+          Using this formulation, we study LLMs along three axes &mdash; what they ask, when they ask it,
+          and how the acquired information affects the final answer &mdash; separating information-seeking
+          behavior from forward reasoning to reveal model differences that final-answer accuracy alone
+          obscures.
+        </p>
+        <div class="figure-block overview-figure">
+          <div class="overview-image-frame">
+            <img src="assets/overview-new.png" alt="Overview of the MT-InfoSeek evaluation framework" />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="datasets">
+      <div class="section-inner">
+        <div class="section-kicker">Datasets</div>
+        <h2>MT-InfoSeek spans mathematical, biological, clinical, and open-ended settings.</h2>
+        <p class="lede">
+          The benchmark contains 5,251 underspecified problems and 9,006 induced task instances across
+          mathematical, logical, biological, clinical, and open-ended settings.
+        </p>
+        
+        <div class="dataset-grid">
+          <div class="dataset-card">
+            <h3>Logic-Q-MT <span>Logical Reasoning</span></h3>
+            <p>Rule-based logical reasoning environments where models recursively identify and query the
+            missing facts needed to prove or disprove a target proposition.</p>
+          </div>
+          <div class="dataset-card">
+            <h3>GSME-Q-MT <span>Math</span></h3>
+            <p>Grade-school math word problems with human-annotated missing conditions required to compute
+            an answer, extended to multi-turn by masking multiple quantities at once.</p>
+          </div>
+          <div class="dataset-card">
+            <h3>GSME-Q-MT-Ext <span>Math</span></h3>
+            <p>A more diagnostic math variant generated from DAG-structured arithmetic programs, with deeper
+            dependency chains, larger variable sets, and rigorously validated k-MSSs.</p>
+          </div>
+          <div class="dataset-card">
+            <h3>GeneReg-MT <span>Biological</span></h3>
+            <p>Boolean gene regulatory networks where variables are gene-expression states and the target is
+            a steady state or a specific marker-gene value, testing navigation of cyclic dependencies.</p>
+          </div>
+          <div class="dataset-card">
+            <h3>ClinGuide-MT <span>Clinical</span></h3>
+            <p>Diagnostic decision trees derived from clinical guidelines, whose root-to-leaf pathways encode
+            conditional dependencies among symptoms, tests, and findings.</p>
+          </div>
+          <div class="dataset-card">
+            <h3>20Q <span>Open-Ended</span></h3>
+            <p>The classic 20 Questions game as an open-domain setting: each natural-language yes/no question
+            dynamically partitions a finite candidate set instead of querying a predefined variable.</p>
+          </div>
+        </div>
+
+        <div class="setup-strip">
+          <h3>Problem setup</h3>
+          <p>
+            A problem is a tuple of variables, domains, constraints, an observed partial assignment, and a
+            target variable. A set of unknown variables is <em>sufficient</em> if fixing their values always
+            determines the target; the smallest such set is the <strong>minimal k-sufficient set (k-MSS)</strong>,
+            whose size k defines the degree of underspecification. Each problem induces a family of task
+            instances that share the same constraints and observations but differ in the hidden target value.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section id="takeaways">
+      <div class="section-inner">
+        <div class="section-kicker">Takeaways</div>
+        <h2>Findings</h2>
+        <div class="takeaway-layout">
+          <aside class="toc" aria-label="Takeaway table of contents">
+            <div class="toc-title">Contents</div>
+            <a href="#takeaway-1">Takeaway 1</a>
+            <a href="#takeaway-2">Takeaway 2</a>
+            <a href="#takeaway-3">Takeaway 3</a>
+            <a href="#takeaway-4">Takeaway 4</a>
+            <a href="#takeaway-5">Takeaway 5</a>
+            <a href="#takeaway-6">Takeaway 6</a>
+            <a href="#takeaway-7">Takeaway 7</a>
+            <a href="#takeaway-8">Takeaway 8</a>
+            <a href="#takeaway-9">Takeaway 9</a>
+          </aside>
+
+          <div class="takeaway-stack">
+            <article class="takeaway-item reveal-on-scroll" id="takeaway-1">
+              <div class="takeaway-tag">Takeaway 1 (RQ1)</div>
+              <p class="takeaway-copy">
+                <strong>LLMs recognize when context is insufficient, but underestimate how much additional information is required.</strong>
+                Models rarely classify underspecified problems as fully specified, but their accuracy in predicting k drops as k increases.
+              </p>
+              <div class="figure-block">
+                <div class="web-chart" data-chart="fig3" data-src="web_data/fig3.csv" role="img" aria-label="Accuracy and under-prediction of degree of underspecification"></div>
+                <img class="web-chart-fallback" loading="lazy" src="assets/underspecification.png" alt="Accuracy and under-prediction of degree of underspecification" />
+                <p class="caption">Accuracy of predicting the true k and under- versus over-prediction rates.</p>
+              </div>
+            </article>
+
+            <article class="takeaway-item reveal-on-scroll" id="takeaway-2">
+              <div class="takeaway-tag">Takeaway 2 (RQ1)</div>
+              <p class="takeaway-copy">
+                <strong>Knowing that information is missing does not mean knowing what information is needed.</strong>
+                Providing the true k improves performance only modestly; exact-set accuracy remains low for k >= 2.
+              </p>
+              <div class="figure-block">
+                <div class="web-chart" data-chart="fig2" data-src="web_data/fig2.csv" role="img" aria-label="Minimal sufficient set identification results"></div>
+                <img class="web-chart-fallback" loading="lazy" src="assets/minimal-queries.png" alt="Minimal sufficient set identification results" />
+                <p class="caption">MSS exact-set accuracy with k not provided or provided.</p>
+              </div>
+            </article>
+
+            <article class="takeaway-item reveal-on-scroll" id="takeaway-3">
+              <div class="takeaway-tag">Takeaway 3 (RQ1)</div>
+              <p class="takeaway-copy">
+                <strong>Sequential interaction improves information acquisition beyond total query count alone.</strong>
+                In Logic-Q-MT and GeneReg-MT, final sufficiency generally increases as more turns are allowed.
+              </p>
+              <div class="figure-block">
+                <div class="web-chart" data-chart="fig1" data-src="web_data/fig1.csv" role="img" aria-label="Multi-turn budget experiments"></div>
+                <img class="web-chart-fallback" loading="lazy" src="assets/multiturn-budget.png" alt="Multi-turn budget experiments" />
+                <p class="caption">Final sufficiency under different turn and per-turn query budgets.</p>
+              </div>
+            </article>
+
+            <article class="takeaway-item reveal-on-scroll" id="takeaway-4">
+              <div class="takeaway-tag">Takeaway 4 (RQ1)</div>
+              <p class="takeaway-copy">
+                <strong>In highly underspecified problems, success depends less on asking the perfect first question and more on sustaining effective information acquisition across turns.</strong>
+                Early-turn correctness correlates with success for small k, while late-turn correctness and turn count matter more as k grows.
+              </p>
+              <div class="figure-block">
+                <div class="web-chart" data-chart="fig4" data-src="web_data/fig4.csv" role="img" aria-label="Correlation between model behaviors and final sufficiency"></div>
+                <img class="web-chart-fallback" loading="lazy" src="assets/sustained-querying.png" alt="Correlation between model behaviors and final sufficiency" />
+                <p class="caption">Correlation between behavioral features and final sufficiency in Logic-Q-MT.</p>
+              </div>
+            </article>
+
+            <article class="takeaway-item reveal-on-scroll" id="takeaway-5">
+              <div class="takeaway-tag">Takeaway 5 (RQ1)</div>
+              <p class="takeaway-copy">
+                <strong>An incorrect first question is often recoverable if the model continues searching for target-relevant information.</strong>
+                In Logic-Q-MT, first-turn miss plus second-turn hit achieves final sufficiency close to first-turn-hit dialogues.
+              </p>
+              <div class="figure-block">
+                <div class="web-chart" data-chart="fig5" data-src="web_data/fig5.csv" role="img" aria-label="Recovery after a wrong first-turn query"></div>
+                <img class="web-chart-fallback" loading="lazy" src="assets/early-recovery.png" alt="Recovery after a wrong first-turn query" />
+                <p class="caption">Final sufficiency for first-turn hit versus first-turn miss followed by second-turn hit.</p>
+              </div>
+            </article>
+
+            <article class="takeaway-item reveal-on-scroll" id="takeaway-6">
+              <div class="takeaway-tag">Takeaway 6 (RQ2)</div>
+              <p class="takeaway-copy">
+                <strong>In order-dependent settings, asking the right questions is not enough if they are asked in the wrong order.</strong>
+                Clinical diagnostic pathways impose conditional dependencies, and violating them reduces final accuracy.
+              </p>
+              <div class="figure-block">
+                <div class="web-chart" data-chart="fig6" data-src="web_data/fig6.csv" role="img" aria-label="ClinGuide final accuracy by query coverage and order"></div>
+                <img class="web-chart-fallback" loading="lazy" src="assets/clinguide-order.png" alt="ClinGuide final accuracy by query coverage and order" />
+                <p class="caption">ClinGuide-MT final accuracy stratified by MSS coverage and MSS ordering.</p>
+              </div>
+            </article>
+
+            <article class="takeaway-item reveal-on-scroll" id="takeaway-7">
+              <div class="takeaway-tag">Takeaway 7 (RQ3)</div>
+              <p class="takeaway-copy">
+                <strong>Asking informative questions is necessary but not sufficient for successful multi-turn reasoning.</strong>
+                Models with similar question quality can differ substantially in final accuracy, indicating that success also depends on evidence integration.
+              </p>
+              <div class="figure-pair">
+                <div class="figure-block">
+                  <div class="web-chart" data-chart="fig7" data-src="web_data/fig7.csv" role="img" aria-label="20Q accuracy versus question quality"></div>
+                  <img class="web-chart-fallback" loading="lazy" src="assets/20q-quality.png" alt="20Q accuracy versus question quality" />
+                  <p class="caption">Accuracy versus normalized information gain across examiners.</p>
+                </div>
+                <div class="figure-block">
+                  <div class="web-chart" data-chart="fig10" data-src="web_data/fig10.csv" role="img" aria-label="Target identification from the same QA trace"></div>
+                  <img class="web-chart-fallback" loading="lazy" src="assets/20q-trace.png" alt="Target identification from the same QA trace" />
+                  <p class="caption">Target identification accuracy across answer models given the same QA dialogue.</p>
+                </div>
+              </div>
+            </article>
+
+            <article class="takeaway-item reveal-on-scroll" id="takeaway-8">
+              <div class="takeaway-tag">Takeaway 8 (RQ3)</div>
+              <p class="takeaway-copy">
+                <strong>LLMs are better at coarse-grained narrowing than fine-grained disambiguation.</strong>
+                Remaining entropy decreases across turns, but curves often flatten once the candidate space has already been narrowed.
+              </p>
+              <div class="figure-block">
+                <div class="web-chart" data-chart="fig8" data-src="web_data/fig8.csv" role="img" aria-label="Remaining entropy across 20Q turns"></div>
+                <img class="web-chart-fallback" loading="lazy" src="assets/20q-entropy.png" alt="Remaining entropy across 20Q turns" />
+                <p class="caption">Remaining entropy across turns under the GPT-5-mini examiner.</p>
+              </div>
+            </article>
+
+            <article class="takeaway-item reveal-on-scroll" id="takeaway-9">
+              <div class="takeaway-tag">Takeaway 9 (RQ3)</div>
+              <p class="takeaway-copy">
+                <strong>Ambiguous questions are not always failures.</strong>
+                High pass-support mass does not consistently imply lower final accuracy, because pass feedback can still provide partial evidence.
+              </p>
+              <div class="figure-block">
+                <div class="web-chart" data-chart="fig9" data-src="web_data/fig9.csv" role="img" aria-label="Pass-support mass across 20Q turns"></div>
+                <img class="web-chart-fallback" loading="lazy" src="assets/20q-passmass.png" alt="Pass-support mass across 20Q turns" />
+                <p class="caption">Probability mass of candidates consistent with pass under the GPT-5-mini examiner.</p>
+              </div>
+            </article>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="conclusion">
+      <div class="section-inner">
+        <div class="section-kicker">Conclusion</div>
+        <h2>Multi-turn information seeking is a distinct capability.</h2>
+        <p class="lede">
+          Across logical, mathematical, biological, clinical, and open-ended tasks, current LLMs show a
+          consistent gap: they often detect underspecification, but underestimate its degree, ask
+          incomplete or less target-relevant questions, and stop before the target is uniquely determined.
+        </p>
+        <p>
+          These findings show that interactive competence cannot be assessed by final-answer accuracy
+          alone. Models should also be evaluated by whether they know when context is insufficient, what
+          information is needed, and how to obtain it over sustained interaction &mdash; separating the
+          ability to answer from the ability to seek the information needed to answer.
+        </p>
+      </div>
+    </section>
+
+    <section id="citation" class="citation">
+      <div class="section-inner">
+        <div class="section-kicker">Citation</div>
+        <h2>BibTeX</h2>
+        <pre>@misc{huang2026mtinfoseek,
+  title={Do LLMs Know What to Ask and When? Evaluating Multi-Turn Information Seeking},
+  author={Huang, Yepeng and Zhang, Jiawen and Dai, Michelle and Su, Xiaorui and Gao, Shanghua and Wang, Zi and Zitnik, Marinka},
+  year={2026}
+}</pre>
+      </div>
+    </section>
+
+    <footer>
+      <div class="site-footer-inner">
+        <div>
+          <p class="footer-disclaimer">MT-InfoSeek is an open science, academic research project.</p>
+          <p class="footer-meta">
+            <a href="https://zitniklab.hms.harvard.edu/">Zitnik Lab, Harvard Medical School</a>.
+            Apache License 2.0.
+          </p>
+        </div>
+        <div class="footer-logos" aria-label="Institution logos">
+          <span class="footer-logo"><img src="Logos/HarvardMedicalSchool.png" alt="Harvard Medical School" /></span>
+          <span class="footer-logo"><img src="Logos/logo.png" alt="Kempner Institute" /></span>
+          <span class="footer-logo"><img src="Logos/images.png" alt="Broad Institute" /></span>
+          <span class="footer-logo"><img src="Logos/HDSI.png" alt="Harvard Data Science Initiative" /></span>
+        </div>
+      </div>
+    </footer>
+    <script>
+      const svgNS = "http://www.w3.org/2000/svg";
+
+      const chartColors = {
+        model: "#9aa0a6",
+        mean: "#17201c",
+        baseline: "#59645f",
+        under: "#c75d61",
+        over: "#4f8fbd",
+        grid: "#e7ede9",
+        axis: "#7a8781",
+        text: "#17201c"
+      };
+
+      function el(name, attrs = {}, children = []) {
+        const node = document.createElementNS(svgNS, name);
+        Object.entries(attrs).forEach(([key, value]) => {
+          if (value !== null && value !== undefined) node.setAttribute(key, value);
+        });
+        children.forEach((child) => node.appendChild(child));
+        return node;
+      }
+
+      function textNode(x, y, text, attrs = {}) {
+        const node = el("text", { x, y, ...attrs });
+        node.textContent = text;
+        return node;
+      }
+
+      function parseCSVLine(line) {
+        const cells = [];
+        let cell = "";
+        let quoted = false;
+        for (let i = 0; i < line.length; i += 1) {
+          const ch = line[i];
+          if (ch === "\"") {
+            if (quoted && line[i + 1] === "\"") {
+              cell += "\"";
+              i += 1;
+            } else {
+              quoted = !quoted;
+            }
+          } else if (ch === "," && !quoted) {
+            cells.push(cell);
+            cell = "";
+          } else {
+            cell += ch;
+          }
+        }
+        cells.push(cell);
+        return cells;
+      }
+
+      function parseCSV(csv) {
+        const lines = csv.trim().split(/\r?\n/);
+        const headers = parseCSVLine(lines.shift());
+        return lines.map((line) => {
+          const cells = parseCSVLine(line);
+          return Object.fromEntries(headers.map((h, i) => [h, cells[i] ?? ""]));
+        });
+      }
+
+      function num(value) {
+        return Number.parseFloat(value);
+      }
+
+      function fmt(value, digits = 2) {
+        return Number.parseFloat(value).toFixed(digits);
+      }
+
+      function interactiveAttrs(key, tooltip) {
+        return {
+          class: "selectable-mark",
+          tabindex: "0",
+          "data-select-key": key,
+          "data-tooltip": tooltip
+        };
+      }
+
+      function makeChartInteractive(container) {
+        let tooltip = container.querySelector(".chart-tooltip");
+        if (!tooltip) {
+          tooltip = document.createElement("div");
+          tooltip.className = "chart-tooltip";
+          container.appendChild(tooltip);
+        }
+
+        const clearSelection = () => {
+          container.classList.remove("has-selection");
+          delete container.dataset.selectedKey;
+          container.querySelectorAll(".selectable-mark").forEach((node) => node.classList.remove("is-selected"));
+        };
+
+        const setSelection = (key) => {
+          if (container.dataset.selectedKey === key) {
+            clearSelection();
+            return;
+          }
+          container.dataset.selectedKey = key;
+          container.classList.add("has-selection");
+          container.querySelectorAll(".selectable-mark").forEach((node) => {
+            node.classList.toggle("is-selected", node.dataset.selectKey === key);
+          });
+        };
+
+        const showTooltip = (target, event) => {
+          tooltip.textContent = target.dataset.tooltip || "";
+          const box = container.getBoundingClientRect();
+          tooltip.style.left = `${event.clientX - box.left + 12}px`;
+          tooltip.style.top = `${event.clientY - box.top + 12}px`;
+          tooltip.classList.add("is-visible");
+        };
+
+        container.onmousemove = (event) => {
+          const target = event.target.closest(".selectable-mark");
+          if (!target || !container.contains(target)) {
+            tooltip.classList.remove("is-visible");
+            return;
+          }
+          showTooltip(target, event);
+        };
+
+        container.onmouseleave = () => tooltip.classList.remove("is-visible");
+        container.onclick = (event) => {
+          const target = event.target.closest(".selectable-mark");
+          if (!target || !container.contains(target)) {
+            clearSelection();
+            return;
+          }
+          setSelection(target.dataset.selectKey);
+        };
+        container.onkeydown = (event) => {
+          if (event.key === "Escape") {
+            clearSelection();
+            return;
+          }
+          if (event.key !== "Enter" && event.key !== " ") return;
+          const target = event.target.closest(".selectable-mark");
+          if (!target || !container.contains(target)) return;
+          event.preventDefault();
+          setSelection(target.dataset.selectKey);
+        };
+      }
+
+      function groupBy(rows, keyFn) {
+        const out = new Map();
+        rows.forEach((row) => {
+          const key = keyFn(row);
+          if (!out.has(key)) out.set(key, []);
+          out.get(key).push(row);
+        });
+        return out;
+      }
+
+      function linearScale(domain, range) {
+        const [d0, d1] = domain;
+        const [r0, r1] = range;
+        return (value) => r0 + ((value - d0) / (d1 - d0)) * (r1 - r0);
+      }
+
+      function hexToRgb(hex) {
+        const clean = hex.replace("#", "");
+        return [0, 2, 4].map((i) => Number.parseInt(clean.slice(i, i + 2), 16));
+      }
+
+      function rgbToHex(rgb) {
+        return `#${rgb.map((v) => Math.round(v).toString(16).padStart(2, "0")).join("")}`;
+      }
+
+      function mixColor(a, b, t) {
+        const ca = hexToRgb(a);
+        const cb = hexToRgb(b);
+        return rgbToHex(ca.map((v, i) => v + (cb[i] - v) * t));
+      }
+
+      function divergingColor(value) {
+        const clamped = Math.max(-1, Math.min(1, value));
+        if (clamped < 0) return mixColor("#2f6fa5", "#f7f6f2", clamped + 1);
+        return mixColor("#f7f6f2", "#c9443f", clamped);
+      }
+
+      function drawAxes(svg, panel, { xTicks, yTicks, x, y, width, height, xLabel, yLabel }) {
+        const g = el("g", { transform: `translate(${x},${y})` });
+        yTicks.forEach((tick) => {
+          const yy = panel.yScale(tick);
+          g.appendChild(el("line", { x1: 0, y1: yy, x2: width, y2: yy, stroke: chartColors.grid, "stroke-width": 1 }));
+          g.appendChild(textNode(-10, yy + 4, tick.toFixed(1), { "text-anchor": "end", fill: chartColors.axis, "font-size": 12 }));
+        });
+        xTicks.forEach((tick) => {
+          const xx = panel.xScale(tick);
+          if (tick === 0 || tick === 4) return;
+          g.appendChild(textNode(xx, height + 22, String(tick), { "text-anchor": "middle", fill: chartColors.axis, "font-size": 12 }));
+        });
+        g.appendChild(el("line", { x1: 0, y1: height, x2: width, y2: height, stroke: chartColors.axis, "stroke-width": 1 }));
+        g.appendChild(el("line", { x1: 0, y1: 0, x2: 0, y2: height, stroke: chartColors.axis, "stroke-width": 1 }));
+        if (xLabel) g.appendChild(textNode(width / 2, height + 50, xLabel, { "text-anchor": "middle", class: "axis-title" }));
+        if (yLabel) {
+          const label = textNode(-48, height / 2, yLabel, { "text-anchor": "middle", class: "axis-title", transform: `rotate(-90 -48 ${height / 2})` });
+          g.appendChild(label);
+        }
+        svg.appendChild(g);
+        return g;
+      }
+
+      function linePath(points) {
+        return points.map((p, i) => `${i === 0 ? "M" : "L"}${p[0]},${p[1]}`).join(" ");
+      }
+
+      function drawLegend(svg, items, x, y) {
+        let cursor = x;
+        items.forEach((item) => {
+          if (item.type === "line") {
+            svg.appendChild(el("line", {
+              x1: cursor,
+              y1: y,
+              x2: cursor + 28,
+              y2: y,
+              stroke: item.color,
+              "stroke-width": item.width || 2,
+              "stroke-dasharray": item.dash || ""
+            }));
+            svg.appendChild(el("circle", { cx: cursor + 14, cy: y, r: 3.5, fill: item.color }));
+            cursor += 36;
+          } else {
+            svg.appendChild(el("rect", { x: cursor, y: y - 6, width: 18, height: 12, fill: item.color, opacity: item.opacity || 1 }));
+            cursor += 26;
+          }
+          svg.appendChild(textNode(cursor, y + 4, item.label, { class: "legend" }));
+          cursor += item.label.length * 7 + 22;
+        });
+      }
+
+      function renderFig2(container, rows) {
+        const svg = el("svg", { viewBox: "0 0 940 500", "aria-hidden": "true" });
+        const panels = [
+          { mode: "at_most_K", title: "k not provided", x: 88, y: 112 },
+          { mode: "exact_k", title: "k provided", x: 535, y: 112 }
+        ];
+        const width = 330;
+        const height = 245;
+        const xScale = linearScale([0, 4], [0, width]);
+        const yScale = linearScale([0, 1], [height, 0]);
+
+        panels.forEach((panelInfo, idx) => {
+          const panel = { xScale, yScale };
+          const g = drawAxes(svg, panel, {
+            x: panelInfo.x,
+            y: panelInfo.y,
+            width,
+            height,
+            xTicks: [0, 1, 2, 3, 4],
+            yTicks: [0, 0.2, 0.4, 0.6, 0.8, 1],
+            xLabel: idx === 0 ? "" : "",
+            yLabel: idx === 0 ? "Acc (missing variables)" : ""
+          });
+          g.appendChild(textNode(width / 2, -42, panelInfo.title, { "text-anchor": "middle", class: "panel-title" }));
+          g.appendChild(textNode(-38, -42, idx === 0 ? "(a)" : "(b)", { "text-anchor": "start", fill: chartColors.text, "font-weight": 760 }));
+
+          const sub = rows.filter((r) => r.prompt_mode === panelInfo.mode);
+          groupBy(sub.filter((r) => r.series === "model"), (r) => r.model).forEach((modelRows) => {
+            const ordered = modelRows.sort((a, b) => num(a.k) - num(b.k));
+            const pts = ordered.map((r) => [xScale(num(r.k)), yScale(num(r.accuracy))]);
+            const key = `fig2-${panelInfo.mode}-${ordered[0].model}`;
+            g.appendChild(el("path", { d: linePath(pts), fill: "none", stroke: chartColors.model, "stroke-width": 1.2, opacity: 0.42, ...interactiveAttrs(key, `${ordered[0].model}\n${panelInfo.title}`) }));
+            pts.forEach(([cx, cy], i) => {
+              const row = ordered[i];
+              g.appendChild(el("circle", { cx, cy, r: 3.1, fill: chartColors.model, opacity: 0.65, stroke: "#fff", "stroke-width": 0.8, ...interactiveAttrs(key, `${row.model}\n${panelInfo.title}\nk = ${row.k}\naccuracy = ${fmt(row.accuracy)}`) }));
+            });
+          });
+
+          const meanRows = sub.filter((r) => r.series === "mean_across_models").sort((a, b) => num(a.k) - num(b.k));
+          const meanPts = meanRows.map((r) => [xScale(num(r.k)), yScale(num(r.accuracy))]);
+          const meanKey = `fig2-${panelInfo.mode}-mean`;
+          g.appendChild(el("path", { d: linePath(meanPts), fill: "none", stroke: chartColors.mean, "stroke-width": 2.8, ...interactiveAttrs(meanKey, `Mean across models\n${panelInfo.title}`) }));
+          meanPts.forEach(([cx, cy], i) => {
+            const row = meanRows[i];
+            g.appendChild(el("circle", { cx, cy, r: 4.8, fill: chartColors.mean, stroke: "#fff", "stroke-width": 1, ...interactiveAttrs(meanKey, `Mean across models\n${panelInfo.title}\nk = ${row.k}\naccuracy = ${fmt(row.accuracy)}`) }));
+          });
+
+          const baseRows = sub.filter((r) => r.series === "uniform_random").sort((a, b) => num(a.k) - num(b.k));
+          const basePts = baseRows.map((r) => [xScale(num(r.k)), yScale(num(r.accuracy))]);
+          g.appendChild(el("path", { d: linePath(basePts), fill: "none", stroke: chartColors.baseline, "stroke-width": 2.2, "stroke-dasharray": "5 4", ...interactiveAttrs(`fig2-${panelInfo.mode}-baseline`, `Uniform random baseline\n${panelInfo.title}`) }));
+        });
+
+        svg.appendChild(textNode(470, 440, "Degree of underspecification (k)", { "text-anchor": "middle", class: "axis-title" }));
+        drawLegend(svg, [
+          { type: "line", color: chartColors.mean, label: "Mean across models", width: 2.8 },
+          { type: "line", color: chartColors.baseline, label: "Uniform random", width: 2.2, dash: "5 4" }
+        ], 320, 470);
+        container.replaceChildren(svg);
+      }
+
+      function quantile(values, q) {
+        const sorted = [...values].sort((a, b) => a - b);
+        const pos = (sorted.length - 1) * q;
+        const base = Math.floor(pos);
+        const rest = pos - base;
+        return sorted[base + 1] === undefined ? sorted[base] : sorted[base] + rest * (sorted[base + 1] - sorted[base]);
+      }
+
+      function drawBox(g, values, x, yScale, color) {
+        const q1 = quantile(values, 0.25);
+        const med = quantile(values, 0.5);
+        const q3 = quantile(values, 0.75);
+        const min = Math.min(...values);
+        const max = Math.max(...values);
+        const w = 28;
+        g.appendChild(el("line", { x1: x, x2: x, y1: yScale(min), y2: yScale(max), stroke: color, "stroke-width": 1.4, opacity: 0.8 }));
+        g.appendChild(el("line", { x1: x - w / 3, x2: x + w / 3, y1: yScale(min), y2: yScale(min), stroke: color, "stroke-width": 1.4 }));
+        g.appendChild(el("line", { x1: x - w / 3, x2: x + w / 3, y1: yScale(max), y2: yScale(max), stroke: color, "stroke-width": 1.4 }));
+        g.appendChild(el("rect", { x: x - w / 2, y: yScale(q3), width: w, height: yScale(q1) - yScale(q3), fill: color, opacity: 0.28, stroke: color, "stroke-width": 1.2 }));
+        g.appendChild(el("line", { x1: x - w / 2, x2: x + w / 2, y1: yScale(med), y2: yScale(med), stroke: chartColors.text, "stroke-width": 1.8 }));
+      }
+
+      function renderFig1(container, rows) {
+        const svg = el("svg", { viewBox: "0 0 860 1260", "aria-hidden": "true" });
+        const budgets = [...new Map(rows
+          .sort((a, b) => num(a.budget_order) - num(b.budget_order))
+          .map((row) => [row.budget_order, row.budget])).values()];
+        const models = [...new Map(rows
+          .sort((a, b) => num(a.panel_order) - num(b.panel_order))
+          .map((row) => [row.model, row.model_display])).entries()];
+        const kColors = { 1: "#cfd2d0", 2: "#9fa5a2", 3: "#626a65" };
+        const trendColors = {
+          "1x4 → 2x2 → 4x1": { 1: "#ddb5bd", 2: "#cf858f", 3: "#9d515d" },
+          "3x2 → 6x1": { 1: "#bdd0e1", 2: "#88afd0", 3: "#517fa9" }
+        };
+        const panelWidth = 300;
+        const panelHeight = 170;
+        const startX = 92;
+        const startY = 60;
+        const gapX = 145;
+        const gapY = 275;
+        const xScale = linearScale([-0.5, budgets.length - 0.5], [0, panelWidth]);
+        const yScale = linearScale([0, 1], [panelHeight, 0]);
+
+        function drawMiniAxes(g, col) {
+          [0, 0.5, 1].forEach((tick) => {
+            const yy = yScale(tick);
+            g.appendChild(el("line", { x1: 0, y1: yy, x2: panelWidth, y2: yy, stroke: chartColors.grid, "stroke-width": 1 }));
+            if (col === 0) {
+              g.appendChild(textNode(-10, yy + 5, tick.toFixed(1), { "text-anchor": "end", fill: chartColors.axis, "font-size": 15 }));
+            }
+          });
+          budgets.forEach((budget, i) => {
+            const xx = xScale(i);
+            g.appendChild(el("line", { x1: xx, y1: panelHeight, x2: xx, y2: panelHeight + 5, stroke: chartColors.axis, "stroke-width": 1 }));
+            const label = textNode(xx - 2, panelHeight + 18, budget, {
+              "text-anchor": "end",
+              fill: chartColors.axis,
+              "font-size": 12,
+              transform: `rotate(-45 ${xx - 2} ${panelHeight + 18})`
+            });
+            g.appendChild(label);
+          });
+          g.appendChild(el("line", { x1: 0, y1: panelHeight, x2: panelWidth, y2: panelHeight, stroke: chartColors.axis, "stroke-width": 1.1 }));
+          g.appendChild(el("line", { x1: 0, y1: 0, x2: 0, y2: panelHeight, stroke: chartColors.axis, "stroke-width": 1.1 }));
+        }
+
+        models.slice(0, 8).forEach(([model, label], idx) => {
+          const col = idx % 2;
+          const row = Math.floor(idx / 2);
+          const x = startX + col * (panelWidth + gapX);
+          const y = startY + row * gapY;
+          const g = el("g", { transform: `translate(${x},${y})` });
+          drawMiniAxes(g, col);
+          g.appendChild(textNode(panelWidth / 2, -16, label, { "text-anchor": "middle", class: "panel-title", "font-size": 15 }));
+
+          const subModel = rows
+            .filter((r) => r.model === model)
+            .sort((a, b) => num(a.budget_order) - num(b.budget_order));
+
+          [1, 2, 3].forEach((k) => {
+            const lineRows = subModel.filter((r) => num(r.k) === k);
+            const pts = lineRows.map((r) => [xScale(num(r.budget_order)), yScale(num(r.final_sufficiency))]);
+            const key = `fig1-${model}-k${k}`;
+            g.appendChild(el("path", { d: linePath(pts), fill: "none", stroke: kColors[k], "stroke-width": 1.8, ...interactiveAttrs(key, `${label}\nk = ${k}`) }));
+            pts.forEach(([cx, cy], i) => {
+              const row = lineRows[i];
+              g.appendChild(el("circle", { cx, cy, r: 3.4, fill: kColors[k], stroke: "#fff", "stroke-width": 0.7, ...interactiveAttrs(key, `${label}\nk = ${k}\nbudget = ${row.budget}\nfinal sufficiency = ${fmt(row.final_sufficiency)}`) }));
+            });
+          });
+
+          Object.entries(trendColors).forEach(([pathName, colors]) => {
+            [1, 2, 3].forEach((k) => {
+              const pts = subModel
+                .filter((r) => num(r.k) === k && r.highlight_path === pathName)
+                .sort((a, b) => num(a.budget_order) - num(b.budget_order))
+                .map((r) => [xScale(num(r.budget_order)), yScale(num(r.final_sufficiency))]);
+              if (pts.length < 2) return;
+              const trendRows = subModel
+                .filter((r) => num(r.k) === k && r.highlight_path === pathName)
+                .sort((a, b) => num(a.budget_order) - num(b.budget_order));
+              const key = `fig1-${model}-${pathName}-k${k}`;
+              g.appendChild(el("path", { d: linePath(pts), fill: "none", stroke: colors[k], "stroke-width": 2.4, "stroke-dasharray": "7 5", opacity: 0.95, ...interactiveAttrs(key, `${label}\nTrend: ${pathName}\nk = ${k}`) }));
+              pts.forEach(([cx, cy], i) => {
+                const row = trendRows[i];
+                g.appendChild(el("circle", { cx, cy, r: 3.6, fill: colors[k], stroke: "#fff", "stroke-width": 0.7, ...interactiveAttrs(key, `${label}\nTrend: ${pathName}\nk = ${k}\nbudget = ${row.budget}\nfinal sufficiency = ${fmt(row.final_sufficiency)}`) }));
+              });
+            });
+          });
+
+          svg.appendChild(g);
+        });
+
+        svg.appendChild(textNode(430, 1145, "Budget", { "text-anchor": "middle", class: "axis-title", "font-size": 15 }));
+        const yTitle = textNode(32, 555, "Final sufficiency", {
+          "text-anchor": "middle",
+          class: "axis-title",
+          "font-size": 15,
+          transform: "rotate(-90 32 555)"
+        });
+        svg.appendChild(yTitle);
+
+        svg.appendChild(textNode(205, 1200, "k", { "text-anchor": "end", class: "legend", "font-size": 15 }));
+        [1, 2, 3].forEach((k, i) => {
+          const x = 230 + i * 64;
+          svg.appendChild(el("line", { x1: x, y1: 1195, x2: x + 28, y2: 1195, stroke: kColors[k], "stroke-width": 2 }));
+          svg.appendChild(el("circle", { cx: x + 14, cy: 1195, r: 4, fill: kColors[k] }));
+          svg.appendChild(textNode(x + 38, 1200, String(k), { class: "legend", "font-size": 15 }));
+        });
+        svg.appendChild(textNode(465, 1200, "Trend", { "text-anchor": "end", class: "legend", "font-size": 15 }));
+        [
+          ["#cf858f", "1x4 → 2x2 → 4x1"],
+          ["#88afd0", "3x2 → 6x1"]
+        ].forEach(([color, label], i) => {
+          const x = 490 + i * 175;
+          svg.appendChild(el("line", { x1: x, y1: 1195, x2: x + 35, y2: 1195, stroke: color, "stroke-width": 2.4, "stroke-dasharray": "7 5" }));
+          svg.appendChild(el("circle", { cx: x + 17.5, cy: 1195, r: 4, fill: color }));
+          svg.appendChild(textNode(x + 45, 1200, label, { class: "legend", "font-size": 15 }));
+        });
+
+        container.replaceChildren(svg);
+      }
+
+      function renderFig3(container, rows) {
+        const svg = el("svg", { viewBox: "0 0 940 500", "aria-hidden": "true" });
+        const perModel = rows.filter((r) => r.series === "model");
+        const mean = rows.filter((r) => r.series === "mean_across_models");
+        const width = 330;
+        const height = 245;
+        const left = { x: 88, y: 112, xScale: linearScale([0, 4], [0, width]), yScale: linearScale([0, 1], [height, 0]) };
+        const right = { x: 535, y: 112, xScale: linearScale([0, 4], [0, width]), yScale: linearScale([0, 1], [height, 0]) };
+
+        const g1 = drawAxes(svg, left, {
+          x: left.x,
+          y: left.y,
+          width,
+          height,
+          xTicks: [0, 1, 2, 3, 4],
+          yTicks: [0, 0.2, 0.4, 0.6, 0.8, 1],
+          yLabel: "Acc (degree of underspec.)"
+        });
+        g1.appendChild(textNode(-38, -42, "(a)", { fill: chartColors.text, "font-weight": 760 }));
+        drawLegend(svg, [
+          { type: "line", color: chartColors.mean, label: "Mean across models", width: 2.8 }
+        ], 206, 470);
+        groupBy(perModel, (r) => r.model).forEach((modelRows) => {
+          const ordered = modelRows.sort((a, b) => num(a.k) - num(b.k));
+          const pts = ordered.map((r) => [left.xScale(num(r.k)), left.yScale(num(r.accuracy))]);
+          const key = `fig3-a-${ordered[0].model}`;
+          g1.appendChild(el("path", { d: linePath(pts), fill: "none", stroke: chartColors.model, "stroke-width": 1.2, opacity: 0.42, ...interactiveAttrs(key, `${ordered[0].model}\nAccuracy at naming true k`) }));
+          pts.forEach(([cx, cy], i) => {
+            const row = ordered[i];
+            g1.appendChild(el("circle", { cx, cy, r: 3.1, fill: chartColors.model, opacity: 0.68, stroke: "#fff", "stroke-width": 0.8, ...interactiveAttrs(key, `${row.model}\nk = ${row.k}\naccuracy = ${fmt(row.accuracy)}`) }));
+          });
+        });
+        const meanOrdered = mean.sort((a, b) => num(a.k) - num(b.k));
+        const meanPts = meanOrdered.map((r) => [left.xScale(num(r.k)), left.yScale(num(r.accuracy))]);
+        const meanKey = "fig3-a-mean";
+        g1.appendChild(el("path", { d: linePath(meanPts), fill: "none", stroke: chartColors.mean, "stroke-width": 2.8, ...interactiveAttrs(meanKey, "Mean across models\nAccuracy at naming true k") }));
+        meanPts.forEach(([cx, cy], i) => {
+          const row = meanOrdered[i];
+          g1.appendChild(el("circle", { cx, cy, r: 4.8, fill: chartColors.mean, stroke: "#fff", "stroke-width": 1, ...interactiveAttrs(meanKey, `Mean across models\nk = ${row.k}\naccuracy = ${fmt(row.accuracy)}`) }));
+        });
+
+        const g2 = drawAxes(svg, right, {
+          x: right.x,
+          y: right.y,
+          width,
+          height,
+          xTicks: [0, 1, 2, 3, 4],
+          yTicks: [0, 0.2, 0.4, 0.6, 0.8, 1],
+          yLabel: "Error rate"
+        });
+        g2.appendChild(textNode(-38, -42, "(b)", { fill: chartColors.text, "font-weight": 760 }));
+        drawLegend(svg, [
+          { type: "box", color: chartColors.under, label: "predicted k < true k", opacity: 0.35 }
+        ], 470, 470);
+        drawLegend(svg, [
+          { type: "box", color: chartColors.over, label: "predicted k > true k", opacity: 0.35 }
+        ], 655, 470);
+        [1, 2, 3].forEach((k) => {
+          const sub = perModel.filter((r) => num(r.k) === k);
+          const xUnder = right.xScale(k) - 14;
+          const xOver = right.xScale(k) + 14;
+          drawBox(g2, sub.map((r) => num(r.under_prediction_rate)), xUnder, right.yScale, chartColors.under);
+          drawBox(g2, sub.map((r) => num(r.over_prediction_rate)), xOver, right.yScale, chartColors.over);
+          sub.forEach((r, i) => {
+            const jitter = ((i % 5) - 2) * 2.1;
+            g2.appendChild(el("circle", { cx: xUnder + jitter, cy: right.yScale(num(r.under_prediction_rate)), r: 3.1, fill: chartColors.under, opacity: 0.85, stroke: "#fff", "stroke-width": 0.7, ...interactiveAttrs(`fig3-b-${r.model}`, `${r.model}\nk = ${k}\nunder-prediction rate = ${fmt(r.under_prediction_rate)}`) }));
+            g2.appendChild(el("circle", { cx: xOver - jitter, cy: right.yScale(num(r.over_prediction_rate)), r: 3.1, fill: chartColors.over, opacity: 0.85, stroke: "#fff", "stroke-width": 0.7, ...interactiveAttrs(`fig3-b-${r.model}`, `${r.model}\nk = ${k}\nover-prediction rate = ${fmt(r.over_prediction_rate)}`) }));
+          });
+        });
+
+        svg.appendChild(textNode(470, 440, "True degree of underspecification (k)", { "text-anchor": "middle", class: "axis-title" }));
+        container.replaceChildren(svg);
+      }
+
+      function renderFig4(container, rows) {
+        const svg = el("svg", { viewBox: "0 0 840 400", "aria-hidden": "true" });
+        const wrapped = {
+          "Avg early-turn query correctness (turn 1-3)": ["Avg early-turn query", "correctness (turn 1-3)"],
+          "Avg late-turn query correctness (turn 4+)": ["Avg late-turn query", "correctness (turn 4+)"],
+          "Avg number of turns": ["Avg number of turns"]
+        };
+        const rowLabels = [...new Map(rows
+          .sort((a, b) => num(a.row_order) - num(b.row_order))
+          .map((r) => [r.row_order, r.row_label])).values()];
+        const ks = [...new Set(rows.map((r) => num(r.k)))].sort((a, b) => a - b);
+        const cellW = 138;
+        const cellH = 70;
+        const x0 = 260;
+        const y0 = 58;
+
+        rowLabels.forEach((label, rowIndex) => {
+          const lines = wrapped[label] || [label];
+          lines.forEach((line, lineIndex) => {
+            svg.appendChild(textNode(x0 - 20, y0 + rowIndex * cellH + 30 + lineIndex * 17, line, {
+              "text-anchor": "end",
+              fill: chartColors.text,
+              "font-size": 14,
+              "font-weight": 560
+            }));
+          });
+        });
+
+        ks.forEach((k, colIndex) => {
+          svg.appendChild(textNode(x0 + colIndex * cellW + cellW / 2, y0 + rowLabels.length * cellH + 34, String(k), {
+            "text-anchor": "middle",
+            fill: chartColors.text,
+            "font-size": 15,
+            "font-weight": 650
+          }));
+        });
+
+        rows.forEach((row) => {
+          const r = num(row.row_order);
+          const c = ks.indexOf(num(row.k));
+          const value = num(row.pearson_r);
+          const x = x0 + c * cellW;
+          const y = y0 + r * cellH;
+          svg.appendChild(el("rect", {
+            x,
+            y,
+            width: cellW,
+            height: cellH,
+            fill: divergingColor(value),
+            stroke: "#ffffff",
+            "stroke-width": 2,
+            ...interactiveAttrs(`fig4-${row.metric}-k${row.k}`, `${row.row_label}\nk = ${row.k}\nPearson r = ${fmt(row.pearson_r)}\nSpearman rho = ${fmt(row.spearman_rho)}`)
+          }));
+          svg.appendChild(textNode(x + cellW / 2, y + cellH / 2 + 7, value.toFixed(2).replace(/^-0\.00$/, "0.00"), {
+            "text-anchor": "middle",
+            fill: Math.abs(value) >= 0.55 ? "#ffffff" : chartColors.text,
+            "font-size": 15,
+            "font-weight": 620,
+            "pointer-events": "none"
+          }));
+        });
+
+        svg.appendChild(textNode(x0 + (ks.length * cellW) / 2, 353, "Degree of underspecification (k)", {
+          "text-anchor": "middle",
+          class: "axis-title"
+        }));
+
+        const barX = 740;
+        const barY = 52;
+        const barH = rowLabels.length * cellH;
+        const steps = 40;
+        for (let i = 0; i < steps; i += 1) {
+          const t = i / (steps - 1);
+          const value = 1 - 2 * t;
+          svg.appendChild(el("rect", {
+            x: barX,
+            y: barY + t * barH,
+            width: 18,
+            height: barH / steps + 1,
+            fill: divergingColor(value)
+          }));
+        }
+        [-1, -0.5, 0, 0.5, 1].forEach((tick) => {
+          const y = barY + ((1 - tick) / 2) * barH;
+          svg.appendChild(el("line", { x1: barX + 18, y1: y, x2: barX + 24, y2: y, stroke: chartColors.axis, "stroke-width": 1 }));
+          svg.appendChild(textNode(barX + 30, y + 4, tick.toFixed(1), { fill: chartColors.axis, "font-size": 11 }));
+        });
+        const cbarLabel = textNode(820, barY + barH / 2, "Pearson r with final sufficiency", {
+          "text-anchor": "middle",
+          class: "axis-title",
+          "font-size": 12,
+          transform: `rotate(-90 820 ${barY + barH / 2})`
+        });
+        svg.appendChild(cbarLabel);
+        container.replaceChildren(svg);
+      }
+
+      function renderFig5(container, rows) {
+        const svg = el("svg", { viewBox: "0 0 860 460", "aria-hidden": "true" });
+        const width = 280;
+        const height = 255;
+        const panels = [
+          { k: 2, letter: "(a)", title: "k = 2", x: 120, y: 70 },
+          { k: 3, letter: "(b)", title: "k = 3", x: 475, y: 70 }
+        ];
+        const yScale = linearScale([0, 1.05], [height, 0]);
+        const xPos = [70, 210];
+        const modelColor = "#a7afb3";
+        const starColor = "#4d5652";
+
+        panels.forEach((panel, idx) => {
+          const g = el("g", { transform: `translate(${panel.x},${panel.y})` });
+          [0, 0.25, 0.5, 0.75, 1].forEach((tick) => {
+            const yy = yScale(tick);
+            g.appendChild(el("line", { x1: 0, y1: yy, x2: width, y2: yy, stroke: chartColors.grid, "stroke-width": 1 }));
+            if (idx === 0) {
+              g.appendChild(textNode(-12, yy + 4, tick.toFixed(2), { "text-anchor": "end", fill: chartColors.axis, "font-size": 12 }));
+            }
+          });
+          g.appendChild(el("line", { x1: 0, y1: height, x2: width, y2: height, stroke: chartColors.axis, "stroke-width": 1.1 }));
+          g.appendChild(el("line", { x1: 0, y1: 0, x2: 0, y2: height, stroke: chartColors.axis, "stroke-width": 1.1 }));
+          g.appendChild(textNode(-46, -30, panel.letter, { fill: chartColors.text, "font-size": 18, "font-weight": 760 }));
+          g.appendChild(textNode(width / 2, -30, panel.title, { "text-anchor": "middle", class: "panel-title", "font-size": 20 }));
+          g.appendChild(textNode(xPos[0], height + 34, "First-turn", { "text-anchor": "middle", fill: chartColors.text, "font-size": 14 }));
+          g.appendChild(textNode(xPos[0], height + 51, "hit", { "text-anchor": "middle", fill: chartColors.text, "font-size": 14 }));
+          g.appendChild(textNode(xPos[1], height + 34, "First-turn miss", { "text-anchor": "middle", fill: chartColors.text, "font-size": 14 }));
+          g.appendChild(textNode(xPos[1], height + 51, "+ second-turn hit", { "text-anchor": "middle", fill: chartColors.text, "font-size": 14 }));
+
+          const sub = rows.filter((r) => num(r.k) === panel.k);
+          sub.filter((r) => r.series === "model").forEach((row) => {
+            const hit = yScale(num(row.final_sufficiency_first_turn_hit));
+            const rec = yScale(num(row.final_sufficiency_recovered));
+            const key = `fig5-k${panel.k}-${row.model_key}`;
+            const tip = `${row.model_label}\nk = ${panel.k}\nfirst-turn hit = ${fmt(row.final_sufficiency_first_turn_hit)}\nrecovered = ${fmt(row.final_sufficiency_recovered)}`;
+            g.appendChild(el("line", { x1: xPos[0], y1: hit, x2: xPos[1], y2: rec, stroke: modelColor, "stroke-width": 1.7, opacity: 0.82, ...interactiveAttrs(key, tip) }));
+            g.appendChild(el("circle", { cx: xPos[0], cy: hit, r: 4.4, fill: modelColor, stroke: "#fff", "stroke-width": 0.8, ...interactiveAttrs(key, tip) }));
+            g.appendChild(el("circle", { cx: xPos[1], cy: rec, r: 4.4, fill: modelColor, stroke: "#fff", "stroke-width": 0.8, ...interactiveAttrs(key, tip) }));
+            if (num(row.noninferior_10pp) === 1) {
+              g.appendChild(textNode(xPos[1] + 22, rec + 7, "*", { fill: starColor, "font-size": 24, "font-weight": 800, ...interactiveAttrs(key, `${tip}\nnon-inferior within 10pp`) }));
+            }
+          });
+
+          const mean = sub.find((r) => r.series === "mean_across_models");
+          if (mean) {
+            const hit = yScale(num(mean.final_sufficiency_first_turn_hit));
+            const rec = yScale(num(mean.final_sufficiency_recovered));
+            const key = `fig5-k${panel.k}-mean`;
+            const tip = `Mean across models\nk = ${panel.k}\nfirst-turn hit = ${fmt(mean.final_sufficiency_first_turn_hit)}\nrecovered = ${fmt(mean.final_sufficiency_recovered)}`;
+            g.appendChild(el("line", { x1: xPos[0], y1: hit, x2: xPos[1], y2: rec, stroke: chartColors.mean, "stroke-width": 3.2, ...interactiveAttrs(key, tip) }));
+            g.appendChild(el("circle", { cx: xPos[0], cy: hit, r: 7, fill: chartColors.mean, stroke: "#fff", "stroke-width": 1.2, ...interactiveAttrs(key, tip) }));
+            g.appendChild(el("circle", { cx: xPos[1], cy: rec, r: 7, fill: chartColors.mean, stroke: "#fff", "stroke-width": 1.2, ...interactiveAttrs(key, tip) }));
+          }
+          svg.appendChild(g);
+        });
+
+        const yTitle = textNode(44, 200, "Final sufficiency", {
+          "text-anchor": "middle",
+          class: "axis-title",
+          transform: "rotate(-90 44 200)"
+        });
+        svg.appendChild(yTitle);
+        drawLegend(svg, [
+          { type: "line", color: chartColors.mean, label: "Mean across models", width: 3.2 },
+          { type: "line", color: modelColor, label: "Individual model", width: 1.8 }
+        ], 245, 424);
+        container.replaceChildren(svg);
+      }
+
+      function renderFig6(container, rows) {
+        const svg = el("svg", { viewBox: "0 0 860 880", "aria-hidden": "true" });
+        const panels = [
+          { k: 3, d: 10, letter: "(a)", title: "k = 3, number of distractors = 10", x: 86, y: 76 },
+          { k: 4, d: 10, letter: "(b)", title: "k = 4, number of distractors = 10", x: 86, y: 455 }
+        ];
+        const metrics = [
+          {
+            key: "oc",
+            label: "MSS all covered, correct order",
+            value: "P(final correct | all covered, order correct)",
+            count: "n_all_covered_order_correct",
+            color: "#2C4E6F"
+          },
+          {
+            key: "wo",
+            label: "MSS all covered, incorrect order",
+            value: "P(final correct | all covered, wrong order)",
+            count: "n_all_covered_wrong_order",
+            color: "#7AA8AC"
+          },
+          {
+            key: "partial",
+            label: "MSS partially covered, correct order",
+            value: "P(final correct | partial hit, observed correct order)",
+            count: "n_partial_hit_order_correct",
+            color: "#E0A95A"
+          },
+          {
+            key: "partial_wrong",
+            label: "MSS partially covered, incorrect order",
+            value: "P(final correct | partial hit, observed wrong order)",
+            count: "n_partial_hit_wrong_order",
+            color: "#B85565"
+          }
+        ];
+        const modelLabels = {
+          "Qwen_Qwen3-30B-": "Qwen3-30B",
+          "Qwen_Qwen3-4B-T": "Qwen3-4B",
+          "Qwen_Qwen3.5-27": "Qwen3.5-27B",
+          "gemini-3-flash-": "Gemini-3-Flash",
+          "gpt-5": "GPT-5",
+          "gpt-5-mini": "GPT-5-Mini",
+          "openai_gpt-oss-": "GPT-OSS-20B (medium)"
+        };
+        const modelOrder = ["Qwen_Qwen3-30B-", "Qwen_Qwen3-4B-T", "Qwen_Qwen3.5-27", "gemini-3-flash-", "gpt-5", "gpt-5-mini", "openai_gpt-oss-"];
+        const width = 700;
+        const height = 225;
+        const yScale = linearScale([0, 1.22], [height, 0]);
+        const groupGap = width / modelOrder.length;
+        const barW = 14;
+
+        panels.forEach((panel, panelIndex) => {
+          const g = el("g", { transform: `translate(${panel.x},${panel.y})` });
+          [0, 0.2, 0.4, 0.6, 0.8, 1].forEach((tick) => {
+            const yy = yScale(tick);
+            g.appendChild(el("line", { x1: 0, y1: yy, x2: width, y2: yy, stroke: chartColors.grid, "stroke-width": 1 }));
+            g.appendChild(textNode(-10, yy + 4, tick.toFixed(1), { "text-anchor": "end", fill: chartColors.axis, "font-size": 12 }));
+          });
+          g.appendChild(el("line", { x1: 0, y1: height, x2: width, y2: height, stroke: chartColors.axis, "stroke-width": 1.1 }));
+          g.appendChild(el("line", { x1: 0, y1: 0, x2: 0, y2: height, stroke: chartColors.axis, "stroke-width": 1.1 }));
+          g.appendChild(textNode(-32, -34, panel.letter, { fill: chartColors.text, "font-size": 16, "font-weight": 760 }));
+          g.appendChild(textNode(width / 2, -34, panel.title, { "text-anchor": "middle", class: "panel-title", "font-size": 16 }));
+          if (panelIndex === 0) {
+            const yTitle = textNode(-48, height / 2, "Final accuracy", {
+              "text-anchor": "middle",
+              class: "axis-title",
+              transform: `rotate(-90 -48 ${height / 2})`
+            });
+            g.appendChild(yTitle);
+          }
+
+          const sub = rows.filter((r) => num(r.k) === panel.k && num(r.n_distractors) === panel.d);
+          modelOrder.forEach((model, modelIndex) => {
+            const row = sub.find((r) => r.model === model);
+            const cx = modelIndex * groupGap + groupGap / 2;
+            g.appendChild(textNode(cx, height + 32, modelLabels[model] || model, {
+              "text-anchor": "middle",
+              fill: chartColors.text,
+              "font-size": 12,
+              transform: `rotate(-18 ${cx} ${height + 32})`
+            }));
+            if (!row) return;
+            metrics.forEach((metric, metricIndex) => {
+              const value = num(row[metric.value]);
+              if (!Number.isFinite(value)) return;
+              const x = cx + (metricIndex - (metrics.length - 1) / 2) * (barW + 3) - barW / 2;
+              const y = yScale(value);
+              const h = height - y;
+              const count = row[metric.count] || "0";
+              const key = `fig6-k${panel.k}-${model}-${metric.key}`;
+              const tip = `${modelLabels[model] || model}\n${panel.title}\n${metric.label}\nfinal accuracy = ${fmt(value)}\nn = ${count}`;
+              g.appendChild(el("rect", {
+                x,
+                y,
+                width: barW,
+                height: h,
+                fill: metric.color,
+                stroke: "#ffffff",
+                "stroke-width": 0.6,
+                ...interactiveAttrs(key, tip)
+              }));
+              if (h > 18) {
+                g.appendChild(textNode(x + barW / 2, y - 18, `n=${count}`, {
+                  "text-anchor": "middle",
+                  fill: chartColors.axis,
+                  "font-size": 9,
+                  transform: `rotate(-90 ${x + barW / 2} ${y - 18})`,
+                  "pointer-events": "none"
+                }));
+              }
+            });
+          });
+          svg.appendChild(g);
+        });
+
+        const legendRows = [
+          metrics.slice(0, 2),
+          metrics.slice(2, 4)
+        ];
+        legendRows.forEach((rowMetrics, rowIndex) => {
+          const legendY = 800 + rowIndex * 24;
+          let legendX = rowIndex === 0 ? 175 : 150;
+          rowMetrics.forEach((metric) => {
+            svg.appendChild(el("rect", { x: legendX, y: legendY - 9, width: 15, height: 10, fill: metric.color }));
+            svg.appendChild(textNode(legendX + 22, legendY, metric.label, { class: "legend", "font-size": 12 }));
+            legendX += metric.label.length * 6.2 + 54;
+          });
+        });
+
+        container.replaceChildren(svg);
+      }
+
+      const twentyQModelOrder = ["GPT-OSS-20B", "Qwen3-4B", "Qwen3-30B", "Gemini-3-flash", "GPT-5-mini", "GPT-5"];
+      const twentyQColors = {
+        "GPT-OSS-20B": "#4C78A8",
+        "Qwen3-4B": "#F58518",
+        "Qwen3-30B": "#54A24B",
+        "Gemini-3-flash": "#E45756",
+        "GPT-5-mini": "#8E6BBE",
+        "GPT-5": "#6B5B4B"
+      };
+
+      function datasetTitle(name) {
+        return name === "common" ? "Common" : "Thing";
+      }
+
+      function draw20QLegend(svg, items, x, y, gap = 206) {
+        const rowSize = 3;
+        items.forEach((item, idx) => {
+          const row = Math.floor(idx / rowSize);
+          const col = idx % rowSize;
+          const xx = x + col * gap;
+          const yy = y + row * 28;
+          svg.appendChild(el("line", { x1: xx, y1: yy, x2: xx + 30, y2: yy, stroke: item.color, "stroke-width": 2.5, "stroke-dasharray": item.dash || "" }));
+          svg.appendChild(el("circle", { cx: xx + 15, cy: yy, r: 4, fill: item.color }));
+          svg.appendChild(textNode(xx + 40, yy + 5, item.label, { class: "legend", "font-size": 15 }));
+        });
+      }
+
+      function renderFig7(container, rows) {
+        const svg = el("svg", { viewBox: "0 0 940 470", "aria-hidden": "true" });
+        const panels = [
+          { examiner: "GPT-5-mini", x: 74, y: 76 },
+          { examiner: "Qwen3-30B", x: 520, y: 76 }
+        ];
+        const width = 330;
+        const height = 220;
+        const yMax = 0.7;
+        const yScale = linearScale([0, yMax], [height, 0]);
+        const barColor = "#4C78A8";
+        const qualityColor = "#F58518";
+
+        panels.forEach((panel, panelIndex) => {
+          const g = el("g", { transform: `translate(${panel.x},${panel.y})` });
+          [0, 0.2, 0.4, 0.6].forEach((tick) => {
+            const yy = yScale(tick);
+            g.appendChild(el("line", { x1: 0, y1: yy, x2: width, y2: yy, stroke: chartColors.grid, "stroke-width": 1 }));
+            g.appendChild(textNode(-10, yy + 4, tick.toFixed(1), { "text-anchor": "end", fill: chartColors.axis, "font-size": 12 }));
+          });
+          g.appendChild(el("line", { x1: 0, y1: height, x2: width, y2: height, stroke: chartColors.axis, "stroke-width": 1.1 }));
+          g.appendChild(el("line", { x1: 0, y1: 0, x2: 0, y2: height, stroke: chartColors.axis, "stroke-width": 1.1 }));
+          g.appendChild(textNode(width / 2, -28, panel.examiner, { "text-anchor": "middle", class: "panel-title" }));
+          if (panelIndex === 0) {
+            g.appendChild(textNode(-46, height / 2, "Score", {
+              "text-anchor": "middle",
+              class: "axis-title",
+              transform: `rotate(-90 -46 ${height / 2})`
+            }));
+          }
+
+          const data = rows
+            .filter((row) => row.dataset === "thing" && row.examiner_label === panel.examiner)
+            .sort((a, b) => twentyQModelOrder.indexOf(a.guesser_label) - twentyQModelOrder.indexOf(b.guesser_label));
+          const step = width / data.length;
+          const points = [];
+          data.forEach((row, idx) => {
+            const cx = idx * step + step / 2;
+            const accuracy = num(row.accuracy);
+            const quality = num(row.mean_avg_normalized_eig);
+            const barW = 24;
+            const barY = yScale(accuracy);
+            g.appendChild(el("rect", {
+              x: cx - barW / 2,
+              y: barY,
+              width: barW,
+              height: height - barY,
+              rx: 2,
+              fill: barColor,
+              opacity: 0.78,
+              ...interactiveAttrs(`fig7-${panel.examiner}-${row.guesser_label}`, `${row.guesser_label}\nexaminer = ${panel.examiner}\ndataset = Thing\naccuracy = ${fmt(accuracy)}\nquestion quality = ${fmt(quality)}`)
+            }));
+            points.push([cx, yScale(quality), row]);
+            g.appendChild(textNode(cx, height + 25, row.guesser_label, {
+              "text-anchor": "end",
+              fill: chartColors.axis,
+              "font-size": 11,
+              transform: `rotate(-34 ${cx} ${height + 25})`
+            }));
+          });
+          g.appendChild(el("path", {
+            d: linePath(points.map((p) => [p[0], p[1]])),
+            fill: "none",
+            stroke: qualityColor,
+            "stroke-width": 2.3,
+            ...interactiveAttrs(`fig7-${panel.examiner}-quality`, `${panel.examiner}\nnormalized information gain trend`)
+          }));
+          points.forEach(([cx, cy, row]) => {
+            g.appendChild(el("circle", {
+              cx,
+              cy,
+              r: 4,
+              fill: qualityColor,
+              stroke: "#ffffff",
+              "stroke-width": 1,
+              ...interactiveAttrs(`fig7-${panel.examiner}-${row.guesser_label}`, `${row.guesser_label}\nexaminer = ${panel.examiner}\ndataset = Thing\naccuracy = ${fmt(num(row.accuracy))}\nquestion quality = ${fmt(num(row.mean_avg_normalized_eig))}`)
+            }));
+          });
+          svg.appendChild(g);
+        });
+
+        svg.appendChild(textNode(470, 378, "Guesser model", { "text-anchor": "middle", class: "axis-title" }));
+        svg.appendChild(el("rect", { x: 326, y: 418, width: 18, height: 11, fill: barColor, opacity: 0.78 }));
+        svg.appendChild(textNode(354, 427, "Final accuracy", { class: "legend" }));
+        svg.appendChild(el("line", { x1: 492, y1: 423, x2: 520, y2: 423, stroke: qualityColor, "stroke-width": 2.3 }));
+        svg.appendChild(el("circle", { cx: 506, cy: 423, r: 3.5, fill: qualityColor }));
+        svg.appendChild(textNode(530, 427, "Question quality", { class: "legend" }));
+        container.replaceChildren(svg);
+      }
+
+      function render20QTurnChart(container, rows, { yKey, yLabel, yDomain, yTicks, valueLabel }) {
+        const svg = el("svg", { viewBox: "0 0 940 545", "aria-hidden": "true" });
+        const datasets = [
+          { key: "common", x: 76, y: 70 },
+          { key: "thing", x: 520, y: 70 }
+        ];
+        const width = 340;
+        const height = 260;
+        const xScale = linearScale([1, 20], [0, width]);
+        const yScale = linearScale(yDomain, [height, 0]);
+
+        datasets.forEach((panel, panelIndex) => {
+          const g = el("g", { transform: `translate(${panel.x},${panel.y})` });
+          yTicks.forEach((tick) => {
+            const yy = yScale(tick);
+            g.appendChild(el("line", { x1: 0, y1: yy, x2: width, y2: yy, stroke: chartColors.grid, "stroke-width": 1 }));
+            g.appendChild(textNode(-12, yy + 5, tick.toFixed(yDomain[1] > 1 ? 0 : 1), { "text-anchor": "end", fill: chartColors.axis, "font-size": 15 }));
+          });
+          [1, 5, 10, 15, 20].forEach((tick) => {
+            const xx = xScale(tick);
+            g.appendChild(textNode(xx, height + 27, String(tick), { "text-anchor": "middle", fill: chartColors.axis, "font-size": 15 }));
+          });
+          g.appendChild(el("line", { x1: 0, y1: height, x2: width, y2: height, stroke: chartColors.axis, "stroke-width": 1.1 }));
+          g.appendChild(el("line", { x1: 0, y1: 0, x2: 0, y2: height, stroke: chartColors.axis, "stroke-width": 1.1 }));
+          g.appendChild(textNode(width / 2, -28, datasetTitle(panel.key), { "text-anchor": "middle", class: "panel-title", "font-size": 18 }));
+          if (panelIndex === 0) {
+            g.appendChild(textNode(-48, height / 2, yLabel, {
+              "text-anchor": "middle",
+              class: "axis-title",
+              "font-size": 15,
+              transform: `rotate(-90 -48 ${height / 2})`
+            }));
+          }
+
+          twentyQModelOrder.forEach((label) => {
+            const series = rows
+              .filter((row) => row.dataset === panel.key && row.examiner_label === "GPT-5-mini" && row.guesser_label === label)
+              .sort((a, b) => num(a.turn) - num(b.turn));
+            if (!series.length) return;
+            const points = series.map((row) => [xScale(num(row.turn)), yScale(num(row[yKey])), row]);
+            const key = `${container.dataset.chart}-${panel.key}-${label}`;
+            g.appendChild(el("path", {
+              d: linePath(points.map((p) => [p[0], p[1]])),
+              fill: "none",
+              stroke: twentyQColors[label],
+              "stroke-width": 2.1,
+              opacity: 0.86,
+              ...interactiveAttrs(key, `${label}\ndataset = ${datasetTitle(panel.key)}\nexaminer = GPT-5-mini`)
+            }));
+            points.forEach(([cx, cy, row]) => {
+              if (num(row.turn) % 2 !== 1 && num(row.turn) !== 20) return;
+              g.appendChild(el("circle", {
+                cx,
+                cy,
+                r: 3.1,
+                fill: twentyQColors[label],
+                stroke: "#ffffff",
+                "stroke-width": 0.8,
+                ...interactiveAttrs(key, `${label}\ndataset = ${datasetTitle(panel.key)}\nturn = ${row.turn}\n${valueLabel} = ${fmt(num(row[yKey]))}\nn = ${row.n}`)
+              }));
+            });
+          });
+          svg.appendChild(g);
+        });
+        svg.appendChild(textNode(470, 382, "Turn", { "text-anchor": "middle", class: "axis-title", "font-size": 15 }));
+        draw20QLegend(svg, twentyQModelOrder.map((label) => ({ label, color: twentyQColors[label] })), 158, 432, 226);
+        container.replaceChildren(svg);
+      }
+
+      function renderFig10(container, rows) {
+        const svg = el("svg", { viewBox: "0 0 940 360", "aria-hidden": "true" });
+        const evalOrder = ["Qwen3-4B", "Qwen3-30B", "Gemini-3-flash", "GPT-5-mini", "GPT-5"];
+        const rowOrder = [
+          { dataset: "common", guesser: "Qwen3-4B" },
+          { dataset: "common", guesser: "GPT-5-mini" },
+          { dataset: "thing", guesser: "Qwen3-4B" },
+          { dataset: "thing", guesser: "GPT-5-mini" }
+        ];
+        const x = 258;
+        const y = 42;
+        const cellW = 116;
+        const cellH = 58;
+        const minV = 0.10;
+        const maxV = 0.37;
+        const blue = (value) => {
+          const t = Math.max(0, Math.min(1, (value - minV) / (maxV - minV)));
+          return mixColor("#eef4fb", "#0b4f94", t);
+        };
+        const findValue = (rowInfo, evalLabel) => rows.find((row) => (
+          row.dataset === rowInfo.dataset &&
+          row.guesser_label === rowInfo.guesser &&
+          row.eval_label === evalLabel
+        ));
+
+        rowOrder.forEach((rowInfo, rowIndex) => {
+          const yy = y + rowIndex * cellH;
+          svg.appendChild(textNode(x - 18, yy + cellH / 2 - 8, `Target from ${datasetTitle(rowInfo.dataset)}`, {
+            "text-anchor": "end",
+            fill: chartColors.text,
+            "font-size": 15
+          }));
+          svg.appendChild(textNode(x - 18, yy + cellH / 2 + 12, `Dialogue from ${rowInfo.guesser}`, {
+            "text-anchor": "end",
+            fill: chartColors.text,
+            "font-size": 15
+          }));
+          evalOrder.forEach((evalLabel, colIndex) => {
+            const record = findValue(rowInfo, evalLabel);
+            const value = record ? num(record.accuracy) : NaN;
+            const xx = x + colIndex * cellW;
+            const key = `fig10-${rowInfo.dataset}-${rowInfo.guesser}-${evalLabel}`;
+            const tip = `${datasetTitle(rowInfo.dataset)} dialogue from ${rowInfo.guesser}\nanswer model = ${evalLabel}\naccuracy = ${fmt(value, 3)}\nn = ${record?.n || 0}`;
+            svg.appendChild(el("rect", {
+              x: xx,
+              y: yy,
+              width: cellW,
+              height: cellH,
+              fill: Number.isFinite(value) ? blue(value) : "#f7f7f2",
+              stroke: "#ffffff",
+              "stroke-width": 1.2,
+              ...interactiveAttrs(key, tip)
+            }));
+            if (Number.isFinite(value)) {
+              svg.appendChild(textNode(xx + cellW / 2, yy + cellH / 2 + 6, fmt(value, 3), {
+                "text-anchor": "middle",
+                fill: value > 0.25 ? "#ffffff" : chartColors.text,
+                "font-size": 15,
+                "font-weight": 650,
+                "pointer-events": "none"
+              }));
+            }
+          });
+        });
+
+        svg.appendChild(el("line", { x1: x - 166, y1: y + cellH * 2, x2: x + cellW * evalOrder.length, y2: y + cellH * 2, stroke: "#52615a", "stroke-width": 1.3 }));
+        evalOrder.forEach((label, idx) => {
+          svg.appendChild(textNode(x + idx * cellW + cellW / 2, y + cellH * 4 + 24, label, {
+            "text-anchor": "middle",
+            fill: chartColors.text,
+            "font-size": 15
+          }));
+        });
+        svg.appendChild(textNode(x + (cellW * evalOrder.length) / 2, y + cellH * 4 + 55, "Answer Model", {
+          "text-anchor": "middle",
+          class: "axis-title",
+          "font-size": 15
+        }));
+        svg.appendChild(textNode(38, y + cellH * 2, "Evaluation Setting", {
+          "text-anchor": "middle",
+          class: "axis-title",
+          "font-size": 15,
+          transform: `rotate(-90 38 ${y + cellH * 2})`
+        }));
+
+        const cbX = x + cellW * evalOrder.length + 34;
+        const cbY = y;
+        const cbH = cellH * 4;
+        for (let i = 0; i < 28; i += 1) {
+          const t = i / 27;
+          svg.appendChild(el("rect", {
+            x: cbX,
+            y: cbY + cbH - (i + 1) * (cbH / 28),
+            width: 16,
+            height: cbH / 28 + 0.4,
+            fill: mixColor("#eef4fb", "#0b4f94", t)
+          }));
+        }
+        [0.15, 0.20, 0.25, 0.30, 0.35].forEach((tick) => {
+          const yy = cbY + cbH - ((tick - minV) / (maxV - minV)) * cbH;
+          svg.appendChild(el("line", { x1: cbX + 18, y1: yy, x2: cbX + 24, y2: yy, stroke: chartColors.axis, "stroke-width": 1 }));
+          svg.appendChild(textNode(cbX + 30, yy + 5, tick.toFixed(2), { fill: chartColors.axis, "font-size": 13 }));
+        });
+        svg.appendChild(textNode(cbX + 68, cbY + cbH / 2, "Accuracy", {
+          "text-anchor": "middle",
+          class: "axis-title",
+          "font-size": 15,
+          transform: `rotate(-90 ${cbX + 68} ${cbY + cbH / 2})`
+        }));
+        container.replaceChildren(svg);
+      }
+
+      function renderFig8(container, rows) {
+        render20QTurnChart(container, rows, {
+          yKey: "remaining_entropy",
+          yLabel: "Remaining entropy",
+          yDomain: [0, 4.2],
+          yTicks: [0, 1, 2, 3, 4],
+          valueLabel: "remaining entropy"
+        });
+      }
+
+      function renderFig9(container, rows) {
+        render20QTurnChart(container, rows, {
+          yKey: "pass_mass",
+          yLabel: "Pass-support mass",
+          yDomain: [0, 0.85],
+          yTicks: [0, 0.2, 0.4, 0.6, 0.8],
+          valueLabel: "pass-support mass"
+        });
+      }
+
+      async function renderWebCharts() {
+        const charts = document.querySelectorAll(".web-chart");
+        await Promise.all(Array.from(charts).map(async (container) => {
+          try {
+            const response = await fetch(container.dataset.src);
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            const rows = parseCSV(await response.text());
+            if (container.dataset.chart === "fig1") renderFig1(container, rows);
+            if (container.dataset.chart === "fig2") renderFig2(container, rows);
+            if (container.dataset.chart === "fig3") renderFig3(container, rows);
+            if (container.dataset.chart === "fig4") renderFig4(container, rows);
+            if (container.dataset.chart === "fig5") renderFig5(container, rows);
+            if (container.dataset.chart === "fig6") renderFig6(container, rows);
+            if (container.dataset.chart === "fig7") renderFig7(container, rows);
+            if (container.dataset.chart === "fig8") renderFig8(container, rows);
+            if (container.dataset.chart === "fig9") renderFig9(container, rows);
+            if (container.dataset.chart === "fig10") renderFig10(container, rows);
+            makeChartInteractive(container);
+          } catch (error) {
+            console.warn("Chart render failed", container.dataset.chart, error);
+            container.classList.add("failed");
+          }
+        }));
+      }
+
+      renderWebCharts();
+
+      const revealItems = document.querySelectorAll(".reveal-on-scroll");
+      const tocLinks = document.querySelectorAll(".toc a");
+
+      const revealObserver = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add("is-visible");
+            } else {
+              entry.target.classList.remove("is-visible");
+            }
+          });
+        },
+        { rootMargin: "0px 0px -12% 0px", threshold: 0.12 }
+      );
+
+      revealItems.forEach((item) => revealObserver.observe(item));
+
+      const activeObserver = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (!entry.isIntersecting) return;
+            tocLinks.forEach((link) => {
+              link.classList.toggle("active", link.getAttribute("href") === `#${entry.target.id}`);
+            });
+          });
+        },
+        { rootMargin: "-35% 0px -45% 0px", threshold: 0.01 }
+      );
+
+      document.querySelectorAll(".takeaway-item").forEach((item) => activeObserver.observe(item));
+    </script>
+  </body>
+</html>
