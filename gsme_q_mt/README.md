@@ -10,7 +10,7 @@ dependency graphs with deeper dependencies and larger variable sets.
 
 Released files: [data/gsme_q_mt.csv](../data/gsme_q_mt.csv)
 and [data/gsme_q_mt_ext.csv](../data/gsme_q_mt_ext.csv). See
-`Setup` in the [root README](../README.md) for env, API keys, and vLLM.
+[SETUP.md](../SETUP.md) for env, API keys, and vLLM.
 
 ## Running the evaluators
 

@@ -1,8 +1,6 @@
-"""grn_dataset_curator.py (REFACTORED)
+"""Curate *globally minimal* k-sufficient (k<=4) multi-turn information-seeking tasks from Boolean GRNs.
 
-Curate *globally minimal* k-sufficient (k<=4) multi-turn information-seeking tasks from Boolean GRNs.
-
-This refactor makes boolean_network_utils.py the single source of truth for:
+boolean_network_utils.py is the single source of truth for:
   - basin-map caching (n<=21) and fixed point enumeration
   - exact (global) minimal k-sufficient subset search
   - recursion-based enumeration of completions via basin lookups (no simulation)

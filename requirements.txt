@@ -27,5 +27,5 @@ google-auth>=2.0
 # Croissant metadata (only needed when regenerating croissant.json)
 mlcroissant>=1.0
 
-# Notebooks (data_postprocessing.ipynb, boolean_network_stats.ipynb)
+# Notebooks (logic_q_mt/data_generation/data_postprocessing.ipynb)
 jupyter>=1.0

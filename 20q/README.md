@@ -8,8 +8,8 @@ Two candidate pools — **common** (animals, places, food, objects) and
 **thing** (THING200) — are defined in [data/data_20q.py](../data/data_20q.py).
 `python run_eval.py --datasets 20q --full ...` evaluates both pools; the smoke
 run uses the first six Common targets only.
-The importable Python package is `20q/twenty_questions/`. See `Setup` in the
-[root README](../README.md) for env, API keys, and vLLM.
+The importable Python package is `20q/twenty_questions/`. See
+[SETUP.md](../SETUP.md) for env, API keys, and vLLM.
 
 ## Run inference
 

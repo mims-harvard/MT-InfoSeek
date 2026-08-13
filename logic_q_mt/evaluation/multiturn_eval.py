@@ -342,7 +342,7 @@ def dict_to_episode_result(d: Dict[str, Any]) -> EpisodeResult:
     world = World(
         assignments=d["world"]["assignments"],
         target_value=d["world"]["target_value"],
-        variables=d["world"]["variables"] if "variables" in d["world"] else sorted(list(d["world"]["assignments"].keys())),  # TODO: for compatibility with old cache
+        variables=d["world"]["variables"] if "variables" in d["world"] else sorted(list(d["world"]["assignments"].keys())),  # fallback for caches written before `variables` was recorded
     )
     turn_logs = [
         TurnLog(
@@ -562,39 +562,12 @@ def oracle_answer(clauses: List[Set[Tuple[str, bool]]],
                 raise ValueError("Infeasible base context detected in non-adversarial oracle.")
             # if forced_goal is the opposite, this answer cannot happen in the assumed world
             if forced_goal is not None and forced_goal != goal_value:
-                # print("Clauses:\n")
-                # print(clauses)
-                # print()
-                # print("Base context:\n")
-                # print(base_context)
-                # print()
-                # print("World:\n")
-                # print(world)
-                # print()
-                # print("goal:\n")
-                # print(goal)
-                # print()
-                # print("goal value:\n")
-                # print(goal_value)
-                # print()
-                # print("base_context_wo_assignments:\n")
-                # print(base_context_wo_assignments)
-                # print()
-                # print("ctx:\n")
-                # print(ctx)
-                # print()
-                # print("questions:\n")
-                # print(questions)
-                # print()
-                # print("q:\n")
-                # print(q)
-                # print()
-                raise ValueError("Infeasible  base context detected in non-adversarial oracle.")
+                raise ValueError("Infeasible base context detected in non-adversarial oracle.")
 
             is_ambiguous = forced_goal is None
         
         elif oracle_type in ("adversarial", "cooperative"):
-            assert base_context == base_context_wo_assignments, "base_context should not contain world assignments for adversarial/cooperative oracle."  # DEBUG
+            assert base_context == base_context_wo_assignments, "base_context should not contain world assignments for adversarial/cooperative oracle."
             answer, var_value, is_ambiguous = special_oracle_logic(clauses, base_context, var, goal, goal_value, oracle_type=oracle_type)
             answers.append(answer)
             inferred[var] = var_value
@@ -604,7 +577,7 @@ def oracle_answer(clauses: List[Set[Tuple[str, bool]]],
 
         all_is_ambiguous = all_is_ambiguous and is_ambiguous
         
-        # UPDATE base context per question (to avoid inconsistencies, if any)  # TODO: Check validity of this
+        # Update base context per question so later answers stay consistent with earlier ones
         base_context.update(inferred)
         base_context_wo_assignments.update(inferred)
     

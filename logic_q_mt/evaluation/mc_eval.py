@@ -53,11 +53,8 @@ def main(user_args) -> None:
     model_name_sanitized += f"_{user_args.reasoning_effort}"
   results_dir = os.path.join(user_args.results_dir, f"{user_args.domain_name}/{user_args.eval_mode}/{model_name_sanitized}/{user_args.prompt_mode}")
   cache_dir = os.path.join(results_dir, "cache")
-  # if not os.path.exists(cache_dir):
-  #   os.makedirs(cache_dir)
   data_file_base_name = os.path.splitext(os.path.basename(user_args.data_file))[0]
   time_tag = datetime.now().strftime("%m_%d_%H_%M_%S")
-  # output_file_name = f"{data_file_base_name}_{time_tag}"  # TODO: Remove time tag after fixing the setup
   output_file_name_wo_time_tag = f"{data_file_base_name}" + ("forbid_alt" if user_args.forbid_alternatives else "")
   cache_file = os.path.join(cache_dir, f"{output_file_name_wo_time_tag}.jsonl")
   if not os.path.exists(cache_file):

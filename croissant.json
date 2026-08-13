@@ -49,7 +49,7 @@
   },
   "@type": "sc:Dataset",
   "name": "MT-InfoSeek",
-  "description": "A benchmark release for multi-turn information seeking, framed as solving an under-specified constraint satisfaction problem with k unknown variables. This Croissant file documents the public non-clinical subset of MT-INFOSEEK v1.0.0, including Logic-Q-MT, GSME-Q-MT, GSME-Q-MT-Ext, GeneReg-MT, and 20-Questions concept lists. ClinGuide-MT, used in the accompanying paper for clinical guideline-based evaluation, is not included in this release and should be documented separately if released. Models are evaluated along three axes: what they ask, when they ask it, and how acquired information affects the final answer.",
+  "description": "A benchmark release for multi-turn information seeking, framed as solving an under-specified constraint satisfaction problem with k unknown variables. This Croissant file documents the public non-clinical subset of MT-InfoSeek v1.0.0, including Logic-Q-MT, GSME-Q-MT, GSME-Q-MT-Ext, GeneReg-MT, and 20-Questions concept lists. ClinGuide-MT, used in the accompanying paper for clinical guideline-based evaluation, is not included in this release and should be documented separately if released. Models are evaluated along three axes: what they ask, when they ask it, and how acquired information affects the final answer.",
   "conformsTo": "http://mlcommons.org/croissant/1.0",
   "citeAs": "@misc{huang2026mtinfoseek, title={Do LLMs Know What to Ask and When? Evaluating Multi-Turn Information Seeking}, author={Yepeng Huang and Jiawen Zhang and Michelle Dai and Xiaorui Su and Shanghua Gao and Zi Wang and Marinka Zitnik}, year={2026}}",
   "creator": [
@@ -110,7 +110,7 @@
     "GeneReg-MT uses Boolean GRN models from Kadelka et al. (2024) that are biased toward immune-cell and developmental biology, so biological coverage is non-uniform.",
     "20-Questions candidate sets are skewed toward Western and English-language concepts (BIG-bench, UoT), and do not capture cultural or geographic diversity.",
     "k is bounded above (k <= 4 for GSME-Q-MT) and the benchmark does not directly evaluate behavior in the presence of noisy or contradictory oracle responses.",
-    "ClinGuide-MT is evaluated in the accompanying paper but is not included in this public Croissant-described release. This release should therefore be interpreted as the public non-clinical subset of MT-INFOSEEK."
+    "ClinGuide-MT is evaluated in the accompanying paper but is not included in this public Croissant-described release. This release should therefore be interpreted as the public non-clinical subset of MT-InfoSeek."
   ],
   "rai:dataSocialImpact": "Positive: better evaluation of clarification-question behavior can drive LLMs that are more conservative under under-specification and that issue targeted clarification questions instead of guessing, which improves reliability in high-stakes settings (medicine, science, education). Negative: as with any capability benchmark, scores can be misread as license to deploy in safety-critical settings; multi-turn information-seeking ability does not by itself imply factual or safety reliability, and biases inherited from the upstream sources may be reproduced if the benchmark is used as supervision.",
   "rai:dataUseCases": [

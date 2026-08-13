@@ -342,7 +342,7 @@ metadata = mlc.Metadata(
     description=(
         "A benchmark release for multi-turn information seeking, framed as solving "
         "an under-specified constraint satisfaction problem with k unknown variables. "
-        "This Croissant file documents the public non-clinical subset of MT-INFOSEEK "
+        "This Croissant file documents the public non-clinical subset of MT-InfoSeek "
         f"v{VERSION}, including Logic-Q-MT, GSME-Q-MT, GSME-Q-MT-Ext, GeneReg-MT, "
         "and 20-Questions concept lists. ClinGuide-MT, used in the accompanying paper "
         "for clinical guideline-based evaluation, is not included in this release "
@@ -427,7 +427,7 @@ metadata = mlc.Metadata(
         (
             "ClinGuide-MT is evaluated in the accompanying paper but is not included in "
             "this public Croissant-described release. This release should therefore be "
-            "interpreted as the public non-clinical subset of MT-INFOSEEK."
+            "interpreted as the public non-clinical subset of MT-InfoSeek."
         ),
     ],
     data_biases=[
