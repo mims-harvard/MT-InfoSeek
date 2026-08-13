@@ -49,28 +49,28 @@ Please read each treatment tree as a whole, and then follow the rules below:
 - Ignore Extraneous Text:
   Ignore all text that is not part of the decision tree itself (titles, legends, explanatory notes).
 
-Example format (with intermediate-branch merging):
+Example format (synthetic illustration, with intermediate-branch merging):
 {
-  "Post HM": {
-    "Pelvic Doppler USS": {
-      "Chest X-ray": {
-        ">1cm mets OR ? mets": {
-          "CT chest": [
-            "Given CT chest >1cm mets, MRI Brain",
-            "Given CT chest normal, No further tests"
+  "After initial screening": {
+    "Baseline blood panel": {
+      "Imaging test A": {
+        "Finding X OR indeterminate finding": {
+          "Confirmatory test B": [
+            "Given confirmatory test B positive, Specialist referral",
+            "Given confirmatory test B negative, No further tests"
           ]
         },
-        "Given Chest X-ray normal, No further tests": "Given Chest X-ray normal, No further tests"
+        "Given imaging test A normal, No further tests": "Given imaging test A normal, No further tests"
       }
     }
   },
-  "Post other pregnancy or on relapse": {
+  "After recurrence or late presentation": {
     "Investigations": [
-      "Pelvic Doppler USS",
-      "MRI pelvis",
-      "CT chest / abdo",
-      "MRI brain",
-      "+/- CT-PET scan"
+      "Baseline blood panel",
+      "Imaging test A",
+      "Imaging test B",
+      "Confirmatory test B",
+      "+/- Additional imaging C"
     ]
   }
 }

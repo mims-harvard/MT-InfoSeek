@@ -46,6 +46,14 @@ for rs in d.get("recordSet", []):
         if "source" not in fld and "value" not in fld:
             errors.append(f"Field {fid} missing source or value")
 
+# data/data_20q.py is the released artifact referenced by croissant.json, but the
+# evaluator imports the package copy — the two must stay byte-identical.
+repo = pathlib.Path(__file__).resolve().parent
+released_20q = repo / "data" / "data_20q.py"
+package_20q = repo / "20q" / "twenty_questions" / "data" / "data_20q.py"
+if released_20q.read_bytes() != package_20q.read_bytes():
+    errors.append("data/data_20q.py differs from 20q/twenty_questions/data/data_20q.py")
+
 print("Total errors:", len(errors))
 for e in errors:
     print(" -", e)

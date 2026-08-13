@@ -122,7 +122,6 @@ openai_client = None
 co = None
 genai = None
 glm = None
-anthropic = None
 claude_client = None
 llama_client = None
 mistral_client = None
@@ -247,19 +246,6 @@ def _get_google_genai_modules():
     genai = google_genai
     genai_types = google_genai_types
     return genai, genai_types
-
-
-def _get_claude_aiproxy_client():
-    global anthropic
-    if anthropic is not None:
-        return anthropic
-    api_key = _env_str("CLAUDE2_API_KEY")
-    if not api_key:
-        raise RuntimeError("CLAUDE2_API_KEY is not set, but Claude-2 proxy model was requested.")
-    from anthropic import Anthropic
-    anthropic = Anthropic(api_key=api_key, base_url="https://api.aiproxy.io")
-    _debug_secret("CLAUDE2_API_KEY", api_key)
-    return anthropic
 
 
 def _get_anthropic_client():
@@ -1420,37 +1406,6 @@ def gemini_response(
         return gemini_response(message, model, temperature, top_p, max_tokens, reasoning_effort)
 
 
-def claude_aiproxy_response(
-    message,
-    model=None,
-    temperature=DEFAULT_GENERATION_CONFIG["temperature"],
-    top_p=DEFAULT_GENERATION_CONFIG["top_p"],
-    max_tokens=DEFAULT_GENERATION_CONFIG["max_tokens"],
-    reasoning_effort=DEFAULT_GENERATION_CONFIG["reasoning_effort"],
-):
-    client = _get_claude_aiproxy_client()
-
-    from anthropic import HUMAN_PROMPT, AI_PROMPT
-
-    prompt = ""
-    for m in message:
-        prompt += AI_PROMPT if m["role"] in ["system", "assistant"] else HUMAN_PROMPT
-        prompt += " " + m["content"]
-    prompt += AI_PROMPT
-    try:
-        res = client.completions.create(
-            model="claude-2",
-            max_tokens_to_sample=max_tokens,
-            temperature=temperature,
-            prompt=prompt,
-        )
-        return res, res.completion, "", 0
-    except Exception as e:
-        print(e)
-        time.sleep(1)
-        return claude_aiproxy_response(message, model, temperature, top_p, max_tokens, reasoning_effort)
-
-
 def claude_response(
     message,
     model="claude-3-sonnet-20240229",
@@ -1869,8 +1824,6 @@ def get_response_method(model):
         return cohere_response
     if model_lower.startswith("palm"):
         return palm_response
-    if model_lower.startswith("_claude"):
-        return claude_aiproxy_response
     if model_lower.startswith("claude"):
         return claude_response
     if model_lower.startswith("llama"):

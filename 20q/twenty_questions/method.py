@@ -1,4 +1,5 @@
 import copy
+import os
 import re
 from typing import Any, Tuple
 
@@ -118,7 +119,13 @@ def looks_like_question(text: str) -> bool:
     return t.endswith("?")
 
 
+# Per-turn guesser progress lines are printed by default; set TWENTYQ_DEBUG=0 to silence
+_GUESSER_TURN_DEBUG = os.environ.get("TWENTYQ_DEBUG", "1").lower() not in ("0", "false", "no")
+
+
 def _print_guesser_turn_debug(turn_stat: dict):
+    if not _GUESSER_TURN_DEBUG:
+        return
     if not isinstance(turn_stat, dict):
         return
 
@@ -126,7 +133,7 @@ def _print_guesser_turn_debug(turn_stat: dict):
 
     if action_type == "guess":
         print(
-            f"[GUESSER_DEBUG] turn={turn_stat.get('turn')} "
+            f"[guesser] turn={turn_stat.get('turn')} "
             f"type=guess "
             f"guess={turn_stat.get('normalized_guess')} "
             f"repeated_guess={turn_stat.get('repeated_guess')} "
@@ -136,13 +143,13 @@ def _print_guesser_turn_debug(turn_stat: dict):
         )
     elif action_type == "question":
         print(
-            f"[GUESSER_DEBUG] turn={turn_stat.get('turn')} "
+            f"[guesser] turn={turn_stat.get('turn')} "
             f"type=question "
             f"repeated_question={turn_stat.get('repeated_question')}"
         )
     else:
         print(
-            f"[GUESSER_DEBUG] turn={turn_stat.get('turn')} "
+            f"[guesser] turn={turn_stat.get('turn')} "
             f"type={action_type}"
         )
 
