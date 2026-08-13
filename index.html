@@ -91,6 +91,11 @@
         color: var(--ink);
       }
 
+      .nav-links a.active {
+        color: var(--ink);
+        box-shadow: 0 1.5px 0 0 #ad7a6d;
+      }
+
       .hero {
         background: linear-gradient(180deg, #ffffff 0%, #faf9f6 100%);
       }
@@ -231,11 +236,11 @@
       }
 
       .stage-character.agent {
-        left: clamp(14px, 3.4vw, 32px);
+        left: clamp(8px, 1.8vw, 24px);
       }
 
       .stage-character.human {
-        right: clamp(14px, 3.4vw, 32px);
+        right: clamp(8px, 1.8vw, 24px);
       }
 
       .stage-character svg {
@@ -246,7 +251,7 @@
       .dialogue {
         position: relative;
         z-index: 2;
-        width: min(410px, 100%);
+        width: min(410px, calc(100% - 118px));
         padding: 14px;
         border: 1px solid rgba(237, 235, 230, 0.9);
         border-radius: 14px;
@@ -459,9 +464,9 @@
         content: attr(data-def);
         position: absolute;
         left: 0;
-        bottom: calc(100% + 10px);
+        top: calc(100% + 8px);
         z-index: 20;
-        width: min(320px, 70vw);
+        width: min(320px, 76vw);
         padding: 10px 12px;
         border: 1px solid var(--line);
         border-radius: 10px;
@@ -483,6 +488,11 @@
       .term:focus::after {
         opacity: 1;
         transform: translateY(0);
+      }
+
+      .term.flip-x::after {
+        left: auto;
+        right: 0;
       }
 
       @media (max-width: 620px) {
@@ -771,15 +781,6 @@
         padding: 10px 0;
       }
 
-      .toc-title {
-        margin-bottom: 4px;
-        color: var(--faint);
-        font-size: 11px;
-        font-weight: 600;
-        letter-spacing: 0.16em;
-        text-transform: uppercase;
-      }
-
       .toc a {
         display: block;
         padding: 9px 11px;
@@ -966,11 +967,12 @@
         }
 
         .dialogue {
-          padding: 14px;
+          width: min(410px, calc(100% - 96px));
+          padding: 12px;
         }
 
         .stage-character {
-          display: none;
+          width: 36px;
         }
 
         .bubble {
@@ -1091,7 +1093,7 @@
     <section id="overview">
       <div class="section-inner">
         <div class="section-kicker">Framework</div>
-        <h2>A controlled framework for multi-turn information seeking.</h2>
+        <h2>A controlled evaluation framework for multi-turn information seeking.</h2>
         <p class="lede">
           We formalize multi-turn information seeking as solving a <strong>k-underspecified constraint
           satisfaction problem</strong>, where k variables are jointly required to determine the target
@@ -1118,7 +1120,7 @@
           and differ in the target value, so a model cannot succeed by guessing the most likely
           target.
         </p>
-        <p class="bench-stats">5,251 problems&ensp;·&ensp;9,006 task instances&ensp;·&ensp;5 domains&ensp;·&ensp;3 evaluation protocols</p>
+        <p class="bench-stats">5,251 problems&ensp;·&ensp;9,006 task instances&ensp;·&ensp;5 domains&ensp;·&ensp;<dfn class="term" tabindex="0" data-def="Predicting the degree of underspecification k; identifying a minimal sufficient set of variables; and solving the task through sequential multi-turn interaction.">3 evaluation protocols</dfn></p>
         
         <div class="dataset-grid">
           <div class="dataset-card">
@@ -1202,7 +1204,6 @@ Ask          “Is it a living thing?”
         <h2>What models ask, when they stop, and whether asking helps.</h2>
         <div class="takeaway-layout">
           <aside class="toc" aria-label="Findings table of contents">
-            <div class="toc-title">Contents</div>
             <a href="#takeaway-1">Underestimating k</a>
             <a href="#takeaway-2">Knowing what to ask</a>
             <a href="#takeaway-3">Turn budgets</a>
@@ -1250,8 +1251,9 @@ Ask          “Is it a living thing?”
             <article class="takeaway-item reveal-on-scroll" id="takeaway-3">
               <div class="takeaway-tag">Finding 03</div>
               <p class="takeaway-copy">
-                <strong>Sequential interaction improves information acquisition beyond total query count alone.</strong>
-                In Logic-Q-MT and GeneReg-MT,
+                <strong>Sequential interaction improves information acquisition beyond what the total number of queries alone can explain.</strong>
+                Under the same total query budget, distributing queries across turns often outperforms
+                asking many queries at once, and
                 <dfn class="term" tabindex="0" data-def="Whether the information acquired by the end of the dialogue is enough to uniquely determine the target.">final sufficiency</dfn>
                 generally increases as more turns are allowed.
               </p>
@@ -1266,7 +1268,9 @@ Ask          “Is it a living thing?”
               <div class="takeaway-tag">Finding 04</div>
               <p class="takeaway-copy">
                 <strong>In highly underspecified problems, success depends less on asking the perfect first question and more on sustaining effective information acquisition across turns.</strong>
-                Early-turn correctness correlates with success for small k, while late-turn correctness and turn count matter more as k grows.
+                Early-turn query quality predicts success when k is small; at larger k, stronger models are
+                distinguished by their ability to continue identifying useful information over extended
+                interactions.
               </p>
               <div class="figure-block">
                 <div class="web-chart" data-chart="fig4" data-src="web_data/fig4.csv" role="img" aria-label="Correlation between model behaviors and final sufficiency"></div>
@@ -1293,7 +1297,8 @@ Ask          “Is it a living thing?”
               <div class="takeaway-tag">Finding 06</div>
               <p class="takeaway-copy">
                 <strong>In order-dependent settings, asking the right questions is not enough if they are asked in the wrong order.</strong>
-                Clinical diagnostic pathways impose conditional dependencies, and violating them reduces final accuracy.
+                Clinical diagnostic pathways impose conditional dependencies; violating them drops final
+                accuracy even when the necessary information is eventually acquired.
               </p>
               <div class="figure-block">
                 <div class="web-chart" data-chart="fig6" data-src="web_data/fig6.csv" role="img" aria-label="ClinGuide final accuracy by query coverage and order"></div>
@@ -1309,20 +1314,24 @@ Ask          “Is it a living thing?”
               <div class="takeaway-tag">Finding 07</div>
               <p class="takeaway-copy">
                 <strong>Asking informative questions is necessary but not sufficient for successful multi-turn reasoning.</strong>
-                Models with similar question quality can differ substantially in final accuracy, indicating that success also depends on evidence integration.
+                Models with similar question informativeness can differ substantially in final accuracy,
+                indicating that success also depends on how effectively acquired evidence is integrated.
               </p>
               <div class="figure-pair">
                 <div class="figure-block">
                   <div class="web-chart" data-chart="fig7" data-src="web_data/fig7.csv" role="img" aria-label="20Q accuracy versus question quality"></div>
                   <img class="web-chart-fallback" loading="lazy" src="assets/20q-quality.png" alt="20Q accuracy versus question quality" />
                   <p class="caption">Accuracy versus
-                  <dfn class="term" tabindex="0" data-def="How much a question reduces uncertainty about the hidden target, normalized against the best possible question at that turn.">normalized information gain</dfn>
-                  across examiners.</p>
+                  <dfn class="term" tabindex="0" data-def="The expected reduction in uncertainty about the hidden target from a question's possible answers, normalized to be comparable across turns (nEIG).">normalized information gain</dfn>
+                  across
+                  <dfn class="term" tabindex="0" data-def="The examiner is the oracle model in 20Q that truthfully answers each question with Yes, No, or Pass.">examiners</dfn>.</p>
                 </div>
                 <div class="figure-block">
                   <div class="web-chart" data-chart="fig10" data-src="web_data/fig10.csv" role="img" aria-label="Target identification from the same QA trace"></div>
                   <img class="web-chart-fallback" loading="lazy" src="assets/20q-trace.png" alt="Target identification from the same QA trace" />
-                  <p class="caption">Target identification accuracy across answer models given the same QA dialogue.</p>
+                  <p class="caption">Target identification accuracy across
+                  <dfn class="term" tabindex="0" data-def="Models given a completed question–answer dialogue produced by another model and asked to identify the target from it (trace transfer).">answer models</dfn>
+                  given the same QA dialogue.</p>
                 </div>
               </div>
             </article>
@@ -1404,6 +1413,18 @@ Ask          “Is it a living thing?”
           const open = panel.classList.toggle("open");
           btn.setAttribute("aria-expanded", String(open));
         });
+      });
+
+      // Keep term tooltips inside the viewport: open to the left when the
+      // default left-aligned box would cross the right edge.
+      document.querySelectorAll(".term").forEach((term) => {
+        const reposition = () => {
+          const box = term.getBoundingClientRect();
+          const width = Math.min(320, window.innerWidth * 0.76);
+          term.classList.toggle("flip-x", box.left + width > window.innerWidth - 16);
+        };
+        term.addEventListener("mouseenter", reposition);
+        term.addEventListener("focus", reposition);
       });
     </script>
     <script>
@@ -2592,6 +2613,24 @@ Ask          “Is it a living thing?”
       );
 
       document.querySelectorAll(".takeaway-item").forEach((item) => activeObserver.observe(item));
+
+      const navLinks = document.querySelectorAll(".nav-links a");
+      const navSections = new Map();
+      navLinks.forEach((link) => {
+        const section = document.querySelector(link.getAttribute("href"));
+        if (section) navSections.set(section, link);
+      });
+      const navObserver = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (!entry.isIntersecting) return;
+            navLinks.forEach((link) => link.classList.remove("active"));
+            navSections.get(entry.target).classList.add("active");
+          });
+        },
+        { rootMargin: "-25% 0px -65% 0px", threshold: 0 }
+      );
+      navSections.forEach((_, section) => navObserver.observe(section));
     </script>
   </body>
 </html>
