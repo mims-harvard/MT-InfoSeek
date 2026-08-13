@@ -866,7 +866,7 @@
 
       .site-footer-inner {
         display: block;
-        width: min(1040px, calc(100% - 36px));
+        width: min(880px, calc(100% - 36px));
         margin: 0 auto;
       }
 
@@ -896,6 +896,11 @@
         .hero-inner {
           grid-template-columns: 1fr;
           padding-top: 52px;
+        }
+
+        h1,
+        .subtitle {
+          max-width: none;
         }
 
         .demo-stage {
@@ -1216,9 +1221,9 @@ Ask          “Is it a living thing?”
               <div class="takeaway-tag">Finding 01</div>
               <p class="takeaway-copy">
                 <strong>LLMs recognize when context is insufficient, but underestimate how much additional information is required.</strong>
-                Models almost never mistake an underspecified problem for a complete one — but their estimate of
-                <dfn class="term" tabindex="0" data-def="The degree of underspecification: the minimum number of variables that must be queried to uniquely determine the target.">k</dfn>,
-                how much is missing, gets worse and skews low as more variables are hidden.
+                Models rarely mistake an underspecified problem for a complete one, but their predictions of
+                <dfn class="term" tabindex="0" data-def="The degree of underspecification: the minimum number of variables that must be queried to uniquely determine the target.">k</dfn>
+                degrade — and skew low — as more variables are hidden.
               </p>
               <div class="figure-block">
                 <div class="web-chart" data-chart="fig3" data-src="web_data/fig3.csv" role="img" aria-label="Accuracy and under-prediction of degree of underspecification"></div>
@@ -1231,13 +1236,14 @@ Ask          “Is it a living thing?”
               <div class="takeaway-tag">Finding 02</div>
               <p class="takeaway-copy">
                 <strong>Knowing that information is missing does not mean knowing what information is needed.</strong>
-                Even when told exactly how many variables are missing, models often fail to name the right
-                set once two or more are needed.
+                Even when given the true k, models struggle to pinpoint which variables are needed:
+                <dfn class="term" tabindex="0" data-def="The fraction of problems where the model's proposed query set exactly matches a minimal sufficient set.">exact-set accuracy</dfn>
+                remains low whenever two or more variables are required.
               </p>
               <div class="figure-block">
                 <div class="web-chart" data-chart="fig2" data-src="web_data/fig2.csv" role="img" aria-label="Minimal sufficient set identification results"></div>
                 <img class="web-chart-fallback" loading="lazy" src="assets/minimal-queries.png" alt="Minimal sufficient set identification results" />
-                <p class="caption"><dfn class="term" tabindex="0" data-def="Minimal sufficient set: the smallest set of unknown variables whose values uniquely determine the target. Exact-set accuracy is the fraction of problems where the model's proposed query set matches one exactly.">MSS exact-set accuracy</dfn> with k not provided or provided.</p>
+                <p class="caption"><dfn class="term" tabindex="0" data-def="Minimal sufficient set: the smallest set of unknown variables whose values uniquely determine the target.">MSS</dfn> exact-set accuracy with k not provided or provided.</p>
               </div>
             </article>
 
@@ -1245,10 +1251,10 @@ Ask          “Is it a living thing?”
             <article class="takeaway-item reveal-on-scroll" id="takeaway-3">
               <div class="takeaway-tag">Finding 03</div>
               <p class="takeaway-copy">
-                <strong>Spreading questions across turns beats asking them all at once, even with the same total budget.</strong>
-                Models that ask a little, read the answer, then ask again reach
-                <dfn class="term" tabindex="0" data-def="Whether the information acquired by the end of the dialogue is enough to uniquely determine the target.">sufficiency</dfn>
-                more often than models that fire off all their questions in one batch — and more turns generally help.
+                <strong>Spreading questions across turns beats asking them all at once, even under the same total query budget.</strong>
+                Models that query, read the answer, and query again reach
+                <dfn class="term" tabindex="0" data-def="Whether the information acquired by the end of the dialogue is enough to uniquely determine the target.">final sufficiency</dfn>
+                more often than models that issue all their queries in one batch, and additional turns generally help.
               </p>
               <div class="figure-block">
                 <div class="web-chart" data-chart="fig1" data-src="web_data/fig1.csv" role="img" aria-label="Multi-turn budget experiments"></div>
@@ -1261,8 +1267,8 @@ Ask          “Is it a living thing?”
               <div class="takeaway-tag">Finding 04</div>
               <p class="takeaway-copy">
                 <strong>In highly underspecified problems, success depends less on asking the perfect first question and more on sustaining effective information acquisition across turns.</strong>
-                When little is missing, the first question matters most; when a lot is missing, what
-                separates models is whether they keep asking useful questions turn after turn.
+                Early-turn query quality predicts success when k is small; at larger k, models are separated
+                by whether they continue to surface useful information across turns.
               </p>
               <div class="figure-block">
                 <div class="web-chart" data-chart="fig4" data-src="web_data/fig4.csv" role="img" aria-label="Correlation between model behaviors and final sufficiency"></div>
@@ -1275,8 +1281,8 @@ Ask          “Is it a living thing?”
               <div class="takeaway-tag">Finding 05</div>
               <p class="takeaway-copy">
                 <strong>An incorrect first question is often recoverable if the model continues searching for target-relevant information.</strong>
-                Dialogues that miss on the first question but hit on the second end up nearly as successful
-                as those that hit immediately.
+                Dialogues whose first query misses but whose second finds a needed variable reach final
+                sufficiency nearly as often as dialogues that query correctly from the start.
               </p>
               <div class="figure-block">
                 <div class="web-chart" data-chart="fig5" data-src="web_data/fig5.csv" role="img" aria-label="Recovery after a wrong first-turn query"></div>
@@ -1290,8 +1296,9 @@ Ask          “Is it a living thing?”
               <div class="takeaway-tag">Finding 06</div>
               <p class="takeaway-copy">
                 <strong>In order-dependent settings, asking the right questions is not enough if they are asked in the wrong order.</strong>
-                In clinical pathways, later questions only make sense in light of earlier answers — models
-                that gather all the right facts in the wrong order still miss the diagnosis more often.
+                Clinical pathways impose conditional dependencies — later questions are interpretable only in
+                light of earlier answers — and violating that order lowers final accuracy even when all the
+                necessary information is eventually acquired.
               </p>
               <div class="figure-block">
                 <div class="web-chart" data-chart="fig6" data-src="web_data/fig6.csv" role="img" aria-label="ClinGuide final accuracy by query coverage and order"></div>
@@ -1307,8 +1314,8 @@ Ask          “Is it a living thing?”
               <div class="takeaway-tag">Finding 07</div>
               <p class="takeaway-copy">
                 <strong>Asking informative questions is necessary but not sufficient for successful multi-turn reasoning.</strong>
-                Two models can ask equally good questions yet answer very differently — using the gathered
-                answers well matters as much as asking well.
+                Models with similar question informativeness can differ substantially in final accuracy:
+                integrating the acquired evidence matters as much as acquiring it.
               </p>
               <div class="figure-pair">
                 <div class="figure-block">
@@ -1333,13 +1340,14 @@ Ask          “Is it a living thing?”
               <div class="takeaway-tag">Finding 08</div>
               <p class="takeaway-copy">
                 <strong>LLMs are better at coarse-grained narrowing than fine-grained disambiguation.</strong>
-                Models quickly narrow down the broad category of the target in early turns, but progress
-                stalls once only a few similar candidates remain.
+                <dfn class="term" tabindex="0" data-def="The entropy of the distribution over candidates still consistent with all answers so far; lower means the candidate space has been narrowed further.">Remaining entropy</dfn>
+                falls quickly in early turns as models identify the target&rsquo;s broad category, but the
+                curves flatten once only a few similar candidates remain.
               </p>
               <div class="figure-block">
                 <div class="web-chart" data-chart="fig8" data-src="web_data/fig8.csv" role="img" aria-label="Remaining entropy across 20Q turns"></div>
                 <img class="web-chart-fallback" loading="lazy" src="assets/20q-entropy.png" alt="Remaining entropy across 20Q turns" />
-                <p class="caption"><dfn class="term" tabindex="0" data-def="The entropy of the distribution over candidates still consistent with all answers so far; lower means the candidate space has been narrowed further.">Remaining entropy</dfn> across turns under the GPT-5-mini examiner.</p>
+                <p class="caption">Remaining entropy across turns under the GPT-5-mini examiner.</p>
               </div>
             </article>
 
@@ -1347,13 +1355,15 @@ Ask          “Is it a living thing?”
               <div class="takeaway-tag">Finding 09</div>
               <p class="takeaway-copy">
                 <strong>Ambiguous questions are not always failures.</strong>
-                When a question draws a &ldquo;Pass&rdquo; (neither yes nor no), stronger models still extract
-                partial evidence from it rather than treating the turn as wasted.
+                High
+                <dfn class="term" tabindex="0" data-def="The probability mass of remaining candidates for which the truthful answer to the question is “Pass” (neither yes nor no) — high mass means the question is ambiguous for much of the candidate set.">pass-support mass</dfn>
+                does not consistently lower final accuracy: stronger models extract partial evidence from a
+                &ldquo;Pass&rdquo; rather than treating the turn as wasted.
               </p>
               <div class="figure-block">
                 <div class="web-chart" data-chart="fig9" data-src="web_data/fig9.csv" role="img" aria-label="Pass-support mass across 20Q turns"></div>
                 <img class="web-chart-fallback" loading="lazy" src="assets/20q-passmass.png" alt="Pass-support mass across 20Q turns" />
-                <p class="caption"><dfn class="term" tabindex="0" data-def="Pass-support mass: the probability mass of remaining candidates for which the truthful answer to the question is “Pass” — high mass means the question is ambiguous for much of the candidate set.">Probability mass of candidates consistent with pass</dfn> under the GPT-5-mini examiner.</p>
+                <p class="caption">Probability mass of candidates consistent with pass under the GPT-5-mini examiner.</p>
               </div>
             </article>
           </div>
