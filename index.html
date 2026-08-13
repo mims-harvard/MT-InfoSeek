@@ -4,18 +4,21 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Do LLMs Know What to Ask and When?</title>
+    <meta name="description" content="MT-InfoSeek: a benchmark evaluating multi-turn information seeking in LLMs across mathematical, logical, biological, clinical, and common-knowledge tasks." />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💬</text></svg>" />
     <style>
+      @import url("https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&display=swap");
+
       :root {
-        --ink: #17201c;
-        --muted: #5f6c66;
-        --line: #d7ded9;
-        --paper: #fbfcfa;
-        --soft: #eef5f0;
-        --blue: #dceafa;
-        --rose: #fae8ee;
-        --green: #1f7a55;
-        --gold: #b07422;
-        --shadow: 0 18px 45px rgba(27, 38, 32, 0.1);
+        --ink: #1c1b18;
+        --muted: #6d6a63;
+        --faint: #98948a;
+        --line: #edebe6;
+        --paper: #fdfdfc;
+        --soft: #f6f4ef;
+        --blue: #f1f3f4;
+        --rose: #f8f0ec;
+        --shadow: 0 10px 30px rgba(40, 38, 32, 0.06);
       }
 
       * {
@@ -26,12 +29,18 @@
         scroll-behavior: smooth;
       }
 
+      html {
+        font-size: 15.5px;
+      }
+
       body {
         margin: 0;
         color: var(--ink);
         background: var(--paper);
-        font-family: "Aptos", "Inter", "Helvetica Neue", "Segoe UI", ui-sans-serif, system-ui, -apple-system, sans-serif;
-        line-height: 1.6;
+        font-family: "Instrument Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", "Helvetica Neue", sans-serif;
+        line-height: 1.7;
+        -webkit-font-smoothing: antialiased;
+        text-rendering: optimizeLegibility;
       }
 
       a {
@@ -48,9 +57,8 @@
         position: sticky;
         top: 0;
         z-index: 10;
-        border-bottom: 1px solid rgba(215, 222, 217, 0.86);
-        background: rgba(251, 252, 250, 0.9);
-        backdrop-filter: blur(14px);
+        background: rgba(253, 253, 252, 0.78);
+        backdrop-filter: blur(16px) saturate(1.3);
       }
 
       .nav-inner {
@@ -59,25 +67,32 @@
         justify-content: space-between;
         width: min(1160px, calc(100% - 36px));
         margin: 0 auto;
-        padding: 14px 0;
+        padding: 16px 0;
       }
 
       .brand {
-        font-weight: 760;
+        font-weight: 650;
+        font-size: 0.95rem;
+        letter-spacing: 0.01em;
       }
 
       .nav-links {
         display: flex;
-        gap: 20px;
+        gap: 24px;
         color: var(--muted);
-        font-size: 0.94rem;
+        font-size: 0.88rem;
+      }
+
+      .nav-links a {
+        transition: color 160ms ease;
+      }
+
+      .nav-links a:hover {
+        color: var(--ink);
       }
 
       .hero {
-        border-bottom: 1px solid var(--line);
-        background:
-          radial-gradient(circle at 20% 8%, rgba(31, 122, 85, 0.08), transparent 24rem),
-          linear-gradient(180deg, #ffffff 0%, #f5f8f4 100%);
+        background: linear-gradient(180deg, #ffffff 0%, #faf9f6 100%);
       }
 
       .hero-inner {
@@ -87,62 +102,101 @@
         align-items: center;
         width: min(1160px, calc(100% - 36px));
         margin: 0 auto;
-        padding: 78px 0 64px;
+        padding: 88px 0 76px;
       }
 
       h1 {
-        max-width: 900px;
+        max-width: 700px;
         margin: 0;
-        font-size: clamp(2.05rem, 4.25vw, 4.15rem);
-        line-height: 1.02;
-        font-weight: 820;
+        font-size: clamp(30px, 3.6vw, 46px);
+        line-height: 1.12;
+        font-weight: 700;
+        letter-spacing: -0.03em;
       }
 
       .subtitle {
-        max-width: 780px;
-        margin: 22px 0 0;
-        color: #33413b;
-        font-size: clamp(1.05rem, 1.7vw, 1.35rem);
+        max-width: 620px;
+        margin: 14px 0 0;
+        color: #4a4741;
+        font-size: 17px;
+        font-weight: 420;
       }
 
       .authors {
-        margin: 22px 0 0;
+        margin: 20px 0 0;
         color: var(--muted);
-        font-size: 0.98rem;
-        line-height: 1.55;
+        font-size: 14px;
+        line-height: 1.6;
+      }
+
+      .authors sup {
+        font-size: 10px;
+        color: var(--faint);
+      }
+
+      .authors a {
+        border-bottom: 1px solid #ddd9d1;
+        transition: border-color 160ms ease, color 160ms ease;
+      }
+
+      .authors a:hover {
+        color: var(--ink);
+        border-color: var(--muted);
+      }
+
+      .affiliation {
+        margin: 5px 0 0;
+        color: var(--faint);
+        font-size: 13px;
+      }
+
+      .affiliation sup {
+        font-size: 9px;
       }
 
       .authors-note {
-        margin: 4px 0 0;
-        color: var(--muted);
-        font-size: 0.9rem;
+        margin: 3px 0 0;
+        color: var(--faint);
+        font-size: 12px;
         line-height: 1.35;
       }
 
       .actions {
         display: flex;
         flex-wrap: wrap;
-        gap: 12px;
-        margin-top: 24px;
+        gap: 10px;
+        margin-top: 26px;
       }
 
       .button {
         display: inline-flex;
         align-items: center;
-        gap: 9px;
-        min-height: 42px;
-        padding: 10px 15px;
-        border: 1px solid #bfd3c7;
-        border-radius: 8px;
+        gap: 8px;
+        padding: 9px 20px;
+        border: 1px solid #ddd9d1;
+        border-radius: 9px;
         background: #ffffff;
-        font-weight: 720;
-        box-shadow: 0 5px 16px rgba(27, 38, 32, 0.06);
+        font-weight: 500;
+        font-size: 13px;
+        transition: border-color 160ms ease, background 160ms ease, transform 160ms ease, box-shadow 160ms ease;
+      }
+
+      .button:hover {
+        border-color: var(--faint);
+        background: var(--soft);
+        transform: translateY(-1px);
+        box-shadow: 0 6px 18px rgba(40, 38, 32, 0.06);
       }
 
       .button.primary {
-        border-color: #195d42;
+        border-color: var(--ink);
         color: #ffffff;
-        background: #195d42;
+        background: var(--ink);
+      }
+
+      .button.primary:hover {
+        border-color: #3a3833;
+        background: #3a3833;
       }
 
       .demo-stage {
@@ -152,24 +206,11 @@
         justify-content: center;
         min-height: 500px;
         padding: 28px 64px;
-        border: 1px solid #cdd8d1;
-        border-radius: 14px;
-        background:
-          radial-gradient(circle at 18% 20%, rgba(25, 93, 66, 0.08), transparent 16rem),
-          radial-gradient(circle at 82% 72%, rgba(183, 110, 31, 0.09), transparent 15rem),
-          linear-gradient(180deg, rgba(249, 252, 250, 0.92), rgba(255, 255, 255, 0.98)),
-          #ffffff;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        background: var(--soft);
         box-shadow: var(--shadow);
         overflow: hidden;
-      }
-
-      .demo-stage::before {
-        content: "";
-        position: absolute;
-        inset: 18px;
-        border: 1px solid rgba(213, 222, 216, 0.62);
-        border-radius: 12px;
-        pointer-events: none;
       }
 
       .stage-character {
@@ -180,11 +221,11 @@
         place-items: center;
         width: clamp(46px, 5.2vw, 58px);
         aspect-ratio: 1;
-        overflow: hidden;
-        border: 1px solid rgba(205, 216, 209, 0.72);
+        border: 1px solid rgba(221, 217, 209, 0.9);
         border-radius: 999px;
-        background: rgba(255, 255, 255, 0.9);
-        box-shadow: 0 12px 28px rgba(27, 38, 32, 0.08);
+        background: rgba(253, 253, 252, 0.65);
+        backdrop-filter: blur(3px);
+        color: #5c5952;
         transform: translateY(-50%);
         pointer-events: none;
       }
@@ -197,9 +238,9 @@
         right: clamp(14px, 3.4vw, 32px);
       }
 
-      .stage-character img {
-        width: 112%;
-        max-width: none;
+      .stage-character svg {
+        width: 56%;
+        height: 56%;
       }
 
       .dialogue {
@@ -207,10 +248,10 @@
         z-index: 2;
         width: min(410px, 100%);
         padding: 14px;
-        border: 1px solid rgba(213, 222, 216, 0.86);
+        border: 1px solid rgba(237, 235, 230, 0.9);
         border-radius: 14px;
-        background: rgba(255, 255, 255, 0.82);
-        box-shadow: 0 18px 46px rgba(27, 38, 32, 0.1);
+        background: rgba(255, 255, 255, 0.75);
+        box-shadow: 0 18px 46px rgba(40, 38, 32, 0.07);
         backdrop-filter: blur(14px);
       }
 
@@ -219,7 +260,7 @@
         max-width: 88%;
         margin: 10px 0;
         padding: 10px 12px;
-        border: 1px solid #bdcbc3;
+        border: 1px solid #e3e0da;
         border-radius: 12px;
         font-size: 0.82rem;
         line-height: 1.28;
@@ -229,8 +270,8 @@
       }
 
       .bubble.query {
-        background: #f3f7fb;
-        box-shadow: 0 4px 14px rgba(63, 83, 74, 0.06);
+        background: var(--blue);
+        box-shadow: 0 4px 14px rgba(40, 38, 32, 0.04);
       }
 
       .bubble.response,
@@ -238,12 +279,12 @@
         margin-left: auto;
         text-align: left;
         background: #ffffff;
-        box-shadow: 0 4px 14px rgba(63, 83, 74, 0.05);
+        box-shadow: 0 4px 14px rgba(40, 38, 32, 0.03);
       }
 
       .bubble.answer {
         background: var(--rose);
-        box-shadow: 0 4px 14px rgba(63, 83, 74, 0.05);
+        box-shadow: 0 4px 14px rgba(40, 38, 32, 0.03);
       }
 
       .dialogue-composer {
@@ -253,9 +294,9 @@
         margin-top: 14px;
         min-height: 38px;
         padding: 9px 12px;
-        border: 1px solid #d1ddd6;
+        border: 1px solid #e3e0da;
         border-radius: 999px;
-        background: #fbfcfb;
+        background: #fdfdfc;
         box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
         animation: composer-hide 14s infinite both;
       }
@@ -269,8 +310,8 @@
         width: 4px;
         height: 4px;
         border-radius: 999px;
-        background: #195d42;
-        opacity: 0.45;
+        background: var(--muted);
+        opacity: 0.5;
         animation: dot-pulse 1.2s infinite ease-in-out;
       }
 
@@ -349,60 +390,106 @@
         100% { opacity: 0; transform: translateY(-4px); }
       }
 
-      section {
-        border-bottom: 1px solid var(--line);
+      .section-inner {
+        width: min(880px, calc(100% - 36px));
+        margin: 0 auto;
+        padding: 74px 0;
       }
 
-      .section-inner {
+      #takeaways .section-inner {
         width: min(1040px, calc(100% - 36px));
-        margin: 0 auto;
-        padding: 62px 0;
       }
 
       .section-kicker {
-        color: var(--gold);
-        font-size: 0.82rem;
-        font-weight: 800;
+        color: #ad7a6d;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.16em;
         text-transform: uppercase;
       }
 
       h2 {
-        margin: 8px 0 18px;
-        font-size: clamp(1.55rem, 2.45vw, 2.2rem);
-        line-height: 1.12;
+        margin: 10px 0 18px;
+        font-size: clamp(21px, 2.2vw, 27px);
+        line-height: 1.25;
+        font-weight: 700;
+        letter-spacing: -0.022em;
       }
 
       .lede {
-        max-width: 820px;
-        color: #37443e;
-        font-size: 1.1rem;
+        color: #46433d;
       }
 
-      #motivation h2,
-      #motivation p,
-      #overview h2,
-      #overview p,
-      #overview .figure-block,
-      #datasets h2,
-      #datasets p,
-      #datasets .dataset-grid,
-      #datasets .setup-strip,
-      #conclusion h2,
-      #conclusion p {
-        max-width: 1040px;
+      .pull-stat {
+        display: flex;
+        align-items: baseline;
+        gap: 22px;
+        margin: 30px 0 0;
       }
 
-      #motivation em {
-        color: var(--ink);
+      .stat-number {
+        flex: 0 0 auto;
+        font-size: clamp(26px, 2.6vw, 34px);
+        font-weight: 700;
+        letter-spacing: -0.03em;
+        line-height: 1;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .stat-context {
+        margin: 0;
+        color: var(--muted);
+        font-size: 14px;
+        line-height: 1.65;
+      }
+
+      .term {
+        position: relative;
+        border-bottom: 1.5px dotted #8f8a7d;
+        cursor: help;
         font-style: normal;
-        font-weight: 720;
       }
 
-      .grid {
-        display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 18px;
-        margin-top: 30px;
+      .term:hover,
+      .term:focus {
+        border-bottom-color: var(--ink);
+      }
+
+      .term::after {
+        content: attr(data-def);
+        position: absolute;
+        left: 0;
+        bottom: calc(100% + 10px);
+        z-index: 20;
+        width: min(320px, 70vw);
+        padding: 10px 12px;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: #ffffff;
+        color: #46433d;
+        font-size: 12.5px;
+        font-weight: 400;
+        letter-spacing: 0;
+        text-transform: none;
+        line-height: 1.55;
+        box-shadow: 0 10px 30px rgba(40, 38, 32, 0.12);
+        opacity: 0;
+        pointer-events: none;
+        transform: translateY(4px);
+        transition: opacity 140ms ease, transform 140ms ease;
+      }
+
+      .term:hover::after,
+      .term:focus::after {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      @media (max-width: 620px) {
+        .pull-stat {
+          flex-direction: column;
+          gap: 10px;
+        }
       }
 
       .dataset-grid {
@@ -414,9 +501,15 @@
 
       .dataset-card {
         padding: 18px;
-        border: 1px solid #d5ded8;
-        border-radius: 8px;
+        border: 1px solid var(--line);
+        border-radius: 10px;
         background: #ffffff;
+        transition: border-color 160ms ease, box-shadow 160ms ease;
+      }
+
+      .dataset-card:hover {
+        border-color: #d9d5cc;
+        box-shadow: 0 8px 24px rgba(40, 38, 32, 0.05);
       }
 
       .dataset-card h3 {
@@ -430,9 +523,74 @@
 
       .dataset-card span {
         flex: 0 0 auto;
-        color: #195d42;
-        font-size: 0.8rem;
-        font-weight: 800;
+        color: var(--faint);
+        font-size: 10.5px;
+        font-weight: 600;
+        letter-spacing: 0.09em;
+        text-transform: uppercase;
+      }
+
+      .bench-stats {
+        margin: 26px 0 0;
+        color: var(--faint);
+        font-size: 13px;
+        letter-spacing: 0.02em;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .card-toggle {
+        margin-top: 12px;
+        padding: 0;
+        border: 0;
+        background: none;
+        color: var(--faint);
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: color 160ms ease;
+      }
+
+      .card-toggle:hover,
+      .card-toggle[aria-expanded="true"] {
+        color: var(--ink);
+      }
+
+      .card-toggle::before {
+        content: "+";
+        display: inline-block;
+        margin-right: 6px;
+        transition: transform 200ms ease;
+      }
+
+      .card-toggle[aria-expanded="true"]::before {
+        transform: rotate(45deg);
+      }
+
+      .card-example {
+        display: grid;
+        grid-template-rows: 0fr;
+        transition: grid-template-rows 260ms ease;
+      }
+
+      .card-example > div {
+        overflow: hidden;
+      }
+
+      .card-example pre {
+        margin: 12px 0 0;
+        padding: 12px 0 2px;
+        border-top: 1px solid var(--line);
+        color: #55524b;
+        font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+        font-size: 12px;
+        line-height: 1.7;
+        white-space: pre-wrap;
+      }
+
+      .card-example.open {
+        grid-template-rows: 1fr;
       }
 
       .dataset-card p {
@@ -444,9 +602,9 @@
       .setup-strip {
         margin-top: 26px;
         padding: 20px;
-        border: 1px solid #cdd8d1;
-        border-radius: 8px;
-        background: #f7faf8;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: var(--soft);
       }
 
       .setup-strip h3 {
@@ -456,70 +614,34 @@
 
       .setup-strip p {
         margin: 0;
-        color: #4f5d56;
-      }
-
-      .card {
-        min-height: 190px;
-        padding: 22px;
-        border: 1px solid #d5ded8;
-        border-radius: 8px;
-        background: #ffffff;
-      }
-
-      .card h3 {
-        margin: 0 0 10px;
-        font-size: 1.05rem;
-      }
-
-      .card p {
-        margin: 0;
-        color: var(--muted);
-      }
-
-      .figure-band {
-        background: #ffffff;
+        color: #5c5952;
       }
 
       .figure-block {
         margin-top: 24px;
-        border: 1px solid #d5ded8;
-        border-radius: 8px;
-        background: #ffffff;
-        overflow: hidden;
       }
 
       .figure-block img {
         width: 100%;
-        background: #ffffff;
       }
 
       .overview-figure {
+        max-width: 720px;
+        margin-left: auto;
+        margin-right: auto;
         padding: 0;
-      }
-
-      .overview-figure .overview-image-frame {
-        aspect-ratio: 16 / 7.8;
-        padding-top: 26px;
-        overflow: hidden;
-        background: #ffffff;
       }
 
       .overview-figure img {
         display: block;
         width: 100%;
-        height: 100%;
-        object-fit: cover;
-        object-position: center 48%;
-        transform: scale(1.55);
       }
 
       .web-chart {
         position: relative;
         width: 100%;
         min-height: 0;
-        padding: 14px 14px 4px;
-        background: #ffffff;
+        padding: 14px 0 4px;
       }
 
       .web-chart[data-chart="fig1"] {
@@ -549,7 +671,7 @@
 
       .web-chart .selectable-mark.is-selected {
         opacity: 1 !important;
-        filter: drop-shadow(0 2px 4px rgba(23, 32, 28, 0.22));
+        filter: drop-shadow(0 2px 4px rgba(40, 38, 32, 0.18));
       }
 
       .chart-tooltip {
@@ -557,11 +679,11 @@
         z-index: 5;
         max-width: 260px;
         padding: 9px 11px;
-        border: 1px solid #cbd8d1;
+        border: 1px solid #ddd9d1;
         border-radius: 8px;
         background: rgba(255, 255, 255, 0.96);
-        box-shadow: 0 10px 28px rgba(33, 46, 39, 0.14);
-        color: #17201c;
+        box-shadow: 0 10px 28px rgba(40, 38, 32, 0.1);
+        color: var(--ink);
         font-size: 0.78rem;
         line-height: 1.35;
         white-space: pre-line;
@@ -577,24 +699,24 @@
 
       .web-chart .axis,
       .web-chart .tick text {
-        color: #52615a;
+        color: #6a6760;
         font-size: 13px;
       }
 
       .web-chart .axis-title {
-        fill: #35423c;
+        fill: #45423c;
         font-size: 14px;
         font-weight: 650;
       }
 
       .web-chart .panel-title {
-        fill: #17201c;
+        fill: var(--ink);
         font-size: 16px;
-        font-weight: 760;
+        font-weight: 700;
       }
 
       .web-chart .legend {
-        fill: #3f4c46;
+        fill: #55524b;
         font-size: 13px;
       }
 
@@ -622,10 +744,9 @@
       }
 
       .caption {
-        margin: 0;
-        padding: 10px 16px 14px;
+        margin: 10px 0 0;
         color: var(--muted);
-        font-size: 0.95rem;
+        font-size: 0.9rem;
       }
 
       .takeaway-layout {
@@ -652,25 +773,27 @@
 
       .toc-title {
         margin-bottom: 4px;
-        color: var(--gold);
-        font-size: 0.76rem;
-        font-weight: 820;
+        color: var(--faint);
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.16em;
         text-transform: uppercase;
       }
 
       .toc a {
         display: block;
         padding: 9px 11px;
-        border-left: 2px solid #d5ded8;
+        border-left: 2px solid var(--line);
         color: var(--muted);
         font-size: 0.9rem;
+        transition: border-color 160ms ease, color 160ms ease, background 160ms ease;
       }
 
       .toc a:hover,
       .toc a.active {
-        border-left-color: #195d42;
+        border-left-color: var(--ink);
         color: var(--ink);
-        background: #f2f7f3;
+        background: var(--soft);
       }
 
       .takeaway-stack {
@@ -683,27 +806,34 @@
       }
 
       .takeaway-tag {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        padding: 5px 9px;
-        background: var(--blue);
-        color: var(--ink);
-        font-size: 0.82rem;
-        font-weight: 820;
-      }
-
-      .takeaway-tag::before {
-        content: "●";
-        color: #4f78c8;
-        font-size: 0.72rem;
+        display: inline-block;
+        color: var(--faint);
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
       }
 
       .takeaway-copy {
-        max-width: 850px;
-        margin: 14px 0 0;
-        color: #37443e;
-        font-size: 1.05rem;
+        margin: 12px 0 0;
+        color: #46433d;
+      }
+
+      .group-label {
+        margin: 10px 0 -18px;
+        color: var(--ink);
+        font-size: 15px;
+        font-weight: 650;
+        letter-spacing: -0.01em;
+      }
+
+      .group-label::before {
+        content: "";
+        display: block;
+        width: 34px;
+        height: 1px;
+        margin-bottom: 14px;
+        background: #d9d5cc;
       }
 
       .takeaway-copy strong {
@@ -711,8 +841,6 @@
       }
 
       .reveal-on-scroll {
-        content-visibility: auto;
-        contain-intrinsic-size: 620px;
         opacity: 0;
         transform: translateY(18px);
         transition: opacity 500ms ease, transform 500ms ease;
@@ -727,9 +855,9 @@
         margin: 24px 0 0;
         padding: 18px;
         overflow-x: auto;
-        border: 1px solid #d5ded8;
-        border-radius: 8px;
-        background: #f7faf8;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: var(--soft);
         font-size: 0.88rem;
         line-height: 1.45;
       }
@@ -737,7 +865,7 @@
       footer {
         color: var(--muted);
         padding: 30px 18px 44px;
-        background: #f8faf8;
+        background: var(--soft);
       }
 
       .site-footer-inner {
@@ -759,7 +887,7 @@
       }
 
       .footer-meta a {
-        color: #195d42;
+        color: var(--ink);
         font-weight: 650;
         text-decoration: none;
       }
@@ -778,7 +906,6 @@
           min-height: 560px;
         }
 
-        .grid,
         .dataset-grid {
           grid-template-columns: 1fr;
         }
@@ -810,7 +937,7 @@
         .toc a {
           flex: 0 0 auto;
           border-left: 0;
-          border-bottom: 2px solid #d5ded8;
+          border-bottom: 2px solid var(--line);
           white-space: nowrap;
         }
 
@@ -860,9 +987,9 @@
         <a class="brand" href="#">MT-InfoSeek</a>
         <div class="nav-links">
           <a href="#motivation">Motivation</a>
-          <a href="#overview">Overview</a>
-          <a href="#datasets">Datasets</a>
-          <a href="#takeaways">Takeaways</a>
+          <a href="#overview">Framework</a>
+          <a href="#datasets">Benchmark</a>
+          <a href="#takeaways">Findings</a>
           <a href="#conclusion">Conclusion</a>
         </div>
       </div>
@@ -874,20 +1001,35 @@
           <h1>Do LLMs Know What to Ask and When?</h1>
           <p class="subtitle">Evaluating multi-turn information seeking in LLMs.</p>
           <p class="authors">
-            Yepeng Huang*, Jiawen Zhang*, Michelle Dai, Xiaorui Su, Shanghua Gao, Zi Wang, Marinka Zitnik+
+            <a href="https://yepeng.notion.site/" target="_blank" rel="noopener">Yepeng Huang</a><sup>&dagger;*</sup>,
+            <a href="https://imjiawen.com/" target="_blank" rel="noopener">Jiawen Zhang</a><sup>&dagger;*</sup>,
+            <a href="https://www.linkedin.com/in/michelle-dai-867544185/" target="_blank" rel="noopener">Michelle Dai</a><sup>&dagger;</sup>,
+            <a href="https://blair1213.github.io/" target="_blank" rel="noopener">Xiaorui Su</a><sup>&dagger;</sup>,
+            <a href="https://shgao.site/" target="_blank" rel="noopener">Shanghua Gao</a><sup>&dagger;</sup>,
+            <a href="https://zi-wang.com/" target="_blank" rel="noopener">Zi Wang</a><sup>&dagger;&Dagger;</sup>,
+            <a href="https://zitniklab.hms.harvard.edu/" target="_blank" rel="noopener">Marinka Zitnik</a><sup>&dagger;</sup>
           </p>
+          <p class="affiliation"><sup>&dagger;</sup>Harvard University&ensp;·&ensp;<sup>&Dagger;</sup>Google DeepMind</p>
           <p class="authors-note">* Equal contribution</p>
           
           <div class="actions">
             <a class="button primary" href="#">Paper</a>
             <a class="button" href="https://github.com/mims-harvard/MT-InfoSeek/tree/main">Code</a>
+            <a class="button" href="https://github.com/mims-harvard/MT-InfoSeek/tree/main/data">Dataset</a>
             <a class="button" href="#citation">Citation</a>
           </div>
         </div>
 
         <div class="demo-stage" aria-label="Animated overview of multi-turn information seeking">
           <div class="stage-character agent" aria-hidden="true">
-            <img src="assets/agent.png" alt="" />
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="5" y="9" width="14" height="9.6" rx="3.1" />
+              <line x1="12" y1="9" x2="12" y2="6.2" />
+              <circle cx="12" cy="5" r="1" fill="currentColor" stroke="none" />
+              <circle cx="9.3" cy="13.1" r="0.55" fill="currentColor" stroke="none" />
+              <circle cx="14.7" cy="13.1" r="0.55" fill="currentColor" stroke="none" />
+              <path d="M9.8 15.9c0.7 0.6 1.4 0.9 2.2 0.9s1.5-0.3 2.2-0.9" />
+            </svg>
           </div>
           <div class="dialogue">
             <div class="bubble response step-1">A 35-year-old patient has upper-limb pain. What is the most likely diagnosis?</div>
@@ -903,7 +1045,10 @@
             </div>
           </div>
           <div class="stage-character human" aria-hidden="true">
-            <img src="assets/human.png" alt="" />
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="8.4" r="3.2" />
+              <path d="M5.8 19.2c1.1-3.3 3.5-4.9 6.2-4.9s5.1 1.6 6.2 4.9" />
+            </svg>
           </div>
         </div>
       </div>
@@ -912,69 +1057,49 @@
     <section id="motivation">
       <div class="section-inner">
         <div class="section-kicker">Motivation</div>
-          <h2>A model can get the answer right without asking follow-up questions.</h2>
+          <h2>A model should not answer before it knows enough.</h2>
           <p class="lede">
-            When a user's request is underspecified, a capable assistant should recognize that the current
-            context is insufficient, identify what information is missing, ask targeted questions, integrate
-            the responses, and commit only once the answer becomes determined. This capability is central to
-            interactive assistants, yet remains difficult to evaluate directly and systematically.
+            Large language models often operate under incomplete information in multi-turn
+            interactions, because a user task may be underspecified. A capable model should
+            recognize that its context is insufficient, identify and acquire the missing
+            information, and respond only once that information determines a unique answer.
+            Interactive settings depend on this capability, but direct and systematic evaluation
+            remains difficult.
           </p>
           <p>
-            Existing multi-turn benchmarks often emphasize final task success, dialogue quality, or user-facing
-            outcomes, without directly specifying what information should be requested or whether the model
-            stopped only after the target became identifiable. As a result, evaluation can be confounded by
-            model priors and answer-generation ability &mdash; final accuracy may overstate information-seeking
-            ability more than it reveals it.
+            Final task success does not indicate whether a model acquired the necessary
+            information. Existing multi-turn benchmarks measure task success, dialogue quality, or
+            user-facing outcomes, without specifying which information the model should request or
+            whether it stopped only after the target became identifiable. Model priors and the
+            ability to generate answers therefore confound the evaluation.
           </p>
-
+          <div class="pull-stat">
+            <div class="stat-number">60&ndash;70%</div>
+            <p class="stat-context">In MediQ, a 30B model answers correctly in roughly 60&ndash;70%
+            of cases from the initial incomplete information alone, so final accuracy overstates
+            the ability to seek information.</p>
+          </div>
           <p>
-            In MediQ, a 30B model gets 60&ndash;70% of cases right from the
-            <em>initial, incomplete</em> prompt &mdash; without asking any follow-up questions.
+            Representing an underspecified task as a constraint satisfaction problem removes these
+            sources of ambiguity, because the constraints determine which variables the model needs
+            before it can answer, and each question the model asks either names one of those
+            variables or does not.
           </p>
-
-          <p>
-            Structured formulations can reduce this ambiguity. QuestBench formalizes underspecified reasoning as
-            a Constraint Satisfaction Problem and provides the ground-truth missing variable a model should query
-            &mdash; but it only covers the special case where a <em>single</em> missing variable is sufficient.
-            Multi-turn information seeking is fundamentally different: multiple variables may be jointly
-            necessary, and the model must decide not just <em>what</em> to ask, but <em>in what order</em> and
-            <em>when to stop</em>. Capturing this requires representing joint sufficiency and tracking how each
-            queried value reshapes the feasible space over successive turns &mdash; dimensions that single-turn
-            query selection or final-answer accuracy alone cannot see.
-          </p>
-        <div class="grid">
-          <div class="card">
-            <h3>Setup</h3>
-            <p>Each task starts with missing details, and the model can ask follow-up questions before it answers.</p>
-          </div>
-          <div class="card">
-            <h3>Benchmark</h3>
-            <p>MT-InfoSeek covers math, logic, biology, clinical diagnosis, and common-knowledge tasks.</p>
-          </div>
-          <div class="card">
-            <h3>Evaluation</h3>
-            <p>We check what models ask, when they ask it, and whether the answers help them solve the task.</p>
-          </div>
-        </div>
       </div>
     </section>
 
-    <section id="overview" class="figure-band">
+    <section id="overview">
       <div class="section-inner">
-        <div class="section-kicker">Overview</div>
+        <div class="section-kicker">Framework</div>
         <h2>A controlled framework for multi-turn information seeking.</h2>
         <p class="lede">
           We formalize multi-turn information seeking as solving a <strong>k-underspecified constraint
-          satisfaction problem</strong>, where k denotes the number of variables jointly required to
-          determine the target. Each problem specifies constraints, observations, a target variable, and
-          minimal sufficient query sets; the model queries in multiple turns to gather missing information
-          and identify a hidden target.
-        </p>
-        <p>
-          Using this formulation, we study LLMs along three axes &mdash; what they ask, when they ask it,
-          and how the acquired information affects the final answer &mdash; separating information-seeking
-          behavior from forward reasoning to reveal model differences that final-answer accuracy alone
-          obscures.
+          satisfaction problem</strong>, where k variables are jointly required to determine the target
+          variable. The formulation provides ground truth for which variables the model needs,
+          allows controlled variation in the degree of underspecification k, and defines when the
+          model should stop asking and answer. We study three components of multi-turn information
+          seeking: which variables the model queries, when it stops, and how the acquired
+          information affects the final answer.
         </p>
         <div class="figure-block overview-figure">
           <div class="overview-image-frame">
@@ -986,43 +1111,75 @@
 
     <section id="datasets">
       <div class="section-inner">
-        <div class="section-kicker">Datasets</div>
-        <h2>MT-InfoSeek spans mathematical, biological, clinical, and open-ended settings.</h2>
+        <div class="section-kicker">Benchmark</div>
+        <h2>MT-InfoSeek spans mathematical, logical, biological, clinical, and common-knowledge tasks.</h2>
         <p class="lede">
-          The benchmark contains 5,251 underspecified problems and 9,006 induced task instances across
-          mathematical, logical, biological, clinical, and open-ended settings.
+          Each problem induces a family of task instances that share the same initial information
+          and differ in the target value, so a model cannot succeed by guessing the most likely
+          target.
         </p>
+        <p class="bench-stats">5,251 problems&ensp;·&ensp;9,006 task instances&ensp;·&ensp;5 domains&ensp;·&ensp;3 evaluation protocols</p>
         
         <div class="dataset-grid">
           <div class="dataset-card">
             <h3>Logic-Q-MT <span>Logical Reasoning</span></h3>
             <p>Rule-based logical reasoning environments where models recursively identify and query the
             missing facts needed to prove or disprove a target proposition.</p>
+            <button class="card-toggle" aria-expanded="false">Example</button>
+            <div class="card-example"><div><pre>Rules     smart ⇒ jittery
+          strange ∧ jittery ⇒ stubborn
+          jittery ∧ worried ⇒ pleasant
+Known     smart = true
+Target    pleasant = ?
+Ask       worried, stubborn</pre></div></div>
           </div>
           <div class="dataset-card">
-            <h3>GSME-Q-MT <span>Math</span></h3>
+            <h3>GSME-Q-MT (+ Ext) <span>Math</span></h3>
             <p>Grade-school math word problems with human-annotated missing conditions required to compute
-            an answer, extended to multi-turn by masking multiple quantities at once.</p>
-          </div>
-          <div class="dataset-card">
-            <h3>GSME-Q-MT-Ext <span>Math</span></h3>
-            <p>A more diagnostic math variant generated from DAG-structured arithmetic programs, with deeper
-            dependency chains, larger variable sets, and rigorously validated k-MSSs.</p>
+            an answer, extended to multi-turn by masking multiple quantities at once. The -Ext variant is
+            generated from DAG-structured arithmetic programs with deeper dependency chains, larger
+            variable sets, and rigorously validated k-MSSs.</p>
+            <button class="card-toggle" aria-expanded="false">Example</button>
+            <div class="card-example"><div><pre>Constraints  TF = 3·C   TW = 6·C
+             F3 = TF − F1 − F2
+Observed     F2 = 25   W1 = 10   W2 = 40
+Target       F3 = ?
+Ask          F1, C</pre></div></div>
           </div>
           <div class="dataset-card">
             <h3>GeneReg-MT <span>Biological</span></h3>
             <p>Boolean gene regulatory networks where variables are gene-expression states and the target is
             a steady state or a specific marker-gene value, testing navigation of cyclic dependencies.</p>
+            <button class="card-toggle" aria-expanded="false">Example</button>
+            <div class="card-example"><div><pre>Rules     A = T1 ∧ B ∧ H
+          S = H ∨ S
+          H = (T1 ∧ S) ∨ B   …
+Observed  T1(init) = 0
+Target    TO(steady) = ?
+Ask       TO(init), T2(init)</pre></div></div>
           </div>
           <div class="dataset-card">
             <h3>ClinGuide-MT <span>Clinical</span></h3>
             <p>Diagnostic decision trees derived from clinical guidelines, whose root-to-leaf pathways encode
             conditional dependencies among symptoms, tests, and findings.</p>
+            <button class="card-toggle" aria-expanded="false">Example</button>
+            <div class="card-example"><div><pre>Pathways  worst pain = hand
+            → Raynaud's → ask finger-color change
+          worst pain = forearm
+            → epicondylitis → ask erythema
+Observed  worst pain = hand
+Target    diagnosis = ?
+Ask       target-dependent queries</pre></div></div>
           </div>
           <div class="dataset-card">
-            <h3>20Q <span>Open-Ended</span></h3>
-            <p>The classic 20 Questions game as an open-domain setting: each natural-language yes/no question
+            <h3>20Q <span>Common Knowledge</span></h3>
+            <p>The classic 20 Questions game as a common-knowledge setting: each natural-language yes/no question
             dynamically partitions a finite candidate set instead of querying a predefined variable.</p>
+            <button class="card-toggle" aria-expanded="false">Example</button>
+            <div class="card-example"><div><pre>Constraints  world knowledge
+Target       object = ?
+Ask          “Is it a living thing?”
+             “Is it a mammal?” …  → rabbit</pre></div></div>
           </div>
         </div>
 
@@ -1041,28 +1198,31 @@
 
     <section id="takeaways">
       <div class="section-inner">
-        <div class="section-kicker">Takeaways</div>
-        <h2>Findings</h2>
+        <div class="section-kicker">Findings</div>
+        <h2>What models ask, when they stop, and whether asking helps.</h2>
         <div class="takeaway-layout">
-          <aside class="toc" aria-label="Takeaway table of contents">
+          <aside class="toc" aria-label="Findings table of contents">
             <div class="toc-title">Contents</div>
-            <a href="#takeaway-1">Takeaway 1</a>
-            <a href="#takeaway-2">Takeaway 2</a>
-            <a href="#takeaway-3">Takeaway 3</a>
-            <a href="#takeaway-4">Takeaway 4</a>
-            <a href="#takeaway-5">Takeaway 5</a>
-            <a href="#takeaway-6">Takeaway 6</a>
-            <a href="#takeaway-7">Takeaway 7</a>
-            <a href="#takeaway-8">Takeaway 8</a>
-            <a href="#takeaway-9">Takeaway 9</a>
+            <a href="#takeaway-1">Underestimating k</a>
+            <a href="#takeaway-2">Knowing what to ask</a>
+            <a href="#takeaway-3">Turn budgets</a>
+            <a href="#takeaway-4">Sustained querying</a>
+            <a href="#takeaway-5">Recovering from misses</a>
+            <a href="#takeaway-6">Query order</a>
+            <a href="#takeaway-7">Asking ≠ answering</a>
+            <a href="#takeaway-8">Coarse vs. fine narrowing</a>
+            <a href="#takeaway-9">Ambiguity ≠ failure</a>
           </aside>
 
           <div class="takeaway-stack">
+            <h3 class="group-label">Recognizing what is missing</h3>
             <article class="takeaway-item reveal-on-scroll" id="takeaway-1">
-              <div class="takeaway-tag">Takeaway 1 (RQ1)</div>
+              <div class="takeaway-tag">Finding 01</div>
               <p class="takeaway-copy">
                 <strong>LLMs recognize when context is insufficient, but underestimate how much additional information is required.</strong>
-                Models rarely classify underspecified problems as fully specified, but their accuracy in predicting k drops as k increases.
+                Models rarely classify underspecified problems as fully specified, but their accuracy in predicting
+                <dfn class="term" tabindex="0" data-def="The degree of underspecification: the minimum number of variables that must be queried to uniquely determine the target.">k</dfn>
+                drops as k increases.
               </p>
               <div class="figure-block">
                 <div class="web-chart" data-chart="fig3" data-src="web_data/fig3.csv" role="img" aria-label="Accuracy and under-prediction of degree of underspecification"></div>
@@ -1072,10 +1232,12 @@
             </article>
 
             <article class="takeaway-item reveal-on-scroll" id="takeaway-2">
-              <div class="takeaway-tag">Takeaway 2 (RQ1)</div>
+              <div class="takeaway-tag">Finding 02</div>
               <p class="takeaway-copy">
                 <strong>Knowing that information is missing does not mean knowing what information is needed.</strong>
-                Providing the true k improves performance only modestly; exact-set accuracy remains low for k >= 2.
+                Providing the true k improves performance only modestly;
+                <dfn class="term" tabindex="0" data-def="The fraction of problems where the model's proposed query set exactly matches a minimal sufficient set.">exact-set accuracy</dfn>
+                remains low for k >= 2.
               </p>
               <div class="figure-block">
                 <div class="web-chart" data-chart="fig2" data-src="web_data/fig2.csv" role="img" aria-label="Minimal sufficient set identification results"></div>
@@ -1084,11 +1246,14 @@
               </div>
             </article>
 
+            <h3 class="group-label">Seeking across turns</h3>
             <article class="takeaway-item reveal-on-scroll" id="takeaway-3">
-              <div class="takeaway-tag">Takeaway 3 (RQ1)</div>
+              <div class="takeaway-tag">Finding 03</div>
               <p class="takeaway-copy">
                 <strong>Sequential interaction improves information acquisition beyond total query count alone.</strong>
-                In Logic-Q-MT and GeneReg-MT, final sufficiency generally increases as more turns are allowed.
+                In Logic-Q-MT and GeneReg-MT,
+                <dfn class="term" tabindex="0" data-def="Whether the information acquired by the end of the dialogue is enough to uniquely determine the target.">final sufficiency</dfn>
+                generally increases as more turns are allowed.
               </p>
               <div class="figure-block">
                 <div class="web-chart" data-chart="fig1" data-src="web_data/fig1.csv" role="img" aria-label="Multi-turn budget experiments"></div>
@@ -1098,7 +1263,7 @@
             </article>
 
             <article class="takeaway-item reveal-on-scroll" id="takeaway-4">
-              <div class="takeaway-tag">Takeaway 4 (RQ1)</div>
+              <div class="takeaway-tag">Finding 04</div>
               <p class="takeaway-copy">
                 <strong>In highly underspecified problems, success depends less on asking the perfect first question and more on sustaining effective information acquisition across turns.</strong>
                 Early-turn correctness correlates with success for small k, while late-turn correctness and turn count matter more as k grows.
@@ -1111,7 +1276,7 @@
             </article>
 
             <article class="takeaway-item reveal-on-scroll" id="takeaway-5">
-              <div class="takeaway-tag">Takeaway 5 (RQ1)</div>
+              <div class="takeaway-tag">Finding 05</div>
               <p class="takeaway-copy">
                 <strong>An incorrect first question is often recoverable if the model continues searching for target-relevant information.</strong>
                 In Logic-Q-MT, first-turn miss plus second-turn hit achieves final sufficiency close to first-turn-hit dialogues.
@@ -1123,8 +1288,9 @@
               </div>
             </article>
 
+            <h3 class="group-label">Asking in the right order</h3>
             <article class="takeaway-item reveal-on-scroll" id="takeaway-6">
-              <div class="takeaway-tag">Takeaway 6 (RQ2)</div>
+              <div class="takeaway-tag">Finding 06</div>
               <p class="takeaway-copy">
                 <strong>In order-dependent settings, asking the right questions is not enough if they are asked in the wrong order.</strong>
                 Clinical diagnostic pathways impose conditional dependencies, and violating them reduces final accuracy.
@@ -1132,12 +1298,15 @@
               <div class="figure-block">
                 <div class="web-chart" data-chart="fig6" data-src="web_data/fig6.csv" role="img" aria-label="ClinGuide final accuracy by query coverage and order"></div>
                 <img class="web-chart-fallback" loading="lazy" src="assets/clinguide-order.png" alt="ClinGuide final accuracy by query coverage and order" />
-                <p class="caption">ClinGuide-MT final accuracy stratified by MSS coverage and MSS ordering.</p>
+                <p class="caption">ClinGuide-MT final accuracy stratified by
+                <dfn class="term" tabindex="0" data-def="Minimal sufficient set: the smallest set of unknown variables whose values uniquely determine the target.">MSS</dfn>
+                coverage and MSS ordering.</p>
               </div>
             </article>
 
+            <h3 class="group-label">From questions to answers</h3>
             <article class="takeaway-item reveal-on-scroll" id="takeaway-7">
-              <div class="takeaway-tag">Takeaway 7 (RQ3)</div>
+              <div class="takeaway-tag">Finding 07</div>
               <p class="takeaway-copy">
                 <strong>Asking informative questions is necessary but not sufficient for successful multi-turn reasoning.</strong>
                 Models with similar question quality can differ substantially in final accuracy, indicating that success also depends on evidence integration.
@@ -1146,7 +1315,9 @@
                 <div class="figure-block">
                   <div class="web-chart" data-chart="fig7" data-src="web_data/fig7.csv" role="img" aria-label="20Q accuracy versus question quality"></div>
                   <img class="web-chart-fallback" loading="lazy" src="assets/20q-quality.png" alt="20Q accuracy versus question quality" />
-                  <p class="caption">Accuracy versus normalized information gain across examiners.</p>
+                  <p class="caption">Accuracy versus
+                  <dfn class="term" tabindex="0" data-def="How much a question reduces uncertainty about the hidden target, normalized against the best possible question at that turn.">normalized information gain</dfn>
+                  across examiners.</p>
                 </div>
                 <div class="figure-block">
                   <div class="web-chart" data-chart="fig10" data-src="web_data/fig10.csv" role="img" aria-label="Target identification from the same QA trace"></div>
@@ -1157,10 +1328,11 @@
             </article>
 
             <article class="takeaway-item reveal-on-scroll" id="takeaway-8">
-              <div class="takeaway-tag">Takeaway 8 (RQ3)</div>
+              <div class="takeaway-tag">Finding 08</div>
               <p class="takeaway-copy">
                 <strong>LLMs are better at coarse-grained narrowing than fine-grained disambiguation.</strong>
-                Remaining entropy decreases across turns, but curves often flatten once the candidate space has already been narrowed.
+                <dfn class="term" tabindex="0" data-def="The entropy of the distribution over candidates still consistent with all answers so far; lower means the candidate space has been narrowed further.">Remaining entropy</dfn>
+                decreases across turns, but curves often flatten once the candidate space has already been narrowed.
               </p>
               <div class="figure-block">
                 <div class="web-chart" data-chart="fig8" data-src="web_data/fig8.csv" role="img" aria-label="Remaining entropy across 20Q turns"></div>
@@ -1170,10 +1342,12 @@
             </article>
 
             <article class="takeaway-item reveal-on-scroll" id="takeaway-9">
-              <div class="takeaway-tag">Takeaway 9 (RQ3)</div>
+              <div class="takeaway-tag">Finding 09</div>
               <p class="takeaway-copy">
                 <strong>Ambiguous questions are not always failures.</strong>
-                High pass-support mass does not consistently imply lower final accuracy, because pass feedback can still provide partial evidence.
+                High
+                <dfn class="term" tabindex="0" data-def="The probability mass of remaining candidates for which the truthful answer to the question is “Pass” (neither yes nor no) — high mass means the question is ambiguous for much of the candidate set.">pass-support mass</dfn>
+                does not consistently imply lower final accuracy, because pass feedback can still provide partial evidence.
               </p>
               <div class="figure-block">
                 <div class="web-chart" data-chart="fig9" data-src="web_data/fig9.csv" role="img" aria-label="Pass-support mass across 20Q turns"></div>
@@ -1189,17 +1363,14 @@
     <section id="conclusion">
       <div class="section-inner">
         <div class="section-kicker">Conclusion</div>
-        <h2>Multi-turn information seeking is a distinct capability.</h2>
+        <h2>Information seeking dissociates from answer generation.</h2>
         <p class="lede">
-          Across logical, mathematical, biological, clinical, and open-ended tasks, current LLMs show a
-          consistent gap: they often detect underspecification, but underestimate its degree, ask
-          incomplete or less target-relevant questions, and stop before the target is uniquely determined.
-        </p>
-        <p>
-          These findings show that interactive competence cannot be assessed by final-answer accuracy
-          alone. Models should also be evaluated by whether they know when context is insufficient, what
-          information is needed, and how to obtain it over sustained interaction &mdash; separating the
-          ability to answer from the ability to seek the information needed to answer.
+          Models underestimate the degree of underspecification, perform worse as the number of
+          missing variables grows, and stop before they acquire sufficient information. Information
+          seeking dissociates from answer-generation ability: models with near-identical answer
+          accuracy under full information differ widely in final sufficiency, and different answer
+          models recover the target differently from identical dialogues. Measuring the two
+          separately shows differences between models that final accuracy alone does not capture.
         </p>
       </div>
     </section>
@@ -1207,7 +1378,6 @@
     <section id="citation" class="citation">
       <div class="section-inner">
         <div class="section-kicker">Citation</div>
-        <h2>BibTeX</h2>
         <pre>@misc{huang2026mtinfoseek,
   title={Do LLMs Know What to Ask and When? Evaluating Multi-Turn Information Seeking},
   author={Huang, Yepeng and Zhang, Jiawen and Dai, Michelle and Su, Xiaorui and Gao, Shanghua and Wang, Zi and Zitnik, Marinka},
@@ -1228,17 +1398,26 @@
       </div>
     </footer>
     <script>
+      document.querySelectorAll(".card-toggle").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const panel = btn.nextElementSibling;
+          const open = panel.classList.toggle("open");
+          btn.setAttribute("aria-expanded", String(open));
+        });
+      });
+    </script>
+    <script>
       const svgNS = "http://www.w3.org/2000/svg";
 
       const chartColors = {
         model: "#9aa0a6",
-        mean: "#17201c",
-        baseline: "#59645f",
+        mean: "#1c1b18",
+        baseline: "#5f6672",
         under: "#c75d61",
         over: "#4f8fbd",
-        grid: "#e7ede9",
-        axis: "#7a8781",
-        text: "#17201c"
+        grid: "#e9ebee",
+        axis: "#878e99",
+        text: "#1c1b18"
       };
 
       function el(name, attrs = {}, children = []) {
@@ -2288,7 +2467,7 @@
           });
         });
 
-        svg.appendChild(el("line", { x1: x - 166, y1: y + cellH * 2, x2: x + cellW * evalOrder.length, y2: y + cellH * 2, stroke: "#52615a", "stroke-width": 1.3 }));
+        svg.appendChild(el("line", { x1: x - 166, y1: y + cellH * 2, x2: x + cellW * evalOrder.length, y2: y + cellH * 2, stroke: "#6a6760", "stroke-width": 1.3 }));
         evalOrder.forEach((label, idx) => {
           svg.appendChild(textNode(x + idx * cellW + cellW / 2, y + cellH * 4 + 24, label, {
             "text-anchor": "middle",
