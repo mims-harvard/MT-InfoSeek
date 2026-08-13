@@ -1,0 +1,313 @@
+model,model_display,panel_order,k,budget,budget_order,final_sufficiency,highlight_path
+Qwen_Qwen3-30B-A3B-Thinking-2507-FP8,Qwen3-30B,0,1,1x4,0,0.485,1x4 → 2x2 → 4x1
+Qwen_Qwen3-30B-A3B-Thinking-2507-FP8,Qwen3-30B,0,1,2x1,1,0.4825,
+Qwen_Qwen3-30B-A3B-Thinking-2507-FP8,Qwen3-30B,0,1,2x2,2,0.535,1x4 → 2x2 → 4x1
+Qwen_Qwen3-30B-A3B-Thinking-2507-FP8,Qwen3-30B,0,1,3x1,3,0.5875,
+Qwen_Qwen3-30B-A3B-Thinking-2507-FP8,Qwen3-30B,0,1,3x2,4,0.6625,3x2 → 6x1
+Qwen_Qwen3-30B-A3B-Thinking-2507-FP8,Qwen3-30B,0,1,4x1,5,0.63,1x4 → 2x2 → 4x1
+Qwen_Qwen3-30B-A3B-Thinking-2507-FP8,Qwen3-30B,0,1,5x1,6,0.655,
+Qwen_Qwen3-30B-A3B-Thinking-2507-FP8,Qwen3-30B,0,1,6x1,7,0.69,3x2 → 6x1
+Qwen_Qwen3-30B-A3B-Thinking-2507-FP8,Qwen3-30B,0,1,7x1,8,0.755,
+Qwen_Qwen3-30B-A3B-Thinking-2507-FP8,Qwen3-30B,0,1,8x1,9,0.7075,
+Qwen_Qwen3-30B-A3B-Thinking-2507-FP8,Qwen3-30B,0,1,9x1,10,0.745,
+Qwen_Qwen3-30B-A3B-Thinking-2507-FP8,Qwen3-30B,0,1,10x1,11,0.7025,
+Qwen_Qwen3-30B-A3B-Thinking-2507-FP8,Qwen3-30B,0,1,No budget,12,0.71,
+Qwen_Qwen3-30B-A3B-Thinking-2507-FP8,Qwen3-30B,0,2,1x4,0,0.195,1x4 → 2x2 → 4x1
+Qwen_Qwen3-30B-A3B-Thinking-2507-FP8,Qwen3-30B,0,2,2x1,1,0.1,
+Qwen_Qwen3-30B-A3B-Thinking-2507-FP8,Qwen3-30B,0,2,2x2,2,0.195,1x4 → 2x2 → 4x1
+Qwen_Qwen3-30B-A3B-Thinking-2507-FP8,Qwen3-30B,0,2,3x1,3,0.2375,
+Qwen_Qwen3-30B-A3B-Thinking-2507-FP8,Qwen3-30B,0,2,3x2,4,0.3175,3x2 → 6x1
+Qwen_Qwen3-30B-A3B-Thinking-2507-FP8,Qwen3-30B,0,2,4x1,5,0.34,1x4 → 2x2 → 4x1
+Qwen_Qwen3-30B-A3B-Thinking-2507-FP8,Qwen3-30B,0,2,5x1,6,0.3925,
+Qwen_Qwen3-30B-A3B-Thinking-2507-FP8,Qwen3-30B,0,2,6x1,7,0.4425,3x2 → 6x1
+Qwen_Qwen3-30B-A3B-Thinking-2507-FP8,Qwen3-30B,0,2,7x1,8,0.4975,
+Qwen_Qwen3-30B-A3B-Thinking-2507-FP8,Qwen3-30B,0,2,8x1,9,0.51,
+Qwen_Qwen3-30B-A3B-Thinking-2507-FP8,Qwen3-30B,0,2,9x1,10,0.485,
+Qwen_Qwen3-30B-A3B-Thinking-2507-FP8,Qwen3-30B,0,2,10x1,11,0.5175,
+Qwen_Qwen3-30B-A3B-Thinking-2507-FP8,Qwen3-30B,0,2,No budget,12,0.49,
+Qwen_Qwen3-30B-A3B-Thinking-2507-FP8,Qwen3-30B,0,3,1x4,0,0.03,1x4 → 2x2 → 4x1
+Qwen_Qwen3-30B-A3B-Thinking-2507-FP8,Qwen3-30B,0,3,2x1,1,0.0,
+Qwen_Qwen3-30B-A3B-Thinking-2507-FP8,Qwen3-30B,0,3,2x2,2,0.035,1x4 → 2x2 → 4x1
+Qwen_Qwen3-30B-A3B-Thinking-2507-FP8,Qwen3-30B,0,3,3x1,3,0.07,
+Qwen_Qwen3-30B-A3B-Thinking-2507-FP8,Qwen3-30B,0,3,3x2,4,0.125,3x2 → 6x1
+Qwen_Qwen3-30B-A3B-Thinking-2507-FP8,Qwen3-30B,0,3,4x1,5,0.1625,1x4 → 2x2 → 4x1
+Qwen_Qwen3-30B-A3B-Thinking-2507-FP8,Qwen3-30B,0,3,5x1,6,0.2425,
+Qwen_Qwen3-30B-A3B-Thinking-2507-FP8,Qwen3-30B,0,3,6x1,7,0.275,3x2 → 6x1
+Qwen_Qwen3-30B-A3B-Thinking-2507-FP8,Qwen3-30B,0,3,7x1,8,0.3325,
+Qwen_Qwen3-30B-A3B-Thinking-2507-FP8,Qwen3-30B,0,3,8x1,9,0.3225,
+Qwen_Qwen3-30B-A3B-Thinking-2507-FP8,Qwen3-30B,0,3,9x1,10,0.345,
+Qwen_Qwen3-30B-A3B-Thinking-2507-FP8,Qwen3-30B,0,3,10x1,11,0.325,
+Qwen_Qwen3-30B-A3B-Thinking-2507-FP8,Qwen3-30B,0,3,No budget,12,0.275,
+Qwen_Qwen3-4B-Thinking-2507,Qwen3-4B,1,1,1x4,0,0.4625,1x4 → 2x2 → 4x1
+Qwen_Qwen3-4B-Thinking-2507,Qwen3-4B,1,1,2x1,1,0.4975,
+Qwen_Qwen3-4B-Thinking-2507,Qwen3-4B,1,1,2x2,2,0.5525,1x4 → 2x2 → 4x1
+Qwen_Qwen3-4B-Thinking-2507,Qwen3-4B,1,1,3x1,3,0.66,
+Qwen_Qwen3-4B-Thinking-2507,Qwen3-4B,1,1,3x2,4,0.655,3x2 → 6x1
+Qwen_Qwen3-4B-Thinking-2507,Qwen3-4B,1,1,4x1,5,0.7475,1x4 → 2x2 → 4x1
+Qwen_Qwen3-4B-Thinking-2507,Qwen3-4B,1,1,5x1,6,0.7575,
+Qwen_Qwen3-4B-Thinking-2507,Qwen3-4B,1,1,6x1,7,0.7625,3x2 → 6x1
+Qwen_Qwen3-4B-Thinking-2507,Qwen3-4B,1,1,7x1,8,0.835,
+Qwen_Qwen3-4B-Thinking-2507,Qwen3-4B,1,1,8x1,9,0.84,
+Qwen_Qwen3-4B-Thinking-2507,Qwen3-4B,1,1,9x1,10,0.82,
+Qwen_Qwen3-4B-Thinking-2507,Qwen3-4B,1,1,10x1,11,0.8525,
+Qwen_Qwen3-4B-Thinking-2507,Qwen3-4B,1,1,No budget,12,0.7875,
+Qwen_Qwen3-4B-Thinking-2507,Qwen3-4B,1,2,1x4,0,0.1675,1x4 → 2x2 → 4x1
+Qwen_Qwen3-4B-Thinking-2507,Qwen3-4B,1,2,2x1,1,0.1575,
+Qwen_Qwen3-4B-Thinking-2507,Qwen3-4B,1,2,2x2,2,0.1925,1x4 → 2x2 → 4x1
+Qwen_Qwen3-4B-Thinking-2507,Qwen3-4B,1,2,3x1,3,0.3175,
+Qwen_Qwen3-4B-Thinking-2507,Qwen3-4B,1,2,3x2,4,0.3,3x2 → 6x1
+Qwen_Qwen3-4B-Thinking-2507,Qwen3-4B,1,2,4x1,5,0.465,1x4 → 2x2 → 4x1
+Qwen_Qwen3-4B-Thinking-2507,Qwen3-4B,1,2,5x1,6,0.555,
+Qwen_Qwen3-4B-Thinking-2507,Qwen3-4B,1,2,6x1,7,0.64,3x2 → 6x1
+Qwen_Qwen3-4B-Thinking-2507,Qwen3-4B,1,2,7x1,8,0.69,
+Qwen_Qwen3-4B-Thinking-2507,Qwen3-4B,1,2,8x1,9,0.7,
+Qwen_Qwen3-4B-Thinking-2507,Qwen3-4B,1,2,9x1,10,0.7375,
+Qwen_Qwen3-4B-Thinking-2507,Qwen3-4B,1,2,10x1,11,0.7325,
+Qwen_Qwen3-4B-Thinking-2507,Qwen3-4B,1,2,No budget,12,0.6675,
+Qwen_Qwen3-4B-Thinking-2507,Qwen3-4B,1,3,1x4,0,0.04,1x4 → 2x2 → 4x1
+Qwen_Qwen3-4B-Thinking-2507,Qwen3-4B,1,3,2x1,1,0.0075,
+Qwen_Qwen3-4B-Thinking-2507,Qwen3-4B,1,3,2x2,2,0.0275,1x4 → 2x2 → 4x1
+Qwen_Qwen3-4B-Thinking-2507,Qwen3-4B,1,3,3x1,3,0.105,
+Qwen_Qwen3-4B-Thinking-2507,Qwen3-4B,1,3,3x2,4,0.13,3x2 → 6x1
+Qwen_Qwen3-4B-Thinking-2507,Qwen3-4B,1,3,4x1,5,0.3075,1x4 → 2x2 → 4x1
+Qwen_Qwen3-4B-Thinking-2507,Qwen3-4B,1,3,5x1,6,0.4125,
+Qwen_Qwen3-4B-Thinking-2507,Qwen3-4B,1,3,6x1,7,0.5125,3x2 → 6x1
+Qwen_Qwen3-4B-Thinking-2507,Qwen3-4B,1,3,7x1,8,0.5625,
+Qwen_Qwen3-4B-Thinking-2507,Qwen3-4B,1,3,8x1,9,0.565,
+Qwen_Qwen3-4B-Thinking-2507,Qwen3-4B,1,3,9x1,10,0.62,
+Qwen_Qwen3-4B-Thinking-2507,Qwen3-4B,1,3,10x1,11,0.635,
+Qwen_Qwen3-4B-Thinking-2507,Qwen3-4B,1,3,No budget,12,0.56,
+Qwen_Qwen3-Next-80B-A3B-Thinking-FP8,Qwen3-Next-80B,2,1,1x4,0,0.2525,1x4 → 2x2 → 4x1
+Qwen_Qwen3-Next-80B-A3B-Thinking-FP8,Qwen3-Next-80B,2,1,2x1,1,0.3375,
+Qwen_Qwen3-Next-80B-A3B-Thinking-FP8,Qwen3-Next-80B,2,1,2x2,2,0.25,1x4 → 2x2 → 4x1
+Qwen_Qwen3-Next-80B-A3B-Thinking-FP8,Qwen3-Next-80B,2,1,3x1,3,0.3675,
+Qwen_Qwen3-Next-80B-A3B-Thinking-FP8,Qwen3-Next-80B,2,1,3x2,4,0.34,3x2 → 6x1
+Qwen_Qwen3-Next-80B-A3B-Thinking-FP8,Qwen3-Next-80B,2,1,4x1,5,0.3875,1x4 → 2x2 → 4x1
+Qwen_Qwen3-Next-80B-A3B-Thinking-FP8,Qwen3-Next-80B,2,1,5x1,6,0.395,
+Qwen_Qwen3-Next-80B-A3B-Thinking-FP8,Qwen3-Next-80B,2,1,6x1,7,0.395,3x2 → 6x1
+Qwen_Qwen3-Next-80B-A3B-Thinking-FP8,Qwen3-Next-80B,2,1,7x1,8,0.3825,
+Qwen_Qwen3-Next-80B-A3B-Thinking-FP8,Qwen3-Next-80B,2,1,8x1,9,0.4525,
+Qwen_Qwen3-Next-80B-A3B-Thinking-FP8,Qwen3-Next-80B,2,1,9x1,10,0.4,
+Qwen_Qwen3-Next-80B-A3B-Thinking-FP8,Qwen3-Next-80B,2,1,10x1,11,0.3425,
+Qwen_Qwen3-Next-80B-A3B-Thinking-FP8,Qwen3-Next-80B,2,1,No budget,12,0.39,
+Qwen_Qwen3-Next-80B-A3B-Thinking-FP8,Qwen3-Next-80B,2,2,1x4,0,0.0975,1x4 → 2x2 → 4x1
+Qwen_Qwen3-Next-80B-A3B-Thinking-FP8,Qwen3-Next-80B,2,2,2x1,1,0.09,
+Qwen_Qwen3-Next-80B-A3B-Thinking-FP8,Qwen3-Next-80B,2,2,2x2,2,0.1225,1x4 → 2x2 → 4x1
+Qwen_Qwen3-Next-80B-A3B-Thinking-FP8,Qwen3-Next-80B,2,2,3x1,3,0.1425,
+Qwen_Qwen3-Next-80B-A3B-Thinking-FP8,Qwen3-Next-80B,2,2,3x2,4,0.165,3x2 → 6x1
+Qwen_Qwen3-Next-80B-A3B-Thinking-FP8,Qwen3-Next-80B,2,2,4x1,5,0.2125,1x4 → 2x2 → 4x1
+Qwen_Qwen3-Next-80B-A3B-Thinking-FP8,Qwen3-Next-80B,2,2,5x1,6,0.2325,
+Qwen_Qwen3-Next-80B-A3B-Thinking-FP8,Qwen3-Next-80B,2,2,6x1,7,0.2425,3x2 → 6x1
+Qwen_Qwen3-Next-80B-A3B-Thinking-FP8,Qwen3-Next-80B,2,2,7x1,8,0.24,
+Qwen_Qwen3-Next-80B-A3B-Thinking-FP8,Qwen3-Next-80B,2,2,8x1,9,0.2525,
+Qwen_Qwen3-Next-80B-A3B-Thinking-FP8,Qwen3-Next-80B,2,2,9x1,10,0.29,
+Qwen_Qwen3-Next-80B-A3B-Thinking-FP8,Qwen3-Next-80B,2,2,10x1,11,0.275,
+Qwen_Qwen3-Next-80B-A3B-Thinking-FP8,Qwen3-Next-80B,2,2,No budget,12,0.2475,
+Qwen_Qwen3-Next-80B-A3B-Thinking-FP8,Qwen3-Next-80B,2,3,1x4,0,0.015,1x4 → 2x2 → 4x1
+Qwen_Qwen3-Next-80B-A3B-Thinking-FP8,Qwen3-Next-80B,2,3,2x1,1,0.0075,
+Qwen_Qwen3-Next-80B-A3B-Thinking-FP8,Qwen3-Next-80B,2,3,2x2,2,0.055,1x4 → 2x2 → 4x1
+Qwen_Qwen3-Next-80B-A3B-Thinking-FP8,Qwen3-Next-80B,2,3,3x1,3,0.045,
+Qwen_Qwen3-Next-80B-A3B-Thinking-FP8,Qwen3-Next-80B,2,3,3x2,4,0.095,3x2 → 6x1
+Qwen_Qwen3-Next-80B-A3B-Thinking-FP8,Qwen3-Next-80B,2,3,4x1,5,0.0975,1x4 → 2x2 → 4x1
+Qwen_Qwen3-Next-80B-A3B-Thinking-FP8,Qwen3-Next-80B,2,3,5x1,6,0.145,
+Qwen_Qwen3-Next-80B-A3B-Thinking-FP8,Qwen3-Next-80B,2,3,6x1,7,0.1425,3x2 → 6x1
+Qwen_Qwen3-Next-80B-A3B-Thinking-FP8,Qwen3-Next-80B,2,3,7x1,8,0.1775,
+Qwen_Qwen3-Next-80B-A3B-Thinking-FP8,Qwen3-Next-80B,2,3,8x1,9,0.195,
+Qwen_Qwen3-Next-80B-A3B-Thinking-FP8,Qwen3-Next-80B,2,3,9x1,10,0.1775,
+Qwen_Qwen3-Next-80B-A3B-Thinking-FP8,Qwen3-Next-80B,2,3,10x1,11,0.1775,
+Qwen_Qwen3-Next-80B-A3B-Thinking-FP8,Qwen3-Next-80B,2,3,No budget,12,0.1725,
+openai_gpt-oss-20B_medium,gpt-oss-20B-med,3,1,1x4,0,0.435,1x4 → 2x2 → 4x1
+openai_gpt-oss-20B_medium,gpt-oss-20B-med,3,1,2x1,1,0.4225,
+openai_gpt-oss-20B_medium,gpt-oss-20B-med,3,1,2x2,2,0.585,1x4 → 2x2 → 4x1
+openai_gpt-oss-20B_medium,gpt-oss-20B-med,3,1,3x1,3,0.5,
+openai_gpt-oss-20B_medium,gpt-oss-20B-med,3,1,3x2,4,0.64,3x2 → 6x1
+openai_gpt-oss-20B_medium,gpt-oss-20B-med,3,1,4x1,5,0.575,1x4 → 2x2 → 4x1
+openai_gpt-oss-20B_medium,gpt-oss-20B-med,3,1,5x1,6,0.63,
+openai_gpt-oss-20B_medium,gpt-oss-20B-med,3,1,6x1,7,0.645,3x2 → 6x1
+openai_gpt-oss-20B_medium,gpt-oss-20B-med,3,1,7x1,8,0.7025,
+openai_gpt-oss-20B_medium,gpt-oss-20B-med,3,1,8x1,9,0.6175,
+openai_gpt-oss-20B_medium,gpt-oss-20B-med,3,1,9x1,10,0.65,
+openai_gpt-oss-20B_medium,gpt-oss-20B-med,3,1,10x1,11,0.6925,
+openai_gpt-oss-20B_medium,gpt-oss-20B-med,3,1,No budget,12,0.75,
+openai_gpt-oss-20B_medium,gpt-oss-20B-med,3,2,1x4,0,0.2325,1x4 → 2x2 → 4x1
+openai_gpt-oss-20B_medium,gpt-oss-20B-med,3,2,2x1,1,0.09,
+openai_gpt-oss-20B_medium,gpt-oss-20B-med,3,2,2x2,2,0.27,1x4 → 2x2 → 4x1
+openai_gpt-oss-20B_medium,gpt-oss-20B-med,3,2,3x1,3,0.2225,
+openai_gpt-oss-20B_medium,gpt-oss-20B-med,3,2,3x2,4,0.435,3x2 → 6x1
+openai_gpt-oss-20B_medium,gpt-oss-20B-med,3,2,4x1,5,0.31,1x4 → 2x2 → 4x1
+openai_gpt-oss-20B_medium,gpt-oss-20B-med,3,2,5x1,6,0.38,
+openai_gpt-oss-20B_medium,gpt-oss-20B-med,3,2,6x1,7,0.395,3x2 → 6x1
+openai_gpt-oss-20B_medium,gpt-oss-20B-med,3,2,7x1,8,0.445,
+openai_gpt-oss-20B_medium,gpt-oss-20B-med,3,2,8x1,9,0.4,
+openai_gpt-oss-20B_medium,gpt-oss-20B-med,3,2,9x1,10,0.4325,
+openai_gpt-oss-20B_medium,gpt-oss-20B-med,3,2,10x1,11,0.4275,
+openai_gpt-oss-20B_medium,gpt-oss-20B-med,3,2,No budget,12,0.575,
+openai_gpt-oss-20B_medium,gpt-oss-20B-med,3,3,1x4,0,0.0975,1x4 → 2x2 → 4x1
+openai_gpt-oss-20B_medium,gpt-oss-20B-med,3,3,2x1,1,0.0125,
+openai_gpt-oss-20B_medium,gpt-oss-20B-med,3,3,2x2,2,0.1,1x4 → 2x2 → 4x1
+openai_gpt-oss-20B_medium,gpt-oss-20B-med,3,3,3x1,3,0.0675,
+openai_gpt-oss-20B_medium,gpt-oss-20B-med,3,3,3x2,4,0.22,3x2 → 6x1
+openai_gpt-oss-20B_medium,gpt-oss-20B-med,3,3,4x1,5,0.145,1x4 → 2x2 → 4x1
+openai_gpt-oss-20B_medium,gpt-oss-20B-med,3,3,5x1,6,0.225,
+openai_gpt-oss-20B_medium,gpt-oss-20B-med,3,3,6x1,7,0.3125,3x2 → 6x1
+openai_gpt-oss-20B_medium,gpt-oss-20B-med,3,3,7x1,8,0.3125,
+openai_gpt-oss-20B_medium,gpt-oss-20B-med,3,3,8x1,9,0.3225,
+openai_gpt-oss-20B_medium,gpt-oss-20B-med,3,3,9x1,10,0.3575,
+openai_gpt-oss-20B_medium,gpt-oss-20B-med,3,3,10x1,11,0.3625,
+openai_gpt-oss-20B_medium,gpt-oss-20B-med,3,3,No budget,12,0.505,
+openai_gpt-oss-120B_medium,gpt-oss-120B-med,4,1,1x4,0,0.51,1x4 → 2x2 → 4x1
+openai_gpt-oss-120B_medium,gpt-oss-120B-med,4,1,2x1,1,0.5,
+openai_gpt-oss-120B_medium,gpt-oss-120B-med,4,1,2x2,2,0.6125,1x4 → 2x2 → 4x1
+openai_gpt-oss-120B_medium,gpt-oss-120B-med,4,1,3x1,3,0.6125,
+openai_gpt-oss-120B_medium,gpt-oss-120B-med,4,1,3x2,4,0.705,3x2 → 6x1
+openai_gpt-oss-120B_medium,gpt-oss-120B-med,4,1,4x1,5,0.7375,1x4 → 2x2 → 4x1
+openai_gpt-oss-120B_medium,gpt-oss-120B-med,4,1,5x1,6,0.7125,
+openai_gpt-oss-120B_medium,gpt-oss-120B-med,4,1,6x1,7,0.755,3x2 → 6x1
+openai_gpt-oss-120B_medium,gpt-oss-120B-med,4,1,7x1,8,0.7975,
+openai_gpt-oss-120B_medium,gpt-oss-120B-med,4,1,8x1,9,0.7975,
+openai_gpt-oss-120B_medium,gpt-oss-120B-med,4,1,9x1,10,0.8175,
+openai_gpt-oss-120B_medium,gpt-oss-120B-med,4,1,10x1,11,0.8125,
+openai_gpt-oss-120B_medium,gpt-oss-120B-med,4,1,No budget,12,0.9125,
+openai_gpt-oss-120B_medium,gpt-oss-120B-med,4,2,1x4,0,0.1925,1x4 → 2x2 → 4x1
+openai_gpt-oss-120B_medium,gpt-oss-120B-med,4,2,2x1,1,0.0825,
+openai_gpt-oss-120B_medium,gpt-oss-120B-med,4,2,2x2,2,0.2875,1x4 → 2x2 → 4x1
+openai_gpt-oss-120B_medium,gpt-oss-120B-med,4,2,3x1,3,0.2425,
+openai_gpt-oss-120B_medium,gpt-oss-120B-med,4,2,3x2,4,0.4375,3x2 → 6x1
+openai_gpt-oss-120B_medium,gpt-oss-120B-med,4,2,4x1,5,0.3825,1x4 → 2x2 → 4x1
+openai_gpt-oss-120B_medium,gpt-oss-120B-med,4,2,5x1,6,0.4325,
+openai_gpt-oss-120B_medium,gpt-oss-120B-med,4,2,6x1,7,0.5225,3x2 → 6x1
+openai_gpt-oss-120B_medium,gpt-oss-120B-med,4,2,7x1,8,0.5825,
+openai_gpt-oss-120B_medium,gpt-oss-120B-med,4,2,8x1,9,0.58,
+openai_gpt-oss-120B_medium,gpt-oss-120B-med,4,2,9x1,10,0.59,
+openai_gpt-oss-120B_medium,gpt-oss-120B-med,4,2,10x1,11,0.5775,
+openai_gpt-oss-120B_medium,gpt-oss-120B-med,4,2,No budget,12,0.795,
+openai_gpt-oss-120B_medium,gpt-oss-120B-med,4,3,1x4,0,0.085,1x4 → 2x2 → 4x1
+openai_gpt-oss-120B_medium,gpt-oss-120B-med,4,3,2x1,1,0.0,
+openai_gpt-oss-120B_medium,gpt-oss-120B-med,4,3,2x2,2,0.1,1x4 → 2x2 → 4x1
+openai_gpt-oss-120B_medium,gpt-oss-120B-med,4,3,3x1,3,0.05,
+openai_gpt-oss-120B_medium,gpt-oss-120B-med,4,3,3x2,4,0.2575,3x2 → 6x1
+openai_gpt-oss-120B_medium,gpt-oss-120B-med,4,3,4x1,5,0.155,1x4 → 2x2 → 4x1
+openai_gpt-oss-120B_medium,gpt-oss-120B-med,4,3,5x1,6,0.2625,
+openai_gpt-oss-120B_medium,gpt-oss-120B-med,4,3,6x1,7,0.35,3x2 → 6x1
+openai_gpt-oss-120B_medium,gpt-oss-120B-med,4,3,7x1,8,0.38,
+openai_gpt-oss-120B_medium,gpt-oss-120B-med,4,3,8x1,9,0.455,
+openai_gpt-oss-120B_medium,gpt-oss-120B-med,4,3,9x1,10,0.4275,
+openai_gpt-oss-120B_medium,gpt-oss-120B-med,4,3,10x1,11,0.4325,
+openai_gpt-oss-120B_medium,gpt-oss-120B-med,4,3,No budget,12,0.6875,
+openai_gpt-oss-20B_high,gpt-oss-20B-high,5,1,1x4,0,0.59,1x4 → 2x2 → 4x1
+openai_gpt-oss-20B_high,gpt-oss-20B-high,5,1,2x1,1,0.5975,
+openai_gpt-oss-20B_high,gpt-oss-20B-high,5,1,2x2,2,0.74,1x4 → 2x2 → 4x1
+openai_gpt-oss-20B_high,gpt-oss-20B-high,5,1,3x1,3,0.79,
+openai_gpt-oss-20B_high,gpt-oss-20B-high,5,1,3x2,4,0.85,3x2 → 6x1
+openai_gpt-oss-20B_high,gpt-oss-20B-high,5,1,4x1,5,0.835,1x4 → 2x2 → 4x1
+openai_gpt-oss-20B_high,gpt-oss-20B-high,5,1,5x1,6,0.875,
+openai_gpt-oss-20B_high,gpt-oss-20B-high,5,1,6x1,7,0.8925,3x2 → 6x1
+openai_gpt-oss-20B_high,gpt-oss-20B-high,5,1,7x1,8,0.925,
+openai_gpt-oss-20B_high,gpt-oss-20B-high,5,1,8x1,9,0.92,
+openai_gpt-oss-20B_high,gpt-oss-20B-high,5,1,9x1,10,0.9325,
+openai_gpt-oss-20B_high,gpt-oss-20B-high,5,1,10x1,11,0.9275,
+openai_gpt-oss-20B_high,gpt-oss-20B-high,5,1,No budget,12,0.935,
+openai_gpt-oss-20B_high,gpt-oss-20B-high,5,2,1x4,0,0.2975,1x4 → 2x2 → 4x1
+openai_gpt-oss-20B_high,gpt-oss-20B-high,5,2,2x1,1,0.17,
+openai_gpt-oss-20B_high,gpt-oss-20B-high,5,2,2x2,2,0.395,1x4 → 2x2 → 4x1
+openai_gpt-oss-20B_high,gpt-oss-20B-high,5,2,3x1,3,0.34,
+openai_gpt-oss-20B_high,gpt-oss-20B-high,5,2,3x2,4,0.58,3x2 → 6x1
+openai_gpt-oss-20B_high,gpt-oss-20B-high,5,2,4x1,5,0.49,1x4 → 2x2 → 4x1
+openai_gpt-oss-20B_high,gpt-oss-20B-high,5,2,5x1,6,0.605,
+openai_gpt-oss-20B_high,gpt-oss-20B-high,5,2,6x1,7,0.6975,3x2 → 6x1
+openai_gpt-oss-20B_high,gpt-oss-20B-high,5,2,7x1,8,0.7425,
+openai_gpt-oss-20B_high,gpt-oss-20B-high,5,2,8x1,9,0.765,
+openai_gpt-oss-20B_high,gpt-oss-20B-high,5,2,9x1,10,0.8075,
+openai_gpt-oss-20B_high,gpt-oss-20B-high,5,2,10x1,11,0.8175,
+openai_gpt-oss-20B_high,gpt-oss-20B-high,5,2,No budget,12,0.84,
+openai_gpt-oss-20B_high,gpt-oss-20B-high,5,3,1x4,0,0.1375,1x4 → 2x2 → 4x1
+openai_gpt-oss-20B_high,gpt-oss-20B-high,5,3,2x1,1,0.0125,
+openai_gpt-oss-20B_high,gpt-oss-20B-high,5,3,2x2,2,0.21,1x4 → 2x2 → 4x1
+openai_gpt-oss-20B_high,gpt-oss-20B-high,5,3,3x1,3,0.1075,
+openai_gpt-oss-20B_high,gpt-oss-20B-high,5,3,3x2,4,0.45,3x2 → 6x1
+openai_gpt-oss-20B_high,gpt-oss-20B-high,5,3,4x1,5,0.2575,1x4 → 2x2 → 4x1
+openai_gpt-oss-20B_high,gpt-oss-20B-high,5,3,5x1,6,0.435,
+openai_gpt-oss-20B_high,gpt-oss-20B-high,5,3,6x1,7,0.5625,3x2 → 6x1
+openai_gpt-oss-20B_high,gpt-oss-20B-high,5,3,7x1,8,0.665,
+openai_gpt-oss-20B_high,gpt-oss-20B-high,5,3,8x1,9,0.7325,
+openai_gpt-oss-20B_high,gpt-oss-20B-high,5,3,9x1,10,0.745,
+openai_gpt-oss-20B_high,gpt-oss-20B-high,5,3,10x1,11,0.77,
+openai_gpt-oss-20B_high,gpt-oss-20B-high,5,3,No budget,12,0.8175,
+openai_gpt-oss-120B_high,gpt-oss-120B-high,6,1,1x4,0,0.675,1x4 → 2x2 → 4x1
+openai_gpt-oss-120B_high,gpt-oss-120B-high,6,1,2x1,1,0.735,
+openai_gpt-oss-120B_high,gpt-oss-120B-high,6,1,2x2,2,0.8325,1x4 → 2x2 → 4x1
+openai_gpt-oss-120B_high,gpt-oss-120B-high,6,1,3x1,3,0.83,
+openai_gpt-oss-120B_high,gpt-oss-120B-high,6,1,3x2,4,0.9225,3x2 → 6x1
+openai_gpt-oss-120B_high,gpt-oss-120B-high,6,1,4x1,5,0.89,1x4 → 2x2 → 4x1
+openai_gpt-oss-120B_high,gpt-oss-120B-high,6,1,5x1,6,0.94,
+openai_gpt-oss-120B_high,gpt-oss-120B-high,6,1,6x1,7,0.93,3x2 → 6x1
+openai_gpt-oss-120B_high,gpt-oss-120B-high,6,1,7x1,8,0.94,
+openai_gpt-oss-120B_high,gpt-oss-120B-high,6,1,8x1,9,0.9625,
+openai_gpt-oss-120B_high,gpt-oss-120B-high,6,1,9x1,10,0.9675,
+openai_gpt-oss-120B_high,gpt-oss-120B-high,6,1,10x1,11,0.945,
+openai_gpt-oss-120B_high,gpt-oss-120B-high,6,1,No budget,12,0.9775,
+openai_gpt-oss-120B_high,gpt-oss-120B-high,6,2,1x4,0,0.375,1x4 → 2x2 → 4x1
+openai_gpt-oss-120B_high,gpt-oss-120B-high,6,2,2x1,1,0.2075,
+openai_gpt-oss-120B_high,gpt-oss-120B-high,6,2,2x2,2,0.4825,1x4 → 2x2 → 4x1
+openai_gpt-oss-120B_high,gpt-oss-120B-high,6,2,3x1,3,0.4475,
+openai_gpt-oss-120B_high,gpt-oss-120B-high,6,2,3x2,4,0.735,3x2 → 6x1
+openai_gpt-oss-120B_high,gpt-oss-120B-high,6,2,4x1,5,0.595,1x4 → 2x2 → 4x1
+openai_gpt-oss-120B_high,gpt-oss-120B-high,6,2,5x1,6,0.7225,
+openai_gpt-oss-120B_high,gpt-oss-120B-high,6,2,6x1,7,0.7825,3x2 → 6x1
+openai_gpt-oss-120B_high,gpt-oss-120B-high,6,2,7x1,8,0.8125,
+openai_gpt-oss-120B_high,gpt-oss-120B-high,6,2,8x1,9,0.86,
+openai_gpt-oss-120B_high,gpt-oss-120B-high,6,2,9x1,10,0.85,
+openai_gpt-oss-120B_high,gpt-oss-120B-high,6,2,10x1,11,0.885,
+openai_gpt-oss-120B_high,gpt-oss-120B-high,6,2,No budget,12,0.94,
+openai_gpt-oss-120B_high,gpt-oss-120B-high,6,3,1x4,0,0.185,1x4 → 2x2 → 4x1
+openai_gpt-oss-120B_high,gpt-oss-120B-high,6,3,2x1,1,0.0075,
+openai_gpt-oss-120B_high,gpt-oss-120B-high,6,3,2x2,2,0.2275,1x4 → 2x2 → 4x1
+openai_gpt-oss-120B_high,gpt-oss-120B-high,6,3,3x1,3,0.115,
+openai_gpt-oss-120B_high,gpt-oss-120B-high,6,3,3x2,4,0.515,3x2 → 6x1
+openai_gpt-oss-120B_high,gpt-oss-120B-high,6,3,4x1,5,0.33,1x4 → 2x2 → 4x1
+openai_gpt-oss-120B_high,gpt-oss-120B-high,6,3,5x1,6,0.505,
+openai_gpt-oss-120B_high,gpt-oss-120B-high,6,3,6x1,7,0.635,3x2 → 6x1
+openai_gpt-oss-120B_high,gpt-oss-120B-high,6,3,7x1,8,0.67,
+openai_gpt-oss-120B_high,gpt-oss-120B-high,6,3,8x1,9,0.695,
+openai_gpt-oss-120B_high,gpt-oss-120B-high,6,3,9x1,10,0.7325,
+openai_gpt-oss-120B_high,gpt-oss-120B-high,6,3,10x1,11,0.7675,
+openai_gpt-oss-120B_high,gpt-oss-120B-high,6,3,No budget,12,0.9025,
+gpt-5-mini,gpt-5-mini,7,1,1x4,0,0.6,1x4 → 2x2 → 4x1
+gpt-5-mini,gpt-5-mini,7,1,2x1,1,0.66,
+gpt-5-mini,gpt-5-mini,7,1,2x2,2,0.805,1x4 → 2x2 → 4x1
+gpt-5-mini,gpt-5-mini,7,1,3x1,3,0.8075,
+gpt-5-mini,gpt-5-mini,7,1,3x2,4,0.89,3x2 → 6x1
+gpt-5-mini,gpt-5-mini,7,1,4x1,5,0.89,1x4 → 2x2 → 4x1
+gpt-5-mini,gpt-5-mini,7,1,5x1,6,0.935,
+gpt-5-mini,gpt-5-mini,7,1,6x1,7,0.9675,3x2 → 6x1
+gpt-5-mini,gpt-5-mini,7,1,7x1,8,0.965,
+gpt-5-mini,gpt-5-mini,7,1,8x1,9,0.9875,
+gpt-5-mini,gpt-5-mini,7,1,9x1,10,0.9725,
+gpt-5-mini,gpt-5-mini,7,1,10x1,11,0.985,
+gpt-5-mini,gpt-5-mini,7,1,No budget,12,0.9825,
+gpt-5-mini,gpt-5-mini,7,2,1x4,0,0.2475,1x4 → 2x2 → 4x1
+gpt-5-mini,gpt-5-mini,7,2,2x1,1,0.155,
+gpt-5-mini,gpt-5-mini,7,2,2x2,2,0.4075,1x4 → 2x2 → 4x1
+gpt-5-mini,gpt-5-mini,7,2,3x1,3,0.3825,
+gpt-5-mini,gpt-5-mini,7,2,3x2,4,0.635,3x2 → 6x1
+gpt-5-mini,gpt-5-mini,7,2,4x1,5,0.5625,1x4 → 2x2 → 4x1
+gpt-5-mini,gpt-5-mini,7,2,5x1,6,0.685,
+gpt-5-mini,gpt-5-mini,7,2,6x1,7,0.7675,3x2 → 6x1
+gpt-5-mini,gpt-5-mini,7,2,7x1,8,0.8075,
+gpt-5-mini,gpt-5-mini,7,2,8x1,9,0.815,
+gpt-5-mini,gpt-5-mini,7,2,9x1,10,0.8475,
+gpt-5-mini,gpt-5-mini,7,2,10x1,11,0.87,
+gpt-5-mini,gpt-5-mini,7,2,No budget,12,0.9075,
+gpt-5-mini,gpt-5-mini,7,3,1x4,0,0.1325,1x4 → 2x2 → 4x1
+gpt-5-mini,gpt-5-mini,7,3,2x1,1,0.0075,
+gpt-5-mini,gpt-5-mini,7,3,2x2,2,0.1625,1x4 → 2x2 → 4x1
+gpt-5-mini,gpt-5-mini,7,3,3x1,3,0.0875,
+gpt-5-mini,gpt-5-mini,7,3,3x2,4,0.4525,3x2 → 6x1
+gpt-5-mini,gpt-5-mini,7,3,4x1,5,0.2375,1x4 → 2x2 → 4x1
+gpt-5-mini,gpt-5-mini,7,3,5x1,6,0.4775,
+gpt-5-mini,gpt-5-mini,7,3,6x1,7,0.635,3x2 → 6x1
+gpt-5-mini,gpt-5-mini,7,3,7x1,8,0.6825,
+gpt-5-mini,gpt-5-mini,7,3,8x1,9,0.7125,
+gpt-5-mini,gpt-5-mini,7,3,9x1,10,0.76,
+gpt-5-mini,gpt-5-mini,7,3,10x1,11,0.7575,
+gpt-5-mini,gpt-5-mini,7,3,No budget,12,0.8575,
