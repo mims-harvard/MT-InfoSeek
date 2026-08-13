@@ -1163,14 +1163,16 @@ def _error_suggests_use_max_completion_tokens(err: Exception) -> bool:
     )
 
 
-def _is_client_bad_request(err: Exception) -> bool:
-    if type(err).__name__ == "BadRequestError":
+def _is_non_retryable_client_error(err: Exception) -> bool:
+    # Malformed requests (400) and credential problems (401/403) cannot succeed
+    # on retry; surface them instead of looping.
+    if type(err).__name__ in ("BadRequestError", "AuthenticationError", "PermissionDeniedError"):
         return True
     sc = getattr(err, "status_code", None)
-    if sc == 400:
+    if sc in (400, 401, 403):
         return True
     resp = getattr(err, "response", None)
-    if resp is not None and getattr(resp, "status_code", None) == 400:
+    if resp is not None and getattr(resp, "status_code", None) in (400, 401, 403):
         return True
     return False
 
@@ -1230,7 +1232,7 @@ def hosted_gpt_chat_completion(
         if not use_mct and _error_suggests_use_max_completion_tokens(e):
             retry_kwargs = _build_gpt_chat_kwargs(True)
             res = _create_chat_completion(dict(retry_kwargs))
-        elif _is_client_bad_request(e):
+        elif _is_non_retryable_client_error(e):
             raise
         else:
             print(e)

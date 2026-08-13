@@ -7,6 +7,7 @@ import argparse
 import hashlib
 import json
 import math
+import os
 import re
 import time
 from collections import defaultdict
@@ -605,14 +606,14 @@ class HostedGPTJudge(BaseJudge):
         self.max_retries = max_retries
 
         try:
-            from twenty_questions.models import AZURE_OPENAI_ENDPOINT, hosted_gpt_chat_completion
+            from twenty_questions.models import hosted_gpt_chat_completion
         except Exception as e:
             raise ImportError(
                 "HostedGPTJudge requires twenty_questions.models to be importable."
             ) from e
 
         self._hosted_gpt_chat_completion = hosted_gpt_chat_completion
-        self.backend_id = f"hosted_gpt|{AZURE_OPENAI_ENDPOINT or 'azure_env'}"
+        self.backend_id = f"hosted_gpt|{os.environ.get('AZURE_OPENAI_ENDPOINT', '').rstrip('/') or 'azure_env'}"
 
     def _messages_single(self, candidate: str, question: str) -> List[Dict[str, str]]:
         system_prompt = (
