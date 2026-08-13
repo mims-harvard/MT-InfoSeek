@@ -30,7 +30,7 @@
         margin: 0;
         color: var(--ink);
         background: var(--paper);
-        font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        font-family: "Aptos", "Inter", "Helvetica Neue", "Segoe UI", ui-sans-serif, system-ui, -apple-system, sans-serif;
         line-height: 1.6;
       }
 
@@ -380,7 +380,6 @@
 
       #motivation h2,
       #motivation p,
-      #motivation .stat-callout,
       #overview h2,
       #overview p,
       #overview .figure-block,
@@ -393,33 +392,7 @@
         max-width: 1040px;
       }
 
-      .stat-callout {
-        display: block;
-        margin: 26px 0;
-        padding: 16px 20px;
-        border: 1px solid #d5ded8;
-        border-radius: 8px;
-        background:
-          linear-gradient(135deg, rgba(238, 245, 240, 0.92), rgba(255, 255, 255, 0.98)),
-          #ffffff;
-        box-shadow: 0 10px 28px rgba(27, 38, 32, 0.06);
-      }
-
-      .stat-number {
-        color: #195d42;
-        font-size: 1.08em;
-        line-height: inherit;
-        font-weight: 840;
-        letter-spacing: 0;
-      }
-
-      .stat-caption {
-        color: #46534d;
-        font-size: 1.05rem;
-        line-height: 1.45;
-      }
-
-      .stat-caption em {
+      #motivation em {
         color: var(--ink);
         font-style: normal;
         font-weight: 720;
@@ -768,10 +741,7 @@
       }
 
       .site-footer-inner {
-        display: grid;
-        grid-template-columns: minmax(0, 1fr) auto;
-        gap: 28px;
-        align-items: end;
+        display: block;
         width: min(1040px, calc(100% - 36px));
         margin: 0 auto;
       }
@@ -798,33 +768,6 @@
         text-decoration: underline;
       }
 
-      .footer-logos {
-        display: grid;
-        grid-template-columns: repeat(4, 112px);
-        gap: 10px;
-        justify-content: end;
-        align-items: center;
-      }
-
-      .footer-logo {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 112px;
-        height: 54px;
-        padding: 8px;
-        border: 1px solid #dbe4df;
-        border-radius: 8px;
-        background: #ffffff;
-      }
-
-      .footer-logo img {
-        display: block;
-        width: 100%;
-        height: 100%;
-        object-fit: contain;
-      }
-
       @media (max-width: 920px) {
         .hero-inner {
           grid-template-columns: 1fr;
@@ -840,19 +783,8 @@
           grid-template-columns: 1fr;
         }
 
-        .stat-callout {
-          grid-template-columns: 1fr;
-          gap: 10px;
-        }
-
         .site-footer-inner {
-          grid-template-columns: 1fr;
-          align-items: start;
-        }
-
-        .footer-logos {
-          grid-template-columns: repeat(2, 112px);
-          justify-content: start;
+          width: min(1040px, calc(100% - 36px));
         }
 
         .takeaway-layout {
@@ -947,7 +879,8 @@
           <p class="authors-note">* Equal contribution</p>
           
           <div class="actions">
-            <a class="button" href="https://github.com/mims-harvard/MT-InfoSeek">Code</a>
+            <a class="button primary" href="#">Paper</a>
+            <a class="button" href="https://github.com/mims-harvard/MT-InfoSeek/tree/main">Code</a>
             <a class="button" href="#citation">Citation</a>
           </div>
         </div>
@@ -994,12 +927,10 @@
             ability more than it reveals it.
           </p>
 
-          <div class="stat-callout">
-            <span class="stat-caption">
-              In MediQ, a 30B model gets <span class="stat-number">60&ndash;70%</span> of cases right from the
-              <em>initial, incomplete</em> prompt &mdash; without asking any follow-up questions.
-            </span>
-          </div>
+          <p>
+            In MediQ, a 30B model gets 60&ndash;70% of cases right from the
+            <em>initial, incomplete</em> prompt &mdash; without asking any follow-up questions.
+          </p>
 
           <p>
             Structured formulations can reduce this ambiguity. QuestBench formalizes underspecified reasoning as
@@ -1290,15 +1221,9 @@
         <div>
           <p class="footer-disclaimer">MT-InfoSeek is an open science, academic research project.</p>
           <p class="footer-meta">
-            <a href="https://zitniklab.hms.harvard.edu/">Zitnik Lab, Harvard Medical School</a>.
+            <a href="https://zitniklab.hms.harvard.edu/">Zitnik Lab</a>.
             Apache License 2.0.
           </p>
-        </div>
-        <div class="footer-logos" aria-label="Institution logos">
-          <span class="footer-logo"><img src="Logos/HarvardMedicalSchool.png" alt="Harvard Medical School" /></span>
-          <span class="footer-logo"><img src="Logos/logo.png" alt="Kempner Institute" /></span>
-          <span class="footer-logo"><img src="Logos/images.png" alt="Broad Institute" /></span>
-          <span class="footer-logo"><img src="Logos/HDSI.png" alt="Harvard Data Science Initiative" /></span>
         </div>
       </div>
     </footer>
