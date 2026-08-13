@@ -462,10 +462,10 @@
 
       .term::after {
         content: attr(data-def);
-        position: absolute;
-        left: var(--tt-shift, 0px);
-        top: calc(100% + 8px);
-        z-index: 20;
+        position: fixed;
+        left: var(--tt-left, 0px);
+        top: var(--tt-top, 0px);
+        z-index: 100;
         width: min(320px, 76vw);
         padding: 10px 12px;
         border: 1px solid var(--line);
@@ -844,7 +844,7 @@
 
       .reveal-on-scroll.is-visible {
         opacity: 1;
-        transform: translateY(0);
+        transform: none;
       }
 
       .citation pre {
@@ -1221,8 +1221,8 @@ Ask          “Is it a living thing?”
               <div class="takeaway-tag">Finding 01</div>
               <p class="takeaway-copy">
                 <strong>LLMs recognize when context is insufficient, but underestimate how much additional information is required.</strong>
-                Models rarely mistake an underspecified problem for a complete one, but their predictions of
-                <dfn class="term" tabindex="0" data-def="The degree of underspecification: the minimum number of variables that must be queried to uniquely determine the target.">k</dfn>
+                Models rarely mistake an underspecified problem for a complete one, but their estimates of the
+                <dfn class="term" tabindex="0" data-def="The minimum number of variables (k) that must be queried to uniquely determine the target.">degree of underspecification</dfn>
                 degrade — and skew low — as more variables are hidden.
               </p>
               <div class="figure-block">
@@ -1251,7 +1251,8 @@ Ask          “Is it a living thing?”
             <article class="takeaway-item reveal-on-scroll" id="takeaway-3">
               <div class="takeaway-tag">Finding 03</div>
               <p class="takeaway-copy">
-                <strong>Spreading questions across turns beats asking them all at once, even under the same total query budget.</strong>
+                <strong>Spreading questions across turns beats asking them all at once, even under the same
+                <dfn class="term" tabindex="0" data-def="An interaction budget m × n (as labeled in the figure) allows at most m turns with at most n queries per turn — m × n total queries. Both limits are stated in the model's prompt.">total query budget</dfn>.</strong>
                 Models that query, read the answer, and query again reach
                 <dfn class="term" tabindex="0" data-def="Whether the information acquired by the end of the dialogue is enough to uniquely determine the target.">final sufficiency</dfn>
                 more often than models that issue all their queries in one batch, and additional turns generally help.
@@ -1417,21 +1418,25 @@ Ask          “Is it a living thing?”
         });
       });
 
-      // Keep term tooltips fully inside the viewport: before showing, compute
-      // how far the box would overflow either edge and shift it accordingly.
+      // Term tooltips are position:fixed so no ancestor overflow can clip them;
+      // before showing, place the box under the term and clamp it to the viewport.
       document.querySelectorAll(".term").forEach((term) => {
         const reposition = () => {
           const rect = term.getBoundingClientRect();
           const width = Math.min(320, window.innerWidth * 0.76);
-          const margin = 16;
-          const idealLeft = Math.min(
+          const margin = 12;
+          const left = Math.min(
             Math.max(rect.left, margin),
             window.innerWidth - margin - width
           );
-          term.style.setProperty("--tt-shift", `${idealLeft - rect.left}px`);
+          term.style.setProperty("--tt-left", `${left}px`);
+          term.style.setProperty("--tt-top", `${rect.bottom + 8}px`);
         };
         term.addEventListener("mouseenter", reposition);
         term.addEventListener("focus", reposition);
+        window.addEventListener("scroll", () => {
+          if (term.matches(":hover, :focus")) reposition();
+        }, { passive: true });
       });
     </script>
     <script>
