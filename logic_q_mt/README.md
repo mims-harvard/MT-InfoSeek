@@ -6,8 +6,8 @@ identify and query the multiple missing facts needed to prove or disprove
 a target proposition. Each problem is paired with a
 $k$-Minimal Sufficient Set ($k$-MSS) for $k \in \{1, 2, 3\}$.
 
-Released benchmark: [data/logic_q_mt.csv](../data/logic_q_mt.csv). See `Setup` in the [root README](../README.md) for environment,
-API keys, and the local vLLM server.
+Released benchmark: [data/logic_q_mt.csv](../data/logic_q_mt.csv). See
+[SETUP.md](../SETUP.md) for environment, API keys, and the local vLLM server.
 
 ## Sequential task-solving (multi-turn)
 

@@ -288,7 +288,7 @@ def backderive_nextlayer_rules(
         # --> excess information; there's some node we didn't need to expand
         # (either this node or prev time this came up)
         # NOTE: if the ancestor appears on another branch, the case where this ancestor is still a leaf will sill pass this filter, so it's fine
-        # TODO: Commented out due to incomplete derivation coverage issues; performance impact is manageable
+        # NOTE: Disabled due to incomplete derivation coverage issues; performance impact is manageable
         # if prev_layer_rule.list_has_ancestor(set(word_expansion.keys())):
         #   continue
         
@@ -305,7 +305,7 @@ def backderive_nextlayer_rules(
       
     # take all combinations of per_word_rules for the `prev_layer_rules`
     # [[{a: d1}, {c: d2, d: d2}], [{b: d1}, {c: d2, e: d2}] [{f: d0}]]
-    prev_rule_expansions = it.product(*perword_expansion_rules)  # TODO: How many?
+    prev_rule_expansions = it.product(*perword_expansion_rules)
     # -> [
     #   ({a: d1}, {b: d1}, {f: d0}),
     #   ({a: d1}, {c: d2, e: d2}, {f: d0}),
@@ -365,7 +365,7 @@ def backderive_nextlayer_rules(
     return set(), all_query_rules, len_break
   start = time()
 
-  # TODO: The following two steps intentionally keeps only the minimally sufficient variable assignments (no supersets)
+  # NOTE: The following two steps intentionally keep only the minimally sufficient variable assignments (no supersets)
   
   # 1. Prune ancestors: Removes old rules (in all_query_rules) made redundant by new discoveries (curr_layer_rules)
   # now delete rules which are supersets of other rules

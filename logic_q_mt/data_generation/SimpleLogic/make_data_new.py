@@ -375,21 +375,8 @@ def main(arguments) -> None:
     filtered_rows = []
     for k, context_str, valid_sets, derivations_min_rules, derivations_min_depth in all_problems:
       # Parse context
-      # try:
       context_set = set(json.loads(context_str))
 
-      # Filter: require at least 1 known fact in context
-      # FIXME
-      # if len(context_set) < 1:
-      #     continue
-
-      # except:
-      #     # Fallback if context_str is somehow malformed (e.g. single quotes)
-      #     try:
-      #       known_facts = ast.literal_eval(context_str)
-      #     except:
-      #       continue
-      
       # Determine facts known to be false based on "not X" in context
       # NOTE: known facts are positive probably because simplelogic is built upon definite clauses restricted to positive literals
       false_facts = []
@@ -430,7 +417,6 @@ def main(arguments) -> None:
       ))
       
       # filter out sets that accidentally are identical to invalid sets.
-      # TODO: Maybe this filter is not needed?
       clean_gt_qs = []
       clean_derivations_min_rules = []
       clean_derivations_min_depth = []

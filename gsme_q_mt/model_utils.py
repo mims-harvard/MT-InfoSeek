@@ -1115,7 +1115,7 @@ async def async_batch_generate(
         elif model_name in CLAUDE_MODELS or model_name.startswith("claude"):
           resp = await claude_request(model_name, messages, **generation_config)
           text = resp["content"][0]["text"]
-          # FIXME
+          # Cost accounting is not implemented for Claude models; reported as 0.0
           return idx, GenerationResult(text=text, cost_usd=0.0)
         elif _is_gemini_model(model_name):
           result = await gemini_request(model_name, messages, **generation_config)

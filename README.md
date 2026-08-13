@@ -7,12 +7,11 @@
 
 ![MT-InfoSeek overview: multi-turn information seeking across logical, mathematical, biological, clinical, and common-knowledge domains](docs/assets/overview.png)
 
-This repository contains code and data for evaluating **multi-turn information
-seeking** in LLMs.
+This repository contains code and data for *Do LLMs Know What to Ask and When? Evaluating Multi-Turn Information Seeking*.
 
 Many reasoning benchmarks assume the input question is fully specified. In
 practice, a model often has to identify what information is missing, ask for
-it, and then solve the task. MT-InfoSeek measures information seeking across logical, mathematical, biological, clinical, and common knowledge domains.
+it, and then solve the task. MT-InfoSeek measures multi-turn information seeking across logical, mathematical, biological, clinical, and common knowledge domains.
 
 **[Website](https://zitniklab.hms.harvard.edu/MT-InfoSeek)** · **[Dataset](data/)** · **[Setup guide](#getting-started)**
 
@@ -22,40 +21,6 @@ The released benchmark files live in [`data/`](data/), with schemas and task
 descriptions in [data/README.md](data/README.md). A machine-readable
 [Croissant](https://github.com/mlcommons/croissant) metadata file is provided
 in [croissant.json](croissant.json).
-
-## Repository layout
-
-```
-MT-InfoSeek/
-├── run_eval.py                    # one-command driver for the whole suite
-├── analyze_results.py             # combined summary (summary.md / summary.json)
-├── setup.sh                       # evaluator environment, data assets, optional vLLM
-├── scripts/serve_vllm.sh          # convenience vLLM launcher for the paper's models
-├── data/                          # released benchmark files and dataset guide
-├── model_registry.py              # shared model definitions (both model_utils read it)
-├── model_utils.py                 # shared LLM client (Logic-Q-MT, GeneReg-MT, ClinGuide-MT)
-├── chat_backends.py               # shared /v1/chat/completions request + parsing
-├── logic_q_mt/                    # propositional-logic multi-turn benchmark
-├── gsme_q_mt/                     # GSM math-CSP multi-turn benchmark (+ Ext)
-├── genereg_mt/                    # GRN multi-turn benchmark (+ assets/ cache tarball)
-├── 20q/                           # 20-Questions inference + offline evaluator
-├── clinguide_mt/                  # ClinGuide-MT extraction pipeline + evaluator (data withheld)
-├── build_croissant.py             # regenerates croissant.json from data/
-├── croissant.json                 # machine-readable dataset metadata
-├── validate_croissant.py          # checks croissant.json against data/
-├── docs/                          # README assets (overview figure)
-├── LICENSE                        # per-component licenses and upstream provenance
-├── SETUP.md                       # setup instructions
-├── .env.example                   # template for the env vars the scripts read
-└── requirements.txt
-```
-
-Each released task folder (`logic_q_mt/`, `gsme_q_mt/`, `genereg_mt/`, `20q/`)
-is self-contained: a top-level `README.md`, a Python entry point, a `scripts/`
-folder with env-var-driven shell templates, and, where applicable, a
-`data_generation/` folder with the regeneration pipeline. See
-[data/README.md](data/README.md) for dataset contents, and each task README for
-run-time knobs.
 
 ## Getting started
 
@@ -100,8 +65,8 @@ VLLM_PORT=8011 .venv/bin/python run_eval.py --datasets all --model my-org/custom
 ```
 
 For a non-local OpenAI-compatible endpoint, set `VLLM_BASE_URL` or use
-`--model-config`; see **[SETUP.md](SETUP.md)**. The full released data adds
-`--full` and asks before it starts.
+`--model-config`; see **[SETUP.md](SETUP.md)**. To evaluate on the full
+released data, add `--full`; the runner asks for confirmation before starting.
 
 Defaults match the paper protocol. Results and a combined `summary.md` /
 `summary.json` are written under `logs/run_<model>_<...>/`.
@@ -135,6 +100,40 @@ Example prompt from the repository root:
 > examiner and offline judge default to `gpt-5-mini`, then confirm whether to
 > keep those defaults or use local models. Show me the exact command before
 > starting evaluation.
+
+## Repository layout
+
+```
+MT-InfoSeek/
+├── run_eval.py                    # one-command driver for the whole suite
+├── analyze_results.py             # combined summary (summary.md / summary.json)
+├── setup.sh                       # evaluator environment, data assets, optional vLLM
+├── scripts/serve_vllm.sh          # convenience vLLM launcher for the paper's models
+├── data/                          # released benchmark files and dataset guide
+├── model_registry.py              # shared model definitions (both model_utils read it)
+├── model_utils.py                 # shared LLM client (Logic-Q-MT, GeneReg-MT, ClinGuide-MT)
+├── chat_backends.py               # shared /v1/chat/completions request + parsing
+├── logic_q_mt/                    # propositional-logic multi-turn benchmark
+├── gsme_q_mt/                     # GSM math-CSP multi-turn benchmark (+ Ext)
+├── genereg_mt/                    # GRN multi-turn benchmark (+ assets/ cache tarball)
+├── 20q/                           # 20-Questions inference + offline evaluator
+├── clinguide_mt/                  # ClinGuide-MT extraction pipeline + evaluator (data withheld)
+├── build_croissant.py             # regenerates croissant.json from data/
+├── croissant.json                 # machine-readable dataset metadata
+├── validate_croissant.py          # checks croissant.json against data/
+├── docs/                          # README assets (overview figure)
+├── LICENSE                        # per-component licenses and upstream provenance
+├── SETUP.md                       # setup instructions
+├── .env.example                   # template for the env vars the scripts read
+└── requirements.txt
+```
+
+Each released task folder (`logic_q_mt/`, `gsme_q_mt/`, `genereg_mt/`, `20q/`)
+is self-contained: a top-level `README.md`, a Python entry point, a `scripts/`
+folder with env-var-driven shell templates, and, where applicable, a
+`data_generation/` folder with the regeneration pipeline. See
+[data/README.md](data/README.md) for dataset contents, and each task README for
+run-time knobs.
 
 ## Citation
 

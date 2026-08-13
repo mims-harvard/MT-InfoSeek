@@ -172,7 +172,6 @@ Facts:
 
 Target Question:
 Is Alice {goal}?""",
-          # FIXME
           "explicit_valid_set": """{known_facts}
 {known_untrue_facts}
 {valid_qs}
@@ -280,14 +279,6 @@ Is Alice {goal}?""",
 
 # Do not output anything else."""
 
-    # if self.use_cot:
-    #   if self.eval_mode == "mc":
-    #     self.system_prompt = self.cot_prompt
-    #   elif self.eval_mode == "isambig":
-    #     self.system_prompt = self.cot_isambig_prompt
-    #   elif self.eval_mode == "fullinfo":
-    #     self.system_prompt = self.cot_fullinfo_prompt
-    #   self.request = self.non_fs_request
     if self.fs_samples > 0:
       if self.eval_mode == "mc":
         self.system_prompt = self.fs_prompt
@@ -295,8 +286,6 @@ Is Alice {goal}?""",
         self.system_prompt = self.fs_isambig_prompt
       elif self.eval_mode == "fullinfo":
         self.system_prompt = self.fs_fullinfo_prompt
-      # TODO
-      # self.request = self.fs_request
       self.user_prompt = self.prompts[self.eval_mode]["user_prompt"]["fs"]
     else:
       # In non-fewshot mode, per-example system prompts are constructed in
