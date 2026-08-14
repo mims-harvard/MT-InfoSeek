@@ -1180,9 +1180,9 @@
             <em>known</em> when all feasible assignments agree on its value; when several values remain
             possible, the problem is <em>underspecified</em>. A set of
             <dfn class="term" tabindex="0" data-def="U(P): the variables that are neither already observed nor the target, that is, the ones a model is allowed to query.">queryable variables</dfn>
-            is <em>sufficient</em> if fixing their values always determines the target, and the smallest such
-            set is the <strong>minimal k-sufficient set (k-MSS)</strong>, whose size k is the degree of
-            underspecification.
+            is <em>sufficient</em> if fixing their values always determines the target. A smallest such set
+            is a <strong>minimal k-sufficient set (k-MSS)</strong>, whose size k is the degree of
+            underspecification; a problem can have more than one.
           </p>
         </div>
 
@@ -1208,11 +1208,11 @@
         <div class="dataset-grid">
           <div class="dataset-card">
             <h3>Logic-Q-MT <span>Logic</span></h3>
-            <p>Rule-based logical reasoning environments where models recursively identify and query the
+            <p>Rule-based logical reasoning environments where models sequentially identify and query the
             missing facts needed to prove or disprove a target proposition.</p>
             <button class="card-toggle" aria-expanded="false">Example</button>
             <div class="card-example"><div class="ex">
-              <div class="ex-row"><span class="ex-key ex-c">Constraints</span><span class="ex-val">smart ⇒ jittery<br />strange ∧ jittery ⇒ stubborn<br />jittery ∧ worried ⇒ pleasant</span></div>
+              <div class="ex-row"><span class="ex-key ex-c">Constraints</span><span class="ex-val">smart ⇒ jittery<br />strange ∧ jittery ⇒ stubborn<br />jittery ∧ worried ⇒ pleasant<br />pleasant ⇒ worried&ensp;…</span></div>
               <div class="ex-row"><span class="ex-key ex-a">Observed</span><span class="ex-val">smart = true</span></div>
               <div class="ex-row"><span class="ex-key ex-y">Target</span><span class="ex-val">pleasant = ?</span></div>
               <div class="ex-row"><span class="ex-key ex-s">Ask</span><span class="ex-val">worried, stubborn</span></div>
@@ -1220,8 +1220,8 @@
           </div>
           <div class="dataset-card">
             <h3>GSME-Q-MT (+ Ext) <span>Mathematics</span></h3>
-            <p>Grade-school math word problems with human-annotated missing conditions required to compute
-            an answer, extended to multi-turn by masking multiple quantities at once. The Ext variant is
+            <p>Grade-school math problems in equation form, with human-annotated missing conditions
+            required to compute an answer, extended to multi-turn by masking multiple quantities at once. The Ext variant is
             generated from DAG-structured arithmetic programs with deeper dependency chains, larger
             variable sets, and rigorously validated k-MSSs.</p>
             <button class="card-toggle" aria-expanded="false">Example</button>
@@ -1322,13 +1322,13 @@
               <p class="takeaway-copy">
                 <strong>LLMs recognize when context is insufficient, but underestimate how much additional information is required.</strong>
                 Models rarely mistake an underspecified problem for a complete one, but their estimates of the
-                <dfn class="term" tabindex="0" data-def="The minimum number of variables (k) that must be queried to uniquely determine the target.">degree of underspecification</dfn>
+                <dfn class="term" tabindex="0" data-def="k, the degree of underspecification: the number of variables that must be queried to pin down the target whatever the answers turn out to be. No smaller set works for every possible target value.">degree of underspecification</dfn>
                 degrade as more variables are hidden, and the errors skew toward underestimation.
               </p>
               <div class="figure-block">
                 <div class="web-chart" data-chart="fig3" data-src="web_data/fig3.csv" role="img" aria-label="Accuracy and under-prediction of degree of underspecification"></div>
                 <img class="web-chart-fallback" loading="lazy" src="assets/underspecification.png" alt="Accuracy and under-prediction of degree of underspecification" />
-                <p class="caption">Accuracy of predicting the true k and under- versus over-prediction rates.</p>
+                <p class="caption">Accuracy of predicting the true k and under- versus over-prediction rates in Logic-Q-MT.</p>
               </div>
             </article>
 
@@ -1343,7 +1343,7 @@
               <div class="figure-block">
                 <div class="web-chart" data-chart="fig2" data-src="web_data/fig2.csv" role="img" aria-label="Minimal sufficient set identification results"></div>
                 <img class="web-chart-fallback" loading="lazy" src="assets/minimal-queries.png" alt="Minimal sufficient set identification results" />
-                <p class="caption"><dfn class="term" tabindex="0" data-def="Minimal sufficient set: the smallest set of unknown variables whose values uniquely determine the target.">MSS</dfn> exact-set accuracy with k not provided or provided.</p>
+                <p class="caption"><dfn class="term" tabindex="0" data-def="The fraction of problems where the model's proposed query set exactly matches the ground-truth minimal sufficient set.">MSS exact-set accuracy</dfn> in Logic-Q-MT, with k not provided or provided.</p>
               </div>
             </article>
 
@@ -1351,11 +1351,12 @@
             <article class="takeaway-item reveal-on-scroll" id="takeaway-3">
               <div class="takeaway-tag">Finding 03</div>
               <p class="takeaway-copy">
-                <strong>Spreading questions across turns beats asking them all at once, even under the same
+                <strong>Spreading questions across turns usually beats asking them all at once, even under the same
                 <dfn class="term" tabindex="0" data-def="An interaction budget m × n (as labeled in the figure) allows at most m turns with at most n queries per turn, so m × n queries in total. Both limits are stated in the model's prompt.">total query budget</dfn>.</strong>
-                Models that query, read the answer, and query again reach
+                The same model reaches
                 <dfn class="term" tabindex="0" data-def="Whether the information acquired by the end of the dialogue is enough to uniquely determine the target.">final sufficiency</dfn>
-                more often than models that issue all their queries in one batch, and additional turns generally help.
+                more often when it queries, reads the answer, and queries again than when it issues all its
+                queries in one batch, though forcing one query per turn can make a model stop early and guess.
               </p>
               <div class="figure-block">
                 <div class="web-chart" data-chart="fig1" data-src="web_data/fig1.csv" role="img" aria-label="Multi-turn budget experiments"></div>
@@ -1368,8 +1369,8 @@
               <div class="takeaway-tag">Finding 04</div>
               <p class="takeaway-copy">
                 <strong>In highly underspecified problems, success depends less on asking the perfect first question and more on sustaining effective information acquisition across turns.</strong>
-                Early-turn query quality predicts success when k is small; at larger k, models are separated
-                by whether they continue to surface useful information across turns.
+                Early-turn query correctness predicts final sufficiency when k is small; at larger k,
+                models are separated by whether they keep identifying useful variables across turns.
               </p>
               <div class="figure-block">
                 <div class="web-chart" data-chart="fig4" data-src="web_data/fig4.csv" role="img" aria-label="Correlation between model behaviors and final sufficiency"></div>
@@ -1405,7 +1406,7 @@
                 <div class="web-chart" data-chart="fig6" data-src="web_data/fig6.csv" role="img" aria-label="ClinGuide final accuracy by query coverage and order"></div>
                 <img class="web-chart-fallback" loading="lazy" src="assets/clinguide-order.png" alt="ClinGuide final accuracy by query coverage and order" />
                 <p class="caption">ClinGuide-MT final accuracy stratified by
-                <dfn class="term" tabindex="0" data-def="Minimal sufficient set: the smallest set of unknown variables whose values uniquely determine the target.">MSS</dfn>
+                <dfn class="term" tabindex="0" data-def="Minimal sufficient set: a smallest set of unknown variables whose values determine the target. A problem can have more than one, and evaluation scores against one designated set.">MSS</dfn>
                 coverage and MSS ordering.</p>
               </div>
             </article>
@@ -1416,7 +1417,7 @@
               <p class="takeaway-copy">
                 <strong>Asking informative questions is necessary but not sufficient for identifying the target.</strong>
                 Models with similar question informativeness can differ substantially in final accuracy:
-                integrating the acquired evidence matters as much as acquiring it.
+                success depends on how a model integrates the acquired evidence, not only on acquiring it.
               </p>
               <div class="figure-pair">
                 <div class="figure-block">
@@ -1425,13 +1426,13 @@
                   <p class="caption">Accuracy versus
                   <dfn class="term" tabindex="0" data-def="The expected reduction in uncertainty about the hidden target from a question's possible answers, normalized to be comparable across turns (nEIG).">normalized information gain</dfn>
                   across
-                  <dfn class="term" tabindex="0" data-def="The examiner is the oracle model in 20Q that truthfully answers each question with Yes, No, or Pass.">examiners</dfn>.</p>
+                  <dfn class="term" tabindex="0" data-def="The examiner is the LLM oracle in 20Q that answers each question with Yes, No, or Pass.">examiners</dfn>.</p>
                 </div>
                 <div class="figure-block">
                   <div class="web-chart" data-chart="fig10" data-src="web_data/fig10.csv" role="img" aria-label="Target identification from the same QA trace"></div>
                   <img class="web-chart-fallback" loading="lazy" src="assets/20q-trace.png" alt="Target identification from the same QA trace" />
                   <p class="caption">Target identification accuracy across
-                  <dfn class="term" tabindex="0" data-def="Models given a completed question–answer dialogue produced by another model and asked to identify the target from it (trace transfer).">answer models</dfn>
+                  <dfn class="term" tabindex="0" data-def="Models given a completed question–answer dialogue and asked to identify the target from it (trace transfer).">answer models</dfn>
                   given the same QA dialogue.</p>
                 </div>
               </div>
@@ -1441,9 +1442,9 @@
               <div class="takeaway-tag">Finding 08</div>
               <p class="takeaway-copy">
                 <strong>LLMs are better at coarse-grained narrowing than fine-grained disambiguation.</strong>
-                <dfn class="term" tabindex="0" data-def="The entropy of the distribution over candidates still consistent with all answers so far; lower means the candidate space has been narrowed further.">Remaining entropy</dfn>
+                <dfn class="term" tabindex="0" data-def="The entropy of the model's belief over the remaining candidate targets after each answer; lower means the candidate space has been narrowed further.">Remaining entropy</dfn>
                 falls quickly in early turns as models identify the target&rsquo;s broad category, but the
-                curves flatten once only a few similar candidates remain.
+                curves often flatten once only a few similar candidates remain.
               </p>
               <div class="figure-block">
                 <div class="web-chart" data-chart="fig8" data-src="web_data/fig8.csv" role="img" aria-label="Remaining entropy across 20Q turns"></div>
@@ -1480,8 +1481,8 @@
         <p class="lede">
           Across all five domains, current LLMs detect underspecification but underestimate its degree,
           query incomplete sets of variables, and stop before the acquired information determines the
-          target. Information seeking also dissociates from answer generation: models with near-identical
-          answer accuracy under full information differ widely in final sufficiency, and different models
+          target. Information seeking also dissociates from answer generation: models that answer correctly
+          once they are given all the needed variables still differ widely in final sufficiency, and other models
           recover the target differently from identical dialogues. Final accuracy alone therefore does not
           measure interactive competence.
         </p>
