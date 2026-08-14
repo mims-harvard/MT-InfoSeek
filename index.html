@@ -498,14 +498,14 @@
       }
 
       .dataset-grid {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        align-items: start;
-        gap: 14px;
+        columns: 2;
+        column-gap: 14px;
         margin-top: 28px;
       }
 
       .dataset-card {
+        break-inside: avoid;
+        margin-bottom: 14px;
         padding: 18px;
         border: 1px solid var(--line);
         border-radius: 10px;
@@ -590,9 +590,8 @@
         column-gap: 12px;
         row-gap: 7px;
         align-items: start;
-        margin-top: 12px;
-        padding: 12px 0 2px;
-        border-top: 1px solid var(--line);
+        margin-top: 10px;
+        padding: 2px 0;
       }
 
       .ex-row {
@@ -945,7 +944,7 @@
         }
 
         .dataset-grid {
-          grid-template-columns: 1fr;
+          columns: 1;
         }
 
         .site-footer-inner {
@@ -1137,8 +1136,8 @@
           variable. The formulation provides ground truth for which variables the model needs,
           allows controlled variation in the degree of underspecification k, and defines when the
           model should stop asking and answer. We study three components of multi-turn information
-          seeking: which variables the model queries, when it stops, and how the acquired
-          information affects the final answer.
+          seeking: which variables the model queries, in which order it queries them, and how it uses
+          the acquired information.
         </p>
         <div class="figure-block overview-figure">
           <div class="overview-image-frame">
@@ -1226,10 +1225,22 @@
         <div class="setup-strip">
           <h3>Problem setup</h3>
           <p>
-            A problem is a tuple of variables, domains, constraints, an observed partial assignment, and a
-            target variable. A set of unknown variables is <em>sufficient</em> if fixing their values always
-            determines the target; the smallest such set is the <strong>minimal k-sufficient set (k-MSS)</strong>,
-            whose size k defines the degree of underspecification.
+            A problem is a tuple of variables, their domains, logical constraints, an observed partial
+            assignment, and a target variable. The
+            <dfn class="term" tabindex="0" data-def="Ω(P): the set of all full variable assignments consistent with both the constraints and the observed assignment — the underlying states still possible given the available information.">feasible space</dfn>
+            holds every assignment still consistent with the constraints and the observation. The target is
+            <em>known</em> when all feasible assignments agree on its value; when several values remain
+            possible, the problem is <em>underspecified</em>. A set of
+            <dfn class="term" tabindex="0" data-def="U(P): the variables that are neither already observed nor the target — the ones a model is allowed to query.">queryable variables</dfn>
+            is <em>sufficient</em> if fixing their values always determines the target, and the smallest such
+            set is the <strong>minimal k-sufficient set (k-MSS)</strong>, whose size k is the degree of
+            underspecification.
+          </p>
+          <p style="margin-top: 12px;">
+            At each turn the model queries one variable, an oracle returns its value, and the observed
+            assignment grows. The interaction continues until the acquired information determines the target
+            uniquely, or until the model commits to an answer. Prior single-turn work is the special case
+            k&nbsp;=&nbsp;1, where a single query ends the interaction.
           </p>
         </div>
       </div>
@@ -1238,7 +1249,7 @@
     <section id="takeaways">
       <div class="section-inner">
         <div class="section-kicker">Findings</div>
-        <h2>What models ask, when they stop, and how the acquired information shapes the answer.</h2>
+        <h2>What models ask, in what order, and how they use the answers.</h2>
         <div class="takeaway-layout">
           <aside class="toc" aria-label="Findings table of contents">
             <a href="#takeaway-1">Underestimating k</a>
