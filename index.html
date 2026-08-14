@@ -1175,11 +1175,11 @@
           <p>
             A problem is a tuple of variables, their domains, logical constraints, an observed partial
             assignment, and a target variable. The
-            <dfn class="term" tabindex="0" data-def="Ω(P): the set of all full variable assignments consistent with both the constraints and the observed assignment — the underlying states still possible given the available information.">feasible space</dfn>
+            <dfn class="term" tabindex="0" data-def="Ω(P): the set of all full variable assignments consistent with both the constraints and the observed assignment, that is, the underlying states still possible given the available information.">feasible space</dfn>
             holds every assignment still consistent with the constraints and the observation. The target is
             <em>known</em> when all feasible assignments agree on its value; when several values remain
             possible, the problem is <em>underspecified</em>. A set of
-            <dfn class="term" tabindex="0" data-def="U(P): the variables that are neither already observed nor the target — the ones a model is allowed to query.">queryable variables</dfn>
+            <dfn class="term" tabindex="0" data-def="U(P): the variables that are neither already observed nor the target, that is, the ones a model is allowed to query.">queryable variables</dfn>
             is <em>sufficient</em> if fixing their values always determines the target, and the smallest such
             set is the <strong>minimal k-sufficient set (k-MSS)</strong>, whose size k is the degree of
             underspecification.
