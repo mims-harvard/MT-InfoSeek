@@ -1181,8 +1181,8 @@
             possible, the problem is <em>underspecified</em>. A set of
             <dfn class="term" tabindex="0" data-def="U(P): the variables that are neither already observed nor the target, that is, the ones a model is allowed to query.">queryable variables</dfn>
             is <em>sufficient</em> if fixing their values always determines the target. A smallest such set
-            is a <strong>minimal k-sufficient set (k-MSS)</strong>, whose size k is the degree of
-            underspecification; a problem can have more than one.
+            is a <strong>minimal k-sufficient set (k-MSS)</strong>, and its size k is the degree of
+            underspecification.
           </p>
         </div>
 
@@ -1322,7 +1322,7 @@
               <p class="takeaway-copy">
                 <strong>LLMs recognize when context is insufficient, but underestimate how much additional information is required.</strong>
                 Models rarely mistake an underspecified problem for a complete one, but their estimates of the
-                <dfn class="term" tabindex="0" data-def="k, the degree of underspecification: the number of variables that must be queried to pin down the target whatever the answers turn out to be. No smaller set works for every possible target value.">degree of underspecification</dfn>
+                <dfn class="term" tabindex="0" data-def="k, the degree of underspecification: how many variables the model must query before the target is determined.">degree of underspecification</dfn>
                 degrade as more variables are hidden, and the errors skew toward underestimation.
               </p>
               <div class="figure-block">
@@ -1356,7 +1356,7 @@
                 The same model reaches
                 <dfn class="term" tabindex="0" data-def="Whether the information acquired by the end of the dialogue is enough to uniquely determine the target.">final sufficiency</dfn>
                 more often when it queries, reads the answer, and queries again than when it issues all its
-                queries in one batch, though forcing one query per turn can make a model stop early and guess.
+                queries in one batch, and additional turns generally help.
               </p>
               <div class="figure-block">
                 <div class="web-chart" data-chart="fig1" data-src="web_data/fig1.csv" role="img" aria-label="Multi-turn budget experiments"></div>
@@ -1406,7 +1406,7 @@
                 <div class="web-chart" data-chart="fig6" data-src="web_data/fig6.csv" role="img" aria-label="ClinGuide final accuracy by query coverage and order"></div>
                 <img class="web-chart-fallback" loading="lazy" src="assets/clinguide-order.png" alt="ClinGuide final accuracy by query coverage and order" />
                 <p class="caption">ClinGuide-MT final accuracy stratified by
-                <dfn class="term" tabindex="0" data-def="Minimal sufficient set: a smallest set of unknown variables whose values determine the target. A problem can have more than one, and evaluation scores against one designated set.">MSS</dfn>
+                <dfn class="term" tabindex="0" data-def="Minimal sufficient set: a smallest set of unknown variables whose values determine the target.">MSS</dfn>
                 coverage and MSS ordering.</p>
               </div>
             </article>
