@@ -1201,10 +1201,7 @@
         <p class="lede">
           Each problem induces a family of task instances that share the same initial information
           and differ in the target value, so a model cannot succeed by guessing the most likely
-          target. Four domains are structured: the queryable variables are predefined and finite, and
-          we generate problems for k in 1 to 4 by masking variables from fully specified states and
-          verifying each masked set. In 20Q the model composes its own questions, so k and the minimal
-          sufficient set are not defined in advance.
+          target.
         </p>
         <p class="bench-stats">5,251 problems&ensp;·&ensp;9,006 task instances&ensp;·&ensp;5 domains</p>
         
@@ -1224,9 +1221,9 @@
           <div class="dataset-card">
             <h3>GSME-Q-MT (+ Ext) <span>Math</span></h3>
             <p>Grade-school math word problems with human-annotated missing conditions required to compute
-            an answer, extended to multi-turn by masking multiple quantities at once. Modern LLMs solve this
-            version reliably, so the Ext variant enriches it with deeper dependency chains, larger variable
-            sets, and strictly validated k-MSSs.</p>
+            an answer, extended to multi-turn by masking multiple quantities at once. The Ext variant is
+            generated from DAG-structured arithmetic programs with deeper dependency chains, larger
+            variable sets, and rigorously validated k-MSSs.</p>
             <button class="card-toggle" aria-expanded="false">Example</button>
             <div class="card-example"><div class="ex">
               <div class="ex-row"><span class="ex-key ex-c">Constraints</span><span class="ex-val">TF = 3·C&ensp;&ensp;TW = 6·C<br />F3 = TF − F1 − F2</span></div>
@@ -1321,7 +1318,7 @@
             <article class="takeaway-item reveal-on-scroll" id="takeaway-1">
               <div class="takeaway-tag">Finding 01</div>
               <p class="takeaway-copy">
-                <strong>Models detect that their context is insufficient, but underestimate how many additional variables they need before the target becomes identifiable.</strong>
+                <strong>LLMs recognize when context is insufficient, but underestimate how much additional information is required.</strong>
                 Models rarely mistake an underspecified problem for a complete one, but their estimates of the
                 <dfn class="term" tabindex="0" data-def="The minimum number of variables (k) that must be queried to uniquely determine the target.">degree of underspecification</dfn>
                 degrade as more variables are hidden, and the errors skew toward underestimation.
@@ -1352,10 +1349,8 @@
             <article class="takeaway-item reveal-on-scroll" id="takeaway-3">
               <div class="takeaway-tag">Finding 03</div>
               <p class="takeaway-copy">
-                <strong>Under a fixed
-                <dfn class="term" tabindex="0" data-def="An interaction budget m × n (as labeled in the figure) allows at most m turns with at most n queries per turn, so m × n queries in total. Both limits are stated in the model's prompt.">query budget</dfn>,
-                models often acquire more of the required information when queries are spread across turns
-                than when they are issued together in one turn.</strong>
+                <strong>Spreading questions across turns beats asking them all at once, even under the same
+                <dfn class="term" tabindex="0" data-def="An interaction budget m × n (as labeled in the figure) allows at most m turns with at most n queries per turn, so m × n queries in total. Both limits are stated in the model's prompt.">total query budget</dfn>.</strong>
                 Models that query, read the answer, and query again reach
                 <dfn class="term" tabindex="0" data-def="Whether the information acquired by the end of the dialogue is enough to uniquely determine the target.">final sufficiency</dfn>
                 more often than models that issue all their queries in one batch, and additional turns generally help.
@@ -1417,10 +1412,9 @@
             <article class="takeaway-item reveal-on-scroll" id="takeaway-7">
               <div class="takeaway-tag">Finding 07</div>
               <p class="takeaway-copy">
-                <strong>Informative queries are necessary but not sufficient for identifying the target.</strong>
-                Models whose queries carry similar expected information gain differ substantially in final
-                accuracy, so success also depends on how a model integrates the acquired evidence into its
-                belief over the remaining candidates.
+                <strong>Asking informative questions is necessary but not sufficient for identifying the target.</strong>
+                Models with similar question informativeness can differ substantially in final accuracy:
+                integrating the acquired evidence matters as much as acquiring it.
               </p>
               <div class="figure-pair">
                 <div class="figure-block">
@@ -1444,11 +1438,10 @@
             <article class="takeaway-item reveal-on-scroll" id="takeaway-8">
               <div class="takeaway-tag">Finding 08</div>
               <p class="takeaway-copy">
-                <strong>Models narrow the candidate space well and separate the remainder poorly.</strong>
-                Early queries eliminate most of the feasible space, so
-                <dfn class="term" tabindex="0" data-def="The entropy of the distribution over candidates still consistent with all answers so far; lower means the candidate space has been narrowed further.">remaining entropy</dfn>
-                falls quickly. Later queries fail to distinguish the closely related target values that
-                survive, and the curves flatten.
+                <strong>LLMs are better at coarse-grained narrowing than fine-grained disambiguation.</strong>
+                <dfn class="term" tabindex="0" data-def="The entropy of the distribution over candidates still consistent with all answers so far; lower means the candidate space has been narrowed further.">Remaining entropy</dfn>
+                falls quickly in early turns as models identify the target&rsquo;s broad category, but the
+                curves flatten once only a few similar candidates remain.
               </p>
               <div class="figure-block">
                 <div class="web-chart" data-chart="fig8" data-src="web_data/fig8.csv" role="img" aria-label="Remaining entropy across 20Q turns"></div>
@@ -1483,14 +1476,12 @@
         <div class="section-kicker">Conclusion</div>
         <h2>Information seeking dissociates from answer generation.</h2>
         <p class="lede">
-          Across mathematics, logic, biology, medicine, and general knowledge, current LLMs detect
-          underspecification but underestimate its degree, query incomplete sets of variables, and stop
-          before the acquired information determines the target. Information seeking dissociates from
-          answer-generation ability: models with near-identical answer accuracy under full information
-          differ widely in final sufficiency, and different models recover the target differently from
-          identical dialogues. Final accuracy alone therefore does not measure interactive competence,
-          and final sufficiency separates the ability to answer from the ability to acquire the
-          information that determines the answer.
+          Across all five domains, current LLMs detect underspecification but underestimate its degree,
+          query incomplete sets of variables, and stop before the acquired information determines the
+          target. Information seeking also dissociates from answer generation: models with near-identical
+          answer accuracy under full information differ widely in final sufficiency, and different models
+          recover the target differently from identical dialogues. Final accuracy alone therefore does not
+          measure interactive competence.
         </p>
       </div>
     </section>
