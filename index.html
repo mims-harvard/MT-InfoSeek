@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Do LLMs Know What to Ask and When?</title>
-    <meta name="description" content="MT-InfoSeek: an evaluation suite for multi-turn information seeking in LLMs across mathematical, logical, biological, clinical, and common-knowledge tasks." />
+    <meta name="description" content="MT-InfoSeek: an evaluation suite for multi-turn information seeking in LLMs across mathematics, logic, biology, medicine, and general knowledge." />
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💬</text></svg>" />
     <style>
       @import url("https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&display=swap");
@@ -1197,7 +1197,7 @@
     <section id="datasets">
       <div class="section-inner">
         <div class="section-kicker">Datasets</div>
-        <h2>MT-InfoSeek spans mathematical, logical, biological, clinical, and common-knowledge tasks.</h2>
+        <h2>MT-InfoSeek spans mathematics, logic, biology, medicine, and general knowledge.</h2>
         <p class="lede">
           Each problem induces a family of task instances that share the same initial information
           and differ in the target value, so a model cannot succeed by guessing the most likely
@@ -1207,7 +1207,7 @@
         
         <div class="dataset-grid">
           <div class="dataset-card">
-            <h3>Logic-Q-MT <span>Logical Reasoning</span></h3>
+            <h3>Logic-Q-MT <span>Logic</span></h3>
             <p>Rule-based logical reasoning environments where models recursively identify and query the
             missing facts needed to prove or disprove a target proposition.</p>
             <button class="card-toggle" aria-expanded="false">Example</button>
@@ -1219,7 +1219,7 @@
             </div></div>
           </div>
           <div class="dataset-card">
-            <h3>GSME-Q-MT (+ Ext) <span>Math</span></h3>
+            <h3>GSME-Q-MT (+ Ext) <span>Mathematics</span></h3>
             <p>Grade-school math word problems with human-annotated missing conditions required to compute
             an answer, extended to multi-turn by masking multiple quantities at once. The Ext variant is
             generated from DAG-structured arithmetic programs with deeper dependency chains, larger
@@ -1233,7 +1233,7 @@
             </div></div>
           </div>
           <div class="dataset-card">
-            <h3>GeneReg-MT <span>Biological</span></h3>
+            <h3>GeneReg-MT <span>Biology</span></h3>
             <p>Boolean gene regulatory networks where variables are gene-expression states and the target is
             a steady state or a specific marker-gene value, testing navigation of cyclic dependencies.</p>
             <button class="card-toggle" aria-expanded="false">Example</button>
@@ -1245,10 +1245,11 @@
             </div></div>
           </div>
           <div class="dataset-card">
-            <h3>ClinGuide-MT <span>Clinical</span></h3>
-            <p>Diagnostic decision trees derived from clinical guidelines, whose root-to-leaf pathways encode
-            conditional dependencies among symptoms, tests, and findings. The curated guideline algorithms are
-            not redistributed; the curation pipeline is released.</p>
+            <h3>ClinGuide-MT <span>Medicine</span></h3>
+            <p>Diagnostic decision trees from clinical guidelines and textbooks, where the variables are
+            symptoms, risk factors, and test results, and the target is a diagnosis or management decision.
+            Root-to-leaf pathways encode conditional dependencies. The curated guideline algorithms are not
+            redistributed; the curation pipeline is released.</p>
             <button class="card-toggle" aria-expanded="false">Example</button>
             <div class="card-example"><div class="ex">
               <div class="ex-row"><span class="ex-key ex-c">Constraints</span><span class="ex-val">worst pain = hand → Raynaud's → ask finger-color change<br />worst pain = forearm → epicondylitis → ask erythema</span></div>
@@ -1258,9 +1259,10 @@
             </div></div>
           </div>
           <div class="dataset-card">
-            <h3>20Q <span>Common Knowledge</span></h3>
-            <p>The classic 20 Questions game as a common-knowledge setting: each natural-language yes/no question
-            dynamically partitions a finite candidate set instead of querying a predefined variable.</p>
+            <h3>20Q <span>General Knowledge</span></h3>
+            <p>The 20 Questions game as an open-domain setting. The model deduces a hidden target by
+            generating natural-language yes/no questions, each of which partitions the candidate set
+            instead of querying a predefined variable.</p>
             <button class="card-toggle" aria-expanded="false">Example</button>
             <div class="card-example"><div class="ex">
               <div class="ex-row"><span class="ex-key ex-c">Constraints</span><span class="ex-val">world knowledge</span></div>
