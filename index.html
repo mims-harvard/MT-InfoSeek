@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Do LLMs Know What to Ask and When?</title>
-    <meta name="description" content="MT-InfoSeek: a benchmark evaluating multi-turn information seeking in LLMs across mathematical, logical, biological, clinical, and common-knowledge tasks." />
+    <meta name="description" content="MT-InfoSeek: an evaluation suite for multi-turn information seeking in LLMs across mathematical, logical, biological, clinical, and common-knowledge tasks." />
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💬</text></svg>" />
     <style>
       @import url("https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&display=swap");
@@ -1057,7 +1057,7 @@
         <div class="nav-links">
           <a href="#motivation">Motivation</a>
           <a href="#overview">Framework</a>
-          <a href="#datasets">Benchmark</a>
+          <a href="#datasets">Datasets</a>
           <a href="#takeaways">Findings</a>
           <a href="#conclusion">Conclusion</a>
         </div>
@@ -1137,7 +1137,7 @@
           </p>
           <p>
             Final task success does not indicate whether a model acquired the necessary
-            information. Existing multi-turn benchmarks measure task success, dialogue quality, or
+            information. Existing multi-turn evaluations measure task success, dialogue quality, or
             user-facing outcomes, without specifying which information the model should request or
             whether it stopped only after the target became identifiable. Model priors and the
             ability to generate answers therefore confound the evaluation.
@@ -1170,12 +1170,6 @@
           seeking: which variables the model queries, in which order it queries them, and how it uses
           the acquired information.
         </p>
-        <div class="figure-block overview-figure">
-          <div class="overview-image-frame">
-            <img src="assets/overview-new.png" alt="Overview of the MT-InfoSeek evaluation framework" />
-          </div>
-        </div>
-
         <div class="setup-strip">
           <h3>Problem setup</h3>
           <p>
@@ -1190,17 +1184,19 @@
             set is the <strong>minimal k-sufficient set (k-MSS)</strong>, whose size k is the degree of
             underspecification.
           </p>
-          <p style="margin-top: 12px;">
-            At each turn the model queries one variable, an oracle returns its value, and the observed
-            assignment grows. The interaction continues until the model commits to an answer.
-          </p>
+        </div>
+
+        <div class="figure-block overview-figure">
+          <div class="overview-image-frame">
+            <img src="assets/overview-new.png" alt="Overview of the MT-InfoSeek evaluation framework" />
+          </div>
         </div>
       </div>
     </section>
 
     <section id="datasets">
       <div class="section-inner">
-        <div class="section-kicker">Benchmark</div>
+        <div class="section-kicker">Datasets</div>
         <h2>MT-InfoSeek spans mathematical, logical, biological, clinical, and common-knowledge tasks.</h2>
         <p class="lede">
           Each problem induces a family of task instances that share the same initial information
@@ -1277,22 +1273,23 @@
         <div class="setup-strip">
           <h3>Evaluation protocols</h3>
           <p>
-            Three evaluations separate components that a single interaction would otherwise combine. The
-            first two present the problem alone, so a failure reflects the model's assessment of the problem
-            rather than its conduct of a dialogue; the third runs the full interaction.
+            A single dialogue mixes several abilities together, so we evaluate three of them separately.
+            The first two show the model the problem only — no dialogue — so a failure there reflects how
+            the model reads the problem, not how it conducts a conversation. The third runs the full
+            interaction.
           </p>
           <div class="protocols">
             <div class="protocol-row">
               <span class="protocol-name">Degree of underspecification</span>
-              <span class="protocol-desc">Predict k — whether the model recognizes how much information is missing.</span>
+              <span class="protocol-desc">The model predicts k: does it recognize how much information is missing?</span>
             </div>
             <div class="protocol-row">
               <span class="protocol-name">Missing variable identification</span>
-              <span class="protocol-desc">Select a minimal sufficient set, with or without being told k — whether the model can plan a minimal query strategy without executing it.</span>
+              <span class="protocol-desc">The model selects a minimal sufficient set, with or without being told k: can it plan a minimal query strategy without executing it?</span>
             </div>
             <div class="protocol-row">
               <span class="protocol-name">Sequential task-solving</span>
-              <span class="protocol-desc">Query one variable per turn from an oracle, or answer — the full interaction, where the model acquires information, updates its state, and stops when it judges the information sufficient.</span>
+              <span class="protocol-desc">At each turn the model queries one variable, an oracle returns its value, and the observed assignment grows. The interaction continues until the model commits to an answer.</span>
             </div>
           </div>
         </div>
