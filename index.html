@@ -1201,7 +1201,10 @@
         <p class="lede">
           Each problem induces a family of task instances that share the same initial information
           and differ in the target value, so a model cannot succeed by guessing the most likely
-          target.
+          target. Four domains are structured: the queryable variables are predefined and finite, and
+          we generate problems for k in 1 to 4 by masking variables from fully specified states and
+          verifying each masked set. In 20Q the model composes its own questions, so k and the minimal
+          sufficient set are not defined in advance.
         </p>
         <p class="bench-stats">5,251 problems&ensp;·&ensp;9,006 task instances&ensp;·&ensp;5 domains</p>
         
@@ -1221,9 +1224,9 @@
           <div class="dataset-card">
             <h3>GSME-Q-MT (+ Ext) <span>Math</span></h3>
             <p>Grade-school math word problems with human-annotated missing conditions required to compute
-            an answer, extended to multi-turn by masking multiple quantities at once. The -Ext variant is
-            generated from DAG-structured arithmetic programs with deeper dependency chains, larger
-            variable sets, and rigorously validated k-MSSs.</p>
+            an answer, extended to multi-turn by masking multiple quantities at once. Modern LLMs solve this
+            version reliably, so the Ext variant enriches it with deeper dependency chains, larger variable
+            sets, and strictly validated k-MSSs.</p>
             <button class="card-toggle" aria-expanded="false">Example</button>
             <div class="card-example"><div class="ex">
               <div class="ex-row"><span class="ex-key ex-c">Constraints</span><span class="ex-val">TF = 3·C&ensp;&ensp;TW = 6·C<br />F3 = TF − F1 − F2</span></div>
@@ -1273,10 +1276,10 @@
         <div class="setup-strip">
           <h3>Evaluation protocols</h3>
           <p>
-            A single dialogue mixes several abilities together, so we evaluate three of them separately.
-            The first two show the model the problem only — no dialogue — so a failure there reflects how
-            the model reads the problem, not how it conducts a conversation. The third runs the full
-            interaction.
+            Multi-turn interaction exercises several abilities at once, so we evaluate three of them
+            separately. The first two present the problem on its own, without any dialogue, so a failure
+            reflects how the model assesses the problem rather than how it conducts an interaction. The
+            third evaluates the interaction itself.
           </p>
           <div class="protocols">
             <div class="protocol-row">
@@ -1318,10 +1321,10 @@
             <article class="takeaway-item reveal-on-scroll" id="takeaway-1">
               <div class="takeaway-tag">Finding 01</div>
               <p class="takeaway-copy">
-                <strong>LLMs recognize when context is insufficient, but underestimate how much additional information is required.</strong>
+                <strong>Models detect that their context is insufficient, but underestimate how many additional variables they need before the target becomes identifiable.</strong>
                 Models rarely mistake an underspecified problem for a complete one, but their estimates of the
                 <dfn class="term" tabindex="0" data-def="The minimum number of variables (k) that must be queried to uniquely determine the target.">degree of underspecification</dfn>
-                degrade — and skew low — as more variables are hidden.
+                degrade as more variables are hidden, and the errors skew toward underestimation.
               </p>
               <div class="figure-block">
                 <div class="web-chart" data-chart="fig3" data-src="web_data/fig3.csv" role="img" aria-label="Accuracy and under-prediction of degree of underspecification"></div>
@@ -1349,8 +1352,10 @@
             <article class="takeaway-item reveal-on-scroll" id="takeaway-3">
               <div class="takeaway-tag">Finding 03</div>
               <p class="takeaway-copy">
-                <strong>Spreading questions across turns beats asking them all at once, even under the same
-                <dfn class="term" tabindex="0" data-def="An interaction budget m × n (as labeled in the figure) allows at most m turns with at most n queries per turn — m × n total queries. Both limits are stated in the model's prompt.">total query budget</dfn>.</strong>
+                <strong>Under a fixed
+                <dfn class="term" tabindex="0" data-def="An interaction budget m × n (as labeled in the figure) allows at most m turns with at most n queries per turn, so m × n queries in total. Both limits are stated in the model's prompt.">query budget</dfn>,
+                models often acquire more of the required information when queries are spread across turns
+                than when they are issued together in one turn.</strong>
                 Models that query, read the answer, and query again reach
                 <dfn class="term" tabindex="0" data-def="Whether the information acquired by the end of the dialogue is enough to uniquely determine the target.">final sufficiency</dfn>
                 more often than models that issue all their queries in one batch, and additional turns generally help.
@@ -1395,9 +1400,9 @@
               <div class="takeaway-tag">Finding 06</div>
               <p class="takeaway-copy">
                 <strong>In order-dependent settings, asking the right questions is not enough if they are asked in the wrong order.</strong>
-                Clinical pathways impose conditional dependencies — later questions are interpretable only in
-                light of earlier answers — and violating that order lowers final accuracy even when all the
-                necessary information is eventually acquired.
+                Clinical diagnostic pathways impose conditional dependencies, since an earlier finding
+                determines which variables are relevant next. Violating that order lowers final accuracy even
+                when the model eventually acquires every necessary variable.
               </p>
               <div class="figure-block">
                 <div class="web-chart" data-chart="fig6" data-src="web_data/fig6.csv" role="img" aria-label="ClinGuide final accuracy by query coverage and order"></div>
@@ -1412,9 +1417,10 @@
             <article class="takeaway-item reveal-on-scroll" id="takeaway-7">
               <div class="takeaway-tag">Finding 07</div>
               <p class="takeaway-copy">
-                <strong>Asking informative questions is necessary but not sufficient for successful multi-turn reasoning.</strong>
-                Models with similar question informativeness can differ substantially in final accuracy:
-                integrating the acquired evidence matters as much as acquiring it.
+                <strong>Informative queries are necessary but not sufficient for identifying the target.</strong>
+                Models whose queries carry similar expected information gain differ substantially in final
+                accuracy, so success also depends on how a model integrates the acquired evidence into its
+                belief over the remaining candidates.
               </p>
               <div class="figure-pair">
                 <div class="figure-block">
@@ -1438,10 +1444,11 @@
             <article class="takeaway-item reveal-on-scroll" id="takeaway-8">
               <div class="takeaway-tag">Finding 08</div>
               <p class="takeaway-copy">
-                <strong>LLMs are better at coarse-grained narrowing than fine-grained disambiguation.</strong>
-                <dfn class="term" tabindex="0" data-def="The entropy of the distribution over candidates still consistent with all answers so far; lower means the candidate space has been narrowed further.">Remaining entropy</dfn>
-                falls quickly in early turns as models identify the target&rsquo;s broad category, but the
-                curves flatten once only a few similar candidates remain.
+                <strong>Models narrow the candidate space well and separate the remainder poorly.</strong>
+                Early queries eliminate most of the feasible space, so
+                <dfn class="term" tabindex="0" data-def="The entropy of the distribution over candidates still consistent with all answers so far; lower means the candidate space has been narrowed further.">remaining entropy</dfn>
+                falls quickly. Later queries fail to distinguish the closely related target values that
+                survive, and the curves flatten.
               </p>
               <div class="figure-block">
                 <div class="web-chart" data-chart="fig8" data-src="web_data/fig8.csv" role="img" aria-label="Remaining entropy across 20Q turns"></div>
@@ -1453,11 +1460,12 @@
             <article class="takeaway-item reveal-on-scroll" id="takeaway-9">
               <div class="takeaway-tag">Finding 09</div>
               <p class="takeaway-copy">
-                <strong>Ambiguous questions are not always failures.</strong>
+                <strong>A partially informative answer is not a failed turn.</strong>
                 High
-                <dfn class="term" tabindex="0" data-def="The probability mass of remaining candidates for which the truthful answer to the question is “Pass” (neither yes nor no) — high mass means the question is ambiguous for much of the candidate set.">pass-support mass</dfn>
-                does not consistently lower final accuracy: stronger models extract partial evidence from a
-                &ldquo;Pass&rdquo; rather than treating the turn as wasted.
+                <dfn class="term" tabindex="0" data-def="The probability mass of remaining candidates for which the truthful answer to the question is “Pass”, meaning neither yes nor no. High mass means the question is ambiguous for much of the candidate set.">pass-support mass</dfn>
+                does not consistently lower final accuracy. Stronger models extract evidence from responses
+                that do not separate the candidates and use it in later turns to narrow the remaining target
+                values.
               </p>
               <div class="figure-block">
                 <div class="web-chart" data-chart="fig9" data-src="web_data/fig9.csv" role="img" aria-label="Pass-support mass across 20Q turns"></div>
@@ -1475,12 +1483,14 @@
         <div class="section-kicker">Conclusion</div>
         <h2>Information seeking dissociates from answer generation.</h2>
         <p class="lede">
-          Models underestimate the degree of underspecification, perform worse as the number of
-          missing variables grows, and stop before they acquire sufficient information. Information
-          seeking dissociates from answer-generation ability: models with near-identical answer
-          accuracy under full information differ widely in final sufficiency, and different answer
-          models recover the target differently from identical dialogues. Measuring the two
-          separately shows differences between models that final accuracy alone does not capture.
+          Across mathematics, logic, biology, medicine, and general knowledge, current LLMs detect
+          underspecification but underestimate its degree, query incomplete sets of variables, and stop
+          before the acquired information determines the target. Information seeking dissociates from
+          answer-generation ability: models with near-identical answer accuracy under full information
+          differ widely in final sufficiency, and different models recover the target differently from
+          identical dialogues. Final accuracy alone therefore does not measure interactive competence,
+          and final sufficiency separates the ability to answer from the ability to acquire the
+          information that determines the answer.
         </p>
       </div>
     </section>
