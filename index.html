@@ -657,6 +657,37 @@
         color: #5c5952;
       }
 
+      .protocols {
+        display: grid;
+        gap: 10px;
+        margin-top: 14px;
+      }
+
+      .protocol-row {
+        display: grid;
+        grid-template-columns: minmax(0, 210px) minmax(0, 1fr);
+        gap: 14px;
+        align-items: baseline;
+      }
+
+      .protocol-name {
+        color: #3a3833;
+        font-size: 13.5px;
+        font-weight: 650;
+      }
+
+      .protocol-desc {
+        color: #5c5952;
+        font-size: 14px;
+      }
+
+      @media (max-width: 620px) {
+        .protocol-row {
+          grid-template-columns: 1fr;
+          gap: 2px;
+        }
+      }
+
       .figure-block {
         margin-top: 24px;
       }
@@ -1144,6 +1175,26 @@
             <img src="assets/overview-new.png" alt="Overview of the MT-InfoSeek evaluation framework" />
           </div>
         </div>
+
+        <div class="setup-strip">
+          <h3>Problem setup</h3>
+          <p>
+            A problem is a tuple of variables, their domains, logical constraints, an observed partial
+            assignment, and a target variable. The
+            <dfn class="term" tabindex="0" data-def="Ω(P): the set of all full variable assignments consistent with both the constraints and the observed assignment — the underlying states still possible given the available information.">feasible space</dfn>
+            holds every assignment still consistent with the constraints and the observation. The target is
+            <em>known</em> when all feasible assignments agree on its value; when several values remain
+            possible, the problem is <em>underspecified</em>. A set of
+            <dfn class="term" tabindex="0" data-def="U(P): the variables that are neither already observed nor the target — the ones a model is allowed to query.">queryable variables</dfn>
+            is <em>sufficient</em> if fixing their values always determines the target, and the smallest such
+            set is the <strong>minimal k-sufficient set (k-MSS)</strong>, whose size k is the degree of
+            underspecification.
+          </p>
+          <p style="margin-top: 12px;">
+            At each turn the model queries one variable, an oracle returns its value, and the observed
+            assignment grows. The interaction continues until the model commits to an answer.
+          </p>
+        </div>
       </div>
     </section>
 
@@ -1156,7 +1207,7 @@
           and differ in the target value, so a model cannot succeed by guessing the most likely
           target.
         </p>
-        <p class="bench-stats">5,251 problems&ensp;·&ensp;9,006 task instances&ensp;·&ensp;5 domains&ensp;·&ensp;<dfn class="term" tabindex="0" data-def="Predicting the degree of underspecification k; identifying a minimal sufficient set of variables; and solving the task through sequential multi-turn interaction.">3 evaluation protocols</dfn></p>
+        <p class="bench-stats">5,251 problems&ensp;·&ensp;9,006 task instances&ensp;·&ensp;5 domains</p>
         
         <div class="dataset-grid">
           <div class="dataset-card">
@@ -1200,7 +1251,8 @@
           <div class="dataset-card">
             <h3>ClinGuide-MT <span>Clinical</span></h3>
             <p>Diagnostic decision trees derived from clinical guidelines, whose root-to-leaf pathways encode
-            conditional dependencies among symptoms, tests, and findings.</p>
+            conditional dependencies among symptoms, tests, and findings. The curated guideline algorithms are
+            not redistributed; the curation pipeline is released.</p>
             <button class="card-toggle" aria-expanded="false">Example</button>
             <div class="card-example"><div class="ex">
               <div class="ex-row"><span class="ex-key ex-c">Constraints</span><span class="ex-val">worst pain = hand → Raynaud's → ask finger-color change<br />worst pain = forearm → epicondylitis → ask erythema</span></div>
@@ -1223,25 +1275,26 @@
         </div>
 
         <div class="setup-strip">
-          <h3>Problem setup</h3>
+          <h3>Evaluation protocols</h3>
           <p>
-            A problem is a tuple of variables, their domains, logical constraints, an observed partial
-            assignment, and a target variable. The
-            <dfn class="term" tabindex="0" data-def="Ω(P): the set of all full variable assignments consistent with both the constraints and the observed assignment — the underlying states still possible given the available information.">feasible space</dfn>
-            holds every assignment still consistent with the constraints and the observation. The target is
-            <em>known</em> when all feasible assignments agree on its value; when several values remain
-            possible, the problem is <em>underspecified</em>. A set of
-            <dfn class="term" tabindex="0" data-def="U(P): the variables that are neither already observed nor the target — the ones a model is allowed to query.">queryable variables</dfn>
-            is <em>sufficient</em> if fixing their values always determines the target, and the smallest such
-            set is the <strong>minimal k-sufficient set (k-MSS)</strong>, whose size k is the degree of
-            underspecification.
+            Three evaluations separate components that a single interaction would otherwise combine. The
+            first two present the problem alone, so a failure reflects the model's assessment of the problem
+            rather than its conduct of a dialogue; the third runs the full interaction.
           </p>
-          <p style="margin-top: 12px;">
-            At each turn the model queries one variable, an oracle returns its value, and the observed
-            assignment grows. The interaction continues until the acquired information determines the target
-            uniquely, or until the model commits to an answer. Prior single-turn work is the special case
-            k&nbsp;=&nbsp;1, where a single query ends the interaction.
-          </p>
+          <div class="protocols">
+            <div class="protocol-row">
+              <span class="protocol-name">Degree of underspecification</span>
+              <span class="protocol-desc">Predict k — whether the model recognizes how much information is missing.</span>
+            </div>
+            <div class="protocol-row">
+              <span class="protocol-name">Missing variable identification</span>
+              <span class="protocol-desc">Select a minimal sufficient set, with or without being told k — whether the model can plan a minimal query strategy without executing it.</span>
+            </div>
+            <div class="protocol-row">
+              <span class="protocol-name">Sequential task-solving</span>
+              <span class="protocol-desc">Query one variable per turn from an oracle, or answer — the full interaction, where the model acquires information, updates its state, and stops when it judges the information sufficient.</span>
+            </div>
+          </div>
         </div>
       </div>
     </section>
