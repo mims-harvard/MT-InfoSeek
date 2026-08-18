@@ -760,7 +760,6 @@
         white-space: pre-line;
         pointer-events: none;
         opacity: 0;
-        transform: translate(10px, 10px);
         transition: opacity 120ms ease;
       }
 
@@ -1049,6 +1048,12 @@
 
       }
     </style>
+    <noscript>
+      <style>
+        .reveal-on-scroll { opacity: 1; transform: none; }
+        .web-chart-fallback { display: block; }
+      </style>
+    </noscript>
   </head>
   <body>
     <nav class="nav">
@@ -1361,7 +1366,7 @@
               <div class="figure-block">
                 <div class="web-chart" data-chart="fig1" data-src="web_data/fig1.csv" role="img" aria-label="Multi-turn budget experiments"></div>
                 <img class="web-chart-fallback" loading="lazy" src="assets/multiturn-budget.png" alt="Multi-turn budget experiments" />
-                <p class="caption">Final sufficiency under different turn and per-turn query budgets.</p>
+                <p class="caption">Final sufficiency in Logic-Q-MT under different turn and per-turn query budgets.</p>
               </div>
             </article>
 
@@ -1389,7 +1394,7 @@
               <div class="figure-block">
                 <div class="web-chart" data-chart="fig5" data-src="web_data/fig5.csv" role="img" aria-label="Recovery after a wrong first-turn query"></div>
                 <img class="web-chart-fallback" loading="lazy" src="assets/early-recovery.png" alt="Recovery after a wrong first-turn query" />
-                <p class="caption">Final sufficiency for first-turn hit versus first-turn miss followed by second-turn hit.</p>
+                <p class="caption">Final sufficiency in Logic-Q-MT for first-turn hit versus first-turn miss followed by second-turn hit. A star marks models where the two are statistically non-inferior at a 10 percentage-point margin.</p>
               </div>
             </article>
 
@@ -1426,7 +1431,7 @@
                   <p class="caption">Accuracy versus
                   <dfn class="term" tabindex="0" data-def="The expected reduction in uncertainty about the hidden target from a question's possible answers, normalized to be comparable across turns (nEIG).">normalized information gain</dfn>
                   across
-                  <dfn class="term" tabindex="0" data-def="The examiner is the LLM oracle in 20Q that answers each question with Yes, No, or Pass.">examiners</dfn>.</p>
+                  <dfn class="term" tabindex="0" data-def="The examiner is the LLM oracle in 20Q that answers each question with Yes, No, or Pass.">examiners</dfn>, on the Thing pool.</p>
                 </div>
                 <div class="figure-block">
                   <div class="web-chart" data-chart="fig10" data-src="web_data/fig10.csv" role="img" aria-label="Target identification from the same QA trace"></div>
@@ -1536,7 +1541,19 @@
             window.innerWidth - margin - width
           );
           term.style.setProperty("--tt-left", `${left}px`);
-          term.style.setProperty("--tt-top", `${rect.bottom + 8}px`);
+          const probe = document.createElement("div");
+          probe.style.cssText =
+            `position:fixed;visibility:hidden;width:${width}px;padding:10px 12px;` +
+            `font-size:12.5px;line-height:1.55;`;
+          probe.textContent = term.dataset.def || "";
+          document.body.appendChild(probe);
+          const h = probe.offsetHeight;
+          probe.remove();
+          const below = rect.bottom + 8;
+          const top = below + h > window.innerHeight - margin
+            ? Math.max(margin, rect.top - 8 - h)
+            : below;
+          term.style.setProperty("--tt-top", `${top}px`);
         };
         term.addEventListener("mouseenter", reposition);
         term.addEventListener("focus", reposition);
@@ -1618,7 +1635,6 @@
       function interactiveAttrs(key, tooltip) {
         return {
           class: "selectable-mark",
-          tabindex: "0",
           "data-select-key": key,
           "data-tooltip": tooltip
         };
@@ -1653,9 +1669,12 @@
         const showTooltip = (target, event) => {
           tooltip.textContent = target.dataset.tooltip || "";
           const box = container.getBoundingClientRect();
-          tooltip.style.left = `${event.clientX - box.left + 12}px`;
-          tooltip.style.top = `${event.clientY - box.top + 12}px`;
           tooltip.classList.add("is-visible");
+          const w = tooltip.offsetWidth, h = tooltip.offsetHeight;
+          const x = event.clientX - box.left;
+          const y = event.clientY - box.top;
+          tooltip.style.left = `${Math.max(0, Math.min(x + 12, container.clientWidth - w - 8))}px`;
+          tooltip.style.top = `${Math.max(0, Math.min(y + 12, Math.max(h, container.clientHeight) - h))}px`;
         };
 
         container.onmousemove = (event) => {
@@ -2192,7 +2211,7 @@
             g.appendChild(el("circle", { cx: xPos[0], cy: hit, r: 4.4, fill: modelColor, stroke: "#fff", "stroke-width": 0.8, ...interactiveAttrs(key, tip) }));
             g.appendChild(el("circle", { cx: xPos[1], cy: rec, r: 4.4, fill: modelColor, stroke: "#fff", "stroke-width": 0.8, ...interactiveAttrs(key, tip) }));
             if (num(row.noninferior_10pp) === 1) {
-              g.appendChild(textNode(xPos[1] + 22, rec + 7, "*", { fill: starColor, "font-size": 24, "font-weight": 800, ...interactiveAttrs(key, `${tip}\nnon-inferior within 10pp`) }));
+              g.appendChild(textNode(xPos[1] + 22, rec + 7, "*", { fill: starColor, "font-size": 24, "font-weight": 800, ...interactiveAttrs(key, `${tip}\nstatistically non-inferior at a 10 percentage-point margin`) }));
             }
           });
 
@@ -2404,7 +2423,7 @@
           });
           g.appendChild(el("line", { x1: 0, y1: height, x2: width, y2: height, stroke: chartColors.axis, "stroke-width": 1.1 }));
           g.appendChild(el("line", { x1: 0, y1: 0, x2: 0, y2: height, stroke: chartColors.axis, "stroke-width": 1.1 }));
-          g.appendChild(textNode(width / 2, -28, panel.examiner, { "text-anchor": "middle", class: "panel-title" }));
+          g.appendChild(textNode(width / 2, -28, `Examiner: ${panel.examiner}`, { "text-anchor": "middle", class: "panel-title" }));
           if (panelIndex === 0) {
             g.appendChild(textNode(-46, height / 2, "Score", {
               "text-anchor": "middle",
@@ -2703,6 +2722,9 @@
       const revealItems = document.querySelectorAll(".reveal-on-scroll");
       const tocLinks = document.querySelectorAll(".toc a");
 
+      if (!("IntersectionObserver" in window)) {
+        document.querySelectorAll(".reveal-on-scroll").forEach((el) => el.classList.add("is-visible"));
+      }
       const revealObserver = new IntersectionObserver(
         (entries) => {
           entries.forEach((entry) => {
