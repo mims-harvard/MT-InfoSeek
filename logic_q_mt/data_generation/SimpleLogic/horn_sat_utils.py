@@ -158,8 +158,11 @@ def forced_value_from_facts(clauses: Clauses, full_facts: Iterable[str] | Dict[s
 
 
 def get_inferrable_var_values(clauses: Clauses, full_facts: Iterable[str], valid_vars: Iterable[str], keep_fact_vars: bool = False, use_int: bool = True) -> Dict[str, bool]:
-    """
-    Returns dict of all variables that can be inferred (forced True/False) from full_facts via refutation.
+    """Force a truth value for each variable in `valid_vars` given `full_facts`.
+
+    Returns a dict over `valid_vars` (minus the fact variables unless
+    `keep_fact_vars`). With `use_int` (default) the values are 1 / 0 for forced
+    True / False and 2 for undetermined; otherwise True / False / None.
     """
     base = facts_to_assignment(full_facts)
     if base == CONTRADICTION:

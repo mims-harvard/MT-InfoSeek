@@ -422,5 +422,4 @@ if __name__ == "__main__":
                 f"using guesser={args.guesser_model!r} and examiner={args.examiner_model!r}."
             )
         print(f"Registered custom model from {args.model_config}: {configured_name}")
-    print(args)
     run(args)

@@ -8,7 +8,6 @@ from typing import Any, Dict, Iterable, List, Set, Tuple
 import pandas as pd
 from tqdm import tqdm
 
-# Import horn_sat_utils.py (place it alongside this script or in PYTHONPATH)
 from SimpleLogic.horn_sat_utils import solve_unit_prop, parse_clauses, CONTRADICTION, forced_value_via_refutation, INFEASIBLE
 
 DATA_DIR = os.environ.get("DATA_DIR", "")
@@ -146,7 +145,7 @@ def main():
         if k >= 2:
             for combo in itertools.combinations(candidate_vars, k-1):
                 if _is_k_sufficient_horn(clauses, base_closure, goal, combo):
-                    raise ValueError("NOT MINIMALL SUFFICIENT")
+                    raise ValueError(f"Not minimally sufficient: size-{k-1} subset {sorted(combo)} already determines the goal.")
         
         for combo in itertools.combinations(candidate_vars, k):
             if _is_k_sufficient_horn(clauses, base_closure, goal, combo):

@@ -37,13 +37,6 @@ def main(user_args) -> None:
   domain_main_name = user_args.domain_name.split("_")[0]
   use_cot = False
   fs_samples = 0
-  # use_phys_constraints = False
-  # if user_args.prompt_mode == "cot":
-  #   use_cot = True
-  # elif user_args.prompt_mode == "phys":
-  #   use_phys_constraints = True
-  if user_args.few_shot_prompt:
-    fs_samples = int(user_args.prompt_mode[2:])
 
   # Make directories for results and cache
   if not os.path.exists(user_args.results_dir):
@@ -84,13 +77,11 @@ def main(user_args) -> None:
         eval_mode=user_args.eval_mode,
         batch_size=user_args.batch_size,
         model_role_name=user_args.model_role_name,
-        # parallel_model_calls=user_args.parallel_model_calls,
         vllm_port=user_args.vllm_port,
         **configs,
     )
     prompt_file = os.path.join(
         user_args.data_dir,
-        # "Logic-Q/simplelogic_heldout_1k_prompts.csv",
         "simplelogic_heldout_k_sufficient_prompts_new.csv",
     )
   else:
@@ -166,18 +157,6 @@ if __name__ == "__main__":
           " few-shot prompts CSV. Only required for few-shot prompting."
       ),
   )
-  # parser.add_argument(
-  #     "--prompt_mode",
-  #     type=str,
-  #     choices=["", "cot", "fs4"],
-  #     default="",
-  #     help="Use vanilla, CoT, or fewshot prompting (with 4 samples).",
-  # )
-  parser.add_argument(
-      "--few_shot_prompt",
-      action="store_true",
-      help="Whether to use few-shot prompting.",
-  )
   parser.add_argument(
       "--results_dir",
       type=str,
@@ -190,7 +169,7 @@ if __name__ == "__main__":
   parser.add_argument(
       "--batch_size",
       type=int,
-      default=64,  # Increased to 64 - async allows queuing beyond max_num_seqs
+      default=64,  # the async client queues beyond the vLLM server's max_num_seqs
       help="Batch size for evaluation.",
   )
   parser.add_argument(
@@ -219,12 +198,6 @@ if __name__ == "__main__":
       default=None,
       help="Override maximum output tokens for generation.",
   )
-  # parser.add_argument(
-  #     "--no_thread_pool",
-  #     action="store_false",
-  #     dest="parallel_model_calls",
-  #     help="Disable thread pool.",
-  # )
   parser.add_argument(
       "--vllm_port",
       type=int,
@@ -234,6 +207,6 @@ if __name__ == "__main__":
   parser.add_argument("--prompt_mode", 
                       type=str, 
                       default="exact_k",
-                      help="Prompt mode to use.", choices=["at_most_k", "exact_k", "at_most_K"])
+                      help="Prompt mode to use.", choices=["exact_k", "at_most_K"])
   args = parser.parse_args()
   main(args)

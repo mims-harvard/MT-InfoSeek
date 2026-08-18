@@ -27,7 +27,7 @@ python grn_dataset_curator.py \
     --tasks_filename genereg_mt.jsonl \
     --n_groups 1200 \
     --quota_per_task_k 100 \
-    --exclude_tasks ss_id,ss_marker \
+    --exclude_tasks ss_marker \
     --seed 42 \
     --max_k 4 \
     --ss_min_fp 16 \

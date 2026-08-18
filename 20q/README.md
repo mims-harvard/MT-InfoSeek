@@ -55,7 +55,8 @@ OUTPUT_PATH=/path/to/question-quality.jsonl \
 EVAL_MODEL=gpt-5-mini JUDGE_BACKEND=hosted_gpt POOL=THING200_EVAL_POOL \
   bash 20q/scripts/run_offline_evaluation.sh
 
-# For Common, set POOL=COMMON_EVAL_POOL.
+# For Common, set POOL=COMMON_EVAL_POOL. (POOL is a fallback: the script passes
+# --infer-pool, so the pool is inferred from the episode file unless that fails.)
 ```
 
 `INPUT_LOG_PATH`, `OUTPUT_PATH`, and `EVAL_MODEL` are required for a direct run.

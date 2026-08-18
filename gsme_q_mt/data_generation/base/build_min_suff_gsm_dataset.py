@@ -333,7 +333,6 @@ def is_k_sufficient_minimal(
     (4) Global minimality: for all S' subset S_k with |S'| < k, Known(y | A_k ∧ Known(S')) is False
     """
     heldout_set = set(heldout_tuple)
-    # given_vars = [v for v in leaf_nodes_all if v not in heldout_set]
     given_vars = [v for v in relevant_leaf if v not in heldout_set]
 
     # (2)
@@ -456,7 +455,6 @@ def process_unique_problem(
         valid = []
         for heldout in candidates:
             # STEP: check k-sufficient minimality (Definition conditions)
-            # ok = is_k_sufficient_minimal(solver, leaf_nodes_all, goal_var, heldout)
             ok = is_k_sufficient_minimal(solver, relevant_leaf, goal_var, heldout)
             if not ok:
                 continue
@@ -482,7 +480,6 @@ def process_unique_problem(
             heldout_set = set(heldout)
 
             # STEP: A_k is represented by revealing all leaf vars except S_k
-            # given_vars = [v for v in leaf_nodes_all if v not in heldout_set]
             # reveal only relevant leaves except heldout
             given_vars = [v for v in relevant_leaf if v not in heldout_set]
 

@@ -24,7 +24,6 @@ import random
 
 import pandas as pd
 from SimpleLogic import ruleset
-# from SimpleLogic import derivation_new
 import tqdm
 import itertools as it
 from SimpleLogic.horn_sat_utils import parse_clauses, infer_closure, forced_value_from_facts
@@ -33,122 +32,6 @@ DATA_DIR = os.environ.get("DATA_DIR", "")
 
 tqdm = tqdm.tqdm
 random.seed(42)
-
-
-# def _parse_clauses(rules):
-#     """
-#     rules: list[list[str]] where each inner list is a CNF clause like
-#       ['c', 'not a', 'not b']  meaning (c ∨ ¬a ∨ ¬b)
-#     Returns: list[set[(var:str, val:bool)]]
-#     """
-#     clauses = []
-#     for rule in rules:
-#         clause = set()
-#         for lit in rule:
-#             if lit.startswith("not "):
-#                 clause.add((lit[4:], False))
-#             else:
-#                 clause.add((lit, True))
-#         clauses.append(clause)
-#     return clauses
-
-
-# def _solve_unit_prop(clauses, context):
-#     """
-#     clauses: list[set[(var, val)]]
-#     context: dict[var -> bool]
-#     Returns: dict[var -> bool] (closure) OR "CONTRADICTION"
-#     NOTE: Unit propagation only infers facts when a clause has all but one literal false. This is valid because we only have Horn clauses in SimpleLogic.
-#     """
-#     assignment = dict(context)
-
-#     while True:
-#         changed = False
-#         for clause in clauses:
-#             satisfied = False
-#             unknown_lits = []
-#             false_lits_count = 0
-
-#             for var, val in clause:
-#                 if var in assignment:
-#                     if assignment[var] == val:
-#                         satisfied = True
-#                         break
-#                     else:
-#                         false_lits_count += 1
-#                 else:
-#                     unknown_lits.append((var, val))
-
-#             if satisfied:
-#                 continue
-
-#             # Empty clause under current partial assignment => contradiction
-#             if false_lits_count == len(clause):
-#                 return "CONTRADICTION"
-
-#             # Unit clause => infer
-#             if len(unknown_lits) == 1 and false_lits_count == len(clause) - 1:
-#                 var, val = unknown_lits[0]
-#                 if var not in assignment:
-#                     assignment[var] = val
-#                     changed = True
-#                 elif assignment[var] != val:
-#                     return "CONTRADICTION"
-
-#         if not changed:
-#             break
-
-#     return assignment
-
-
-# def _facts_to_assignment(full_facts: set[str]) -> dict | str:
-#     """
-#     full_facts contains strings like "x" or "not x".
-#     """
-#     assignment = {}
-#     for f in full_facts:
-#         if f.startswith("not "):
-#             var, val = f[4:], False
-#         else:
-#             var, val = f, True
-
-#         if var in assignment and assignment[var] != val:
-#             return "CONTRADICTION"
-#         assignment[var] = val
-#     return assignment
-  
-
-# def _infer_closure(clauses, full_facts: set[str]) -> tuple[bool, dict]:
-#     """
-#     Returns (is_contradictory, closure_assignment_dict).
-#     closure_assignment_dict maps var -> bool.
-#     """
-#     base = _facts_to_assignment(full_facts)
-#     if base == "CONTRADICTION":
-#         return True, {}
-
-#     result = _solve_unit_prop(clauses, base)
-#     if result == "CONTRADICTION":
-#         return True, {}
-
-#     return False, result
-  
-
-# def _forced_value_via_sat(clauses, full_facts: set[str], var: str):
-#   """Semantic Known(var | full_facts) using two UP-based SAT checks."""
-#   is_contra_t, _ = _infer_closure(clauses, set(full_facts) | {var})
-#   is_contra_f, _ = _infer_closure(clauses, set(full_facts) | {ruleset.negate(var)})
-
-#   sat_t = not is_contra_t
-#   sat_f = not is_contra_f
-
-#   if not sat_t and not sat_f:
-#     return "INFEASIBLE"
-#   if sat_t and not sat_f:
-#     return True
-#   if sat_f and not sat_t:
-#     return False
-#   return None
 
 
 def _truth_table_for_qset(rule_tree, base_context: set[str], q_set: list[str], goal: str):
@@ -183,8 +66,6 @@ def _truth_table_for_qset(rule_tree, base_context: set[str], q_set: list[str], g
     consistent_keys.add(key_json)
     expected_target_value[key_json] = tgt_lit
 
-  # if not table:
-  #   return None, None, None
   assert table, "No consistent assignments found for this q_set."
   
   return table, consistent_keys, expected_target_value
@@ -252,10 +133,10 @@ def validate_and_filter_problem(rule_tree, base_context: set[str], q_set: list[s
     v_rules = derivs_min_rules.get(k_json)
     v_depth = derivs_min_depth.get(k_json)
     if v_rules is None or v_depth is None:
-      raise Exception(f"{k_json} missing in one of the derivation dicts, WEIRD.")
+      raise Exception(f"Assignment {k_json} is missing from derivs_min_rules or derivs_min_depth.")
     if v_rules["target_value"] is None:
       assert v_depth["target_value"] is None
-      raise Exception("Contradiction found before but not here?")
+      raise Exception(f"Assignment {k_json} has target_value=None but was accepted as consistent.")
     if v_rules.get("target_value") != expected_target_value[k_json]:
       raise Exception("Mismatched target value in min-rules derivation.")
     if v_depth.get("target_value") != expected_target_value[k_json]:
@@ -277,9 +158,6 @@ def _is_globally_minimal(rule_tree, base_context, q_set, goal, all_valid_qs):
     """
     k = len(q_set)
     if k <= 1:
-        # # globally minimal iff context ALONE is insufficient
-        # table0, _, _ = _truth_table_for_qset(clauses, base_context, [], goal)
-        # return table0 is None
         return True # k=1 is always globally minimal if the context alone is insufficient
 
     full_space = [q for q in all_valid_qs if q != goal]
@@ -292,14 +170,10 @@ def _is_globally_minimal(rule_tree, base_context, q_set, goal, all_valid_qs):
         subset_list = list(subset)
         table, _, _ = _truth_table_for_qset(rule_tree, base_context, subset_list, goal)
         
-        # If _truth_table_for_qset returns a table, it means it returned consistent rows.
-        # If it returns None, it was insufficient.
-        # If it returns a valid table, we must check if the goal is determined in all rows.
         if table is not None:
-            # _truth_table_for_qset only returns a table if the goal IS determined for every consistent row?
-            # Wait, your implementation returns None if "forced is None".
-            # So if table is not None, it IS sufficient.
-            return False # Found a smaller sufficient set
+            # _truth_table_for_qset returns None when the goal is undetermined, so a
+            # non-None table means this smaller subset is already sufficient.
+            return False
              
     return True
 
@@ -378,7 +252,6 @@ def main(arguments) -> None:
       context_set = set(json.loads(context_str))
 
       # Determine facts known to be false based on "not X" in context
-      # NOTE: known facts are positive probably because simplelogic is built upon definite clauses restricted to positive literals
       false_facts = []
       for f in context_set:
         if f.startswith("not "):
@@ -406,9 +279,6 @@ def main(arguments) -> None:
           all_vars.add(q)
       
       # # Only include variables that have both positive and negative forms
-      # all_qs_atoms = set()
-      # for var in all_vars:
-      #   if var in rule_tree.nodes and f"not {var}" in rule_tree.nodes:
       #     all_qs_atoms.add(var)
       
       # Valid individual variables available for selection (the atoms)
@@ -432,7 +302,6 @@ def main(arguments) -> None:
               # Validate Global Minimality
               if len(q_set) > 1:
                   if not _is_globally_minimal(clauses, context_set, list(q_set), target_attr, valid_qs_atoms):
-                      # print(f"Skipping set {q_set} - not globally minimal")
                       continue
               clean_gt_qs.append(sorted(q_set))
               clean_derivations_min_rules.append(filtered_rules)
@@ -496,7 +365,6 @@ def main(arguments) -> None:
       prompts = data.iloc[prompt_indices]
       data_subsample = data.iloc[list(set(range(len(data))) - set(prompt_indices))]
       
-      # Use a new filename to avoid overwriting 1-sufficient benchmarks
       prompt_path = os.path.join(arguments.sl_dir, "simplelogic_heldout_k_sufficient_prompts_new.csv")
       data_path = os.path.join(arguments.sl_dir, "simplelogic_heldout_k_sufficient_data_new.csv")
       

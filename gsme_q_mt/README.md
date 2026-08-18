@@ -29,9 +29,11 @@ MODEL=gpt-5-mini bash gsme_q_mt/scripts/run_singleturn.sh
 
 For GSME-Q-MT-Ext, override `DATA_FILE=gsme_q_mt_ext.csv` in either script.
 Both scripts honor `BUDGET`, `BATCH_SIZE`, `RESULTS_DIR`, plus the standard
-backend variables (`VLLM_PORT`, `REASONING_EFFORT`, …).
+backend variables (`VLLM_PORT`, …). `REASONING_EFFORT` is not read here; it
+applies to Logic-Q-MT and GeneReg-MT only.
 
-Logs land in `logs/gsme/`.
+Logs land in `$RESULTS_DIR/<model>/`. `setup.sh` writes `RESULTS_DIR=<repo>/logs`
+into `.env`, so that is `logs/<model>/` unless you override it.
 
 ## Regenerate the dataset
 

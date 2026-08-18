@@ -18,15 +18,16 @@ MODEL=gpt-5-mini BUDGET=10 ORACLE=adversarial \
 
 | variable | default | notes |
 | --- | --- | --- |
-| `BUDGET` | `10` | max questions; `0` removes the budget signal |
+| `BUDGET` | `10` | max questions; `0` switches to the legacy single-turn bulk protocol. Use `BUDGET_IN_PROMPT=false` to hide the budget instead |
 | `ORACLE` | `adversarial` | `adversarial` / `cooperative` / `random` (see paper §C.4) |
 | `BUDGET_IN_PROMPT` | `true` | `false` hides the budget from the prompt |
-| `KEEP_THINKING_TRACE` | `false` | carry CoT content across turns |
+| `KEEP_THINKING_TRACE` | `false` | carry CoT content across turns (Qwen models only; raises `NotImplementedError` otherwise) |
 | `MAX_CONCURRENT` | `16` | client concurrency |
 | `VLLM_PORT` | unset | local vLLM |
-| `REASONING_EFFORT` | unset | gpt family models |
+| `REASONING_EFFORT` | unset | gpt-oss and gpt-5.2/5.4 models (ignored for gpt-5 / gpt-5-mini) |
 
-Logs land in `logs/logic_q_mt/multiturn/`.
+Logs land in `$RESULTS_DIR/<model>/`. `setup.sh` writes `RESULTS_DIR=<repo>/logs`
+into `.env`, so that is `logs/<model>/` unless you override it.
 
 ## Single-turn protocols (MSS identification, k-prediction, full-info)
 

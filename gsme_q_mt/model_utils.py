@@ -189,10 +189,8 @@ CLAUDE_MODELS = model_registry.CLAUDE_MODELS
 
 _azure_openai_client: Optional[AsyncAzureOpenAI] = None
 _anthropic_client: Optional[httpx.AsyncClient] = None
-# _local_client: Optional[AsyncOpenAI] = None
 _local_clients: Dict[Tuple[str, str], AsyncOpenAI] = {}
 
-# _tokenizer: Any = None
 _tokenizer_cache: Dict[str, Any] = {}
 
 
@@ -1200,8 +1198,6 @@ def cached_generate(
       generation_config.setdefault("base_url", normalized)
 
   max_concurrent = 64 if parallel_model_calls else 1
-  # if not model_name in LOCAL_MODEL_CONFIGS:
-  #   max_concurrent = 8 if parallel_model_calls else 1
   
   if not is_local_model(model_name):
     max_concurrent = 8 if parallel_model_calls else 1

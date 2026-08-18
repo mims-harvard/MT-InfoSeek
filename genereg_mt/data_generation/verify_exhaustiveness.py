@@ -91,7 +91,7 @@ def verify_exhaustiveness(jsonl_path, models_dir, cache_dir):
     if num_failures == 0:
         logging.info("Exhaustiveness check PASSED: All tasks contain the EXACT complete set of k-minimal solutions.")
     else:
-        logging.error(f"Exhaustiveness check FAILED: {num_failures} tasks were missing a total of {total_missing} sets.")
+        logging.error(f"Exhaustiveness check FAILED: {num_failures} tasks disagree with the enumerated k-minimal sets ({total_missing} missing).")
 
 if __name__ == "__main__":
     import argparse

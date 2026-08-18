@@ -24,7 +24,7 @@ import tqdm
 
 
 def load_data(sl_dir: str):
-  """Load data from CNS.
+  """Load SimpleLogic rulesets from `sl_dir`.
 
   Args:
     sl_dir: str path to directory containing SimpleLogic rulesets

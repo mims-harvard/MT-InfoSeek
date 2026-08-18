@@ -355,7 +355,8 @@ metadata = mlc.Metadata(
         "title={Do LLMs Know What to Ask and When? Evaluating Multi-Turn Information Seeking}, "
         "author={Yepeng Huang and Jiawen Zhang and Michelle Dai and Xiaorui Su and "
         "Shanghua Gao and Zi Wang and Marinka Zitnik}, "
-        "year={2026}}"
+        "year={2026}, eprint={2608.14808}, archivePrefix={arXiv}, "
+        "url={https://arxiv.org/abs/2608.14808}}"
     ),
     url=REPO_URL,
     version=VERSION,

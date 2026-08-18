@@ -169,7 +169,7 @@ def verify_tasks(jsonl_path, models_dir, cache_dir):
                 num_failures += 1
                 
     if num_failures == 0:
-        logging.info("All tasks verified successfully! 🎉")
+        logging.info("All tasks verified successfully.")
     else:
         logging.error(f"{num_failures} tasks failed verification.")
 

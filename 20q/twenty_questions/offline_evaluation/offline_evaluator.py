@@ -320,7 +320,6 @@ class LocalVLLMJudge(BaseJudge):
         if OpenAI is None:
             raise ImportError("openai package is required for LocalVLLMJudge")
 
-        # self.client = OpenAI(base_url=base_url, api_key=api_key, timeout=timeout)
         self.client = OpenAI(
             base_url=base_url,
             api_key=api_key,

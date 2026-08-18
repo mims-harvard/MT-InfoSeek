@@ -35,29 +35,11 @@ class SimpleLogicEvaluator(Evaluator):
     generation_config: generation config for LLM
     cache: cache of LLM responses
     cache_file: cache file of LLM responses
-    vanilla_prompt: vanilla system prompt for multiple choice evaluation
-    vanilla_isambig_prompt: vanilla system prompt for ambiguity identification
-      evaluation
-    vanilla_fullinfo_prompt: vanilla system prompt for fully specified
-      evaluation
-    cot_prompt: CoT system prompt for multiple choice evaluation
-    cot_isambig_prompt: CoT system prompt for ambiguity identification
-      evaluation
-    cot_fullinfo_prompt: CoT system prompt for fully specified evaluation
-    fs_prompt: System prompt for few-shot evaluation for multiple choice
-      evaluation
-    fs_isambig_prompt: System prompt for few-shot evaluation for ambiguity
-      identification evaluation
-    fs_fullinfo_prompt: System prompt for few-shot evaluation for fully
-      specified evaluation
-    non_fs_request: User prompt for vanilla and CoT evaluation
-    fs_request: User prompt for few-shot evaluation for multiple choice
-      evaluation
-    use_cot: whether to use CoT or not
-    fs_samples: number of few-shot samples to use
+    prompts: per-eval-mode system and user prompt templates
     eval_mode: evaluation mode, one of "mc", "isambig", "fullinfo"
-    system_prompt: system prompt for current evaluation mode
-    request: user prompt for current evaluation mode
+    system_prompt: system prompt for the current mode (None when it is built
+      per example in make_batches, since it embeds the rules)
+    user_prompt: user prompt template for the current mode
     batch_size: batch size for evaluation
     model_role_name: role name for the model
     parallel_model_calls: whether to make parallel calls to the model
@@ -87,17 +69,8 @@ class SimpleLogicEvaluator(Evaluator):
     self.prompts = {
       "mc": {
         "system_prompt": {
-#           # Ask up to K
-#           "vanilla_at_most_K": """Suppose you know the following rules about Alice:
-#     {rules_nl}
 
-# You are trying to discern whether a statement about Alice is true given some facts. You have a budget to ask about up to {max_k} attributes at once. You must decide whether you have enough information to determine whether the final statement is true. You may respond with one of the following:
 
-# Instructions:
-# 1. If you already have enough information to determine the truth value of the statement, respond strictly with: "End questioning".
-# 2. Otherwise, you MUST select a set of attributes (at least 1 and at most {max_k}) to query. Choose the best combination that provides the most information regarding the statement.
-# 3. Format the question strictly as: "Question: Is Alice [attribute_1]? Is Alice [attribute_2]? ..." (for at least 1 and at most {max_k} attributes).
-# 4. Do not output any other text.""",
           # Ask up to K
           "vanilla_at_most_K": """Suppose you know the following rules about Alice:
     {rules_nl}
@@ -109,7 +82,6 @@ Instructions:
 2. Otherwise, you MUST select a set of attributes (at least 1 and at most {max_k}) to query. Choose the smallest combination that provides sufficient information to determine the truth value of the statement.
 3. Format the question strictly as: "Question: Is Alice [attribute_1]? Is Alice [attribute_2]? ..." (for at least 1 and at most {max_k} attributes).
 4. Do not output any other text.""",
-          # Ask exactly k
           "vanilla_exact_k": """Suppose you know the following rules about Alice:
     {rules_nl}
 
@@ -119,42 +91,6 @@ Instructions:
 1. You MUST select exactly {k} attributes to query. Choose the best combination that provides the most information regarding the statement.
 2. Format the question strictly as: "Question: Is Alice [attribute_1]? Is Alice [attribute_2]? ..." (for exactly {k} attributes).
 3. Do not output any other text.""",
-
-#           # Ask up to 1
-#           "vanilla_k1": """Suppose you know the following rules about Alice:
-#     {rules_nl}
-
-# You are trying to discern whether a statement about Alice is true given some facts. You must decide whether you have enough information to determine whether the final statement is true. You may respond with one of the following:
-# If you do not have enough information yet, you may ask a question about an attribute of Alice, in the form of "Question: Is Alice [attribute]?". Ask the best question that, regardless of how it is answered, provides the most information about the final statement.
-# Once you have enough information necessary to determine the truth value of the statement, you can terminate with "End questioning".
-# Generate one of "Question: Is Alice [attribute]?" or "End questioning" and nothing else.""",
-
-#           # Ask up to 2
-#           "vanilla_k2": """Suppose you know the following rules about Alice:
-#     {rules_nl}
-
-# You are trying to discern whether a statement about Alice is true given some facts. You must decide whether you have enough information to determine whether the final statement is true. You may respond with one of the following:
-# If you do not have enough information yet, you may ask questions about at most two attributes of Alice, in the form of "Question: Is Alice [attribute_1]? Is Alice [attribute_2]?". Ask the best question that, regardless of how it is answered, provides the most information about the final statement.
-# Once you have enough information necessary to determine the truth value of the statement, you can terminate with "End questioning".
-# Generate one of "Question: Is Alice [attribute_1]? Is Alice [attribute_2]?" or "End questioning" and nothing else.""",
-
-#           # Ask up to 3
-#           "vanilla_k3": """Suppose you know the following rules about Alice:
-#     {rules_nl}
-
-# You are trying to discern whether a statement about Alice is true given some facts. You must decide whether you have enough information to determine whether the final statement is true. You may respond with one of the following:
-# If you do not have enough information yet, you may ask questions about at most three attributes of Alice, in the form of "Question: Is Alice [attribute_1]? Is Alice [attribute_2]? Is Alice [attribute_3]?". Ask the best question that, regardless of how it is answered, provides the most information about the final statement.
-# Once you have enough information necessary to determine the truth value of the statement, you can terminate with "End questioning".
-# Generate one of "Question: Is Alice [attribute_1]? Is Alice [attribute_2]? Is Alice [attribute_3]?" or "End questioning" and nothing else.""",
-
-#           # Ask up to 4
-#           "vanilla_k4": """Suppose you know the following rules about Alice:
-#     {rules_nl}
-
-# You are trying to discern whether a statement about Alice is true given some facts. You must decide whether you have enough information to determine whether the final statement is true. You may respond with one of the following:
-# If you do not have enough information yet, you may ask questions about at most four attributes of Alice, in the form of "Question: Is Alice [attribute_1]? Is Alice [attribute_2]? Is Alice [attribute_3]? Is Alice [attribute_4]?". Ask the best question that, regardless of how it is answered, provides the most information about the final statement.
-# Once you have enough information necessary to determine the truth value of the statement, you can terminate with "End questioning".
-# Generate one of "Question: Is Alice [attribute_1]? Is Alice [attribute_2]? Is Alice [attribute_3]? Is Alice [attribute_4]?" or "End questioning" and nothing else."""
 
         },
         "user_prompt": {
@@ -232,66 +168,9 @@ Is Alice {goal}?""",
       }
     }
 
-#     self.cot_prompt = """Suppose you know the following rules about Alice:
-#     {rules_nl}
-
-# You trying to discern whether a statement about Alice is true given some facts. You must decide whether you have enough information to determine whether the final statement is true. You may respond with one of the following-
-# If you do not have enough information yet, you may ask a question about an attribute of Alice, in the form of "Question: Is Alice [attribute]?". Ask the best question that, regardless of how it is answered, provides the most information about the final statement.
-# Once you have enough all information necessary to determine the truth value of the statement, you can terminate with "End questioning".
-# iefly, then generate one of "Question: Is Alice [attribute]?" or "End questioning"."""
-#     self.cot_isambig_prompt = """Suppose you know the following rules about Alice:
-# {rules_nl}
-
-# You will presented with a binary question about an attribute of Alice. Please answer it with "Yes" or "No" or "Not sure".
-# Reason step-by-step, then generate "Answer:" followed by the answer and nothing else."""
-#     self.cot_fullinfo_prompt = """Suppose you know the following rules about Alice:
-# {rules_nl}
-
-# You will be given a binary question about an attribute of Alice. Please answer it with "Yes" or "No".
-# Reason step-by-step, then generate "Answer:" followed by the answer and nothing else."""
-#     self.fs_prompt = """You trying to discern whether a statement about Alice is true given some facts. You must decide whether you have enough information to determine answer the target question. You may respond with one of the following-
-# If you do not have enough information yet, you may ask a question about an attribute of Alice, in the form of "Question: Is Alice [attribute]?". Ask the best question that, regardless of how it is answered, provides the most information about the final statement.
-# Once you have enough all information necessary to determine determine the truth value of the statement, you can terminate with "End questioning".
-# Generate one of "Question: Is Alice [attribute]?" or "End questioning" and nothing else."""
-#     self.fs_request = """Rules:
-# {rules_nl}
-
-# Facts:
-# {known_facts}
-# {known_untrue_facts}
-# {invalid_qs}
-
-# Target Question:
-# Is Alice {goal}?"""
-#     self.fs_isambig_prompt = """You will be given some rules and facts about Alice, and then a target yes/no question of the form "Is Alice X?".
-
-# Decide whether the target question is ambiguous (missing information). If it is NOT ambiguous, output: "Answer: No".
-# If it IS ambiguous, output the MINIMUM number of additional attributes that must be known to answer definitively (an integer 1–4): "Answer: 1", "Answer: 2", "Answer: 3", or "Answer: 4".
-# If you are sure it is ambiguous but cannot determine the count, output: "Answer: Yes, but not sure about how many".
-
-# Output exactly one line and nothing else."""
-#     self.fs_fullinfo_prompt = """You will be given some rules and facts about Alice, and then a target yes/no question of the form "Is Alice X?".
-
-# Answer the target question with certainty.
-
-# Output exactly one line:
-# "Answer: Yes" or "Answer: No".
-
-# Do not output anything else."""
-
-    if self.fs_samples > 0:
-      if self.eval_mode == "mc":
-        self.system_prompt = self.fs_prompt
-      elif self.eval_mode == "isambig":
-        self.system_prompt = self.fs_isambig_prompt
-      elif self.eval_mode == "fullinfo":
-        self.system_prompt = self.fs_fullinfo_prompt
-      self.user_prompt = self.prompts[self.eval_mode]["user_prompt"]["fs"]
-    else:
-      # In non-fewshot mode, per-example system prompts are constructed in
-      # make_batches (since they include {rules_nl}).
-      self.system_prompt = None
-      self.user_prompt = self.prompts[self.eval_mode]["user_prompt"]["non_fs"]
+    # Per-example system prompts are built in make_batches (they embed the rules).
+    self.system_prompt = None
+    self.user_prompt = self.prompts[self.eval_mode]["user_prompt"]["non_fs"]
 
     self.batch_size = batch_size
 
@@ -308,17 +187,17 @@ Is Alice {goal}?""",
     """Evaluates a batch of requests.
 
     Args:
-      batch_requests: The batch of requests.
+      batch_user_prompts: The batch of user prompts.
       batch_system_prompts: The batch of system prompts.
       model_name: The name of the model to evaluate.
-      batch_gt_queries: The batch of ground truth responses.
+      batch_gt_queries: The batch of ground-truth query sets.
       cache: The cache of LLM responses.
       cache_file: The cache file of LLM responses.
-      fs_turns: The fewshot turns.
+      fs_turns: Few-shot turns to prepend, if any.
 
     Returns:
-      The batch of LM responses, LM conversations, and whether they are
-      correctness.
+      Per-example responses, conversations, correctness flags, chain-of-thought
+      texts, and costs.
     """
     batch_prompts = []
     for user_prompt, system_prompt in zip(batch_user_prompts, batch_system_prompts):
@@ -395,10 +274,6 @@ Is Alice {goal}?""",
                 " and nothing else."
             )
           elif self.eval_mode == "isambig":
-            # retry_msg = (
-            #     'Wrong format. Please answer either "Answer: Yes" or'
-            #     ' "Answer: No" or "Answer: Not sure" and nothing else.'
-            # )
             retry_msg += (
                 'Wrong format. Please answer either "Answer: No" or "Answer: 1" or "Answer: 2" or "Answer: 3" or "Answer: 4" or "Answer: Yes, but not sure about how many" and nothing else.'
             )
@@ -600,27 +475,13 @@ Is Alice {goal}?""",
           batch_ids.append([])
 
         if self.fs_samples == 0:
-          if prompt_mode == "at_most_k":
-            if str(datum["k"]) == "1":
-              system_prompt = self.prompts["mc"]["system_prompt"]["vanilla_k1"]
-            elif str(datum["k"]) == "2":
-              system_prompt = self.prompts["mc"]["system_prompt"]["vanilla_k2"]
-            elif str(datum["k"]) == "3":
-              system_prompt = self.prompts["mc"]["system_prompt"]["vanilla_k3"]
-            elif str(datum["k"]) == "4":
-              system_prompt = self.prompts["mc"]["system_prompt"]["vanilla_k4"]
-            else:
-              raise Exception(f"Invalid k value: {datum['k']}")
-              # continue
-            system_prompt = system_prompt.format(rules_nl=rules_nl)
-          elif prompt_mode == "exact_k":
+          if prompt_mode == "exact_k":
             system_prompt = self.prompts["mc"]["system_prompt"]["vanilla_exact_k"].format(**{"k": str(datum["k"]), "rules_nl": rules_nl})
           elif prompt_mode == "at_most_K":
             system_prompt = self.prompts["mc"]["system_prompt"]["vanilla_at_most_K"].format(**{"max_k": str(4), "rules_nl": rules_nl})
           batch_system_prompts[-1].append(system_prompt)
           batch_requests[-1].append(
-              # self.request.format(
-              self.user_prompt.format(
+                    self.user_prompt.format(
                   known_facts=known_facts,
                   known_untrue_facts=known_untrue_facts,
                   invalid_qs=invalid_qs,
@@ -630,8 +491,7 @@ Is Alice {goal}?""",
         else:
           batch_system_prompts[-1].append(None)
           batch_requests[-1].append(
-              # self.request.format(
-              self.user_prompt.format(
+                    self.user_prompt.format(
                   rules_nl=rules_nl,
                   known_facts=known_facts,
                   known_untrue_facts=known_untrue_facts,
@@ -1061,7 +921,7 @@ Is Alice {goal}?""",
               fs_turns=fs_turns,
           )
       )
-      total_cost += num_thinking_tokens  # num_thinking_tokens is your "cost"
+      total_cost += num_thinking_tokens  # "cost" is reported as thinking-token counts
       all_cots += cots
       for i, item_id in enumerate(batch_id):
         datum = data.iloc[item_id]

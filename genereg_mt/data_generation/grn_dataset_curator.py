@@ -19,7 +19,7 @@ Regime B (GeneReg-Dyn):
   - Target y: attractor_id, or marker-gene-at-convergence.
 
 Output:
-  out_dir/tasks.jsonl : one JSON object per group (shared context A with branches)
+  out_dir/<--tasks_filename> (default tasks_new.jsonl) : one JSON object per group
 
 """
 
@@ -35,7 +35,7 @@ from typing import Any, Callable, Dict, Iterable, List, Optional, Set, Tuple
 
 import numpy as np
 
-# Prefer the local boolean-network utility module name used in your repo.
+# Local boolean-network utilities (same directory).
 import boolean_network_utils as bnu
 
 
@@ -964,7 +964,6 @@ def make_group_dyn_attractor_id(
         free_bits = rng.choice(np.arange(n), size=d, replace=False).tolist()
 
         # Build a bitmask whose 1-bits mark free (unobserved) genes.
-        # `flip_mask |= (1 << b)` means "set bit b to 1".
         flip_mask = 0
         for b in free_bits:
             flip_mask |= 1 << int(b)
@@ -1052,7 +1051,6 @@ def make_group_dyn_attractor_id(
     return None
 
 
-
 def make_group_dyn_marker_gene(
     cache: bnu.ModelCache,
     *,
@@ -1131,7 +1129,6 @@ def make_group_dyn_marker_gene(
         free_bits = rng.choice(np.arange(n), size=d, replace=False).tolist()
 
         # Build a bitmask whose 1-bits mark free (unobserved) genes.
-        # `flip_mask |= (1 << b)` means "set bit b to 1".
         flip_mask = 0
         for b in free_bits:
             flip_mask |= 1 << int(b)
@@ -1779,16 +1776,9 @@ def make_group_dyn_marker_bottom_up(
     return None
 
 
-
 # -----------------------------------------------------------------------------
 # IO helpers
 # -----------------------------------------------------------------------------
-
-def write_jsonl(path: Path, rows: Iterable[Dict]) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with open(path, "w", encoding="utf-8") as f:
-        for r in rows:
-            f.write(json.dumps(r, ensure_ascii=False) + "\n")
 
 
 def taskgroup_to_json(group: TaskGroup) -> Dict:

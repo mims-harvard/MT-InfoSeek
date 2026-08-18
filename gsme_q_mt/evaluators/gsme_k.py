@@ -278,7 +278,6 @@ Possible questions:
     if self.eval_mode == "mc":
       return self._parse_choice_set(response) is None
     if self.eval_mode == "sc":
-      # return self._parse_choice_int(response, valid=set([0, 1, 2, 3, 4])) is None
       return self._parse_choice_int(response) is None
     return not re.findall(r"(not sure|\b[0-9]+\b)", (response or "").lower())
 
@@ -444,7 +443,6 @@ Possible questions:
         batch_correct.append(any(pred_set == s for s in gt_sets))
 
       elif self.eval_mode == "sc":
-        # pred = self._parse_choice_int(resp, valid=set([0, 1, 2, 3, 4]))
         pred = self._parse_choice_int(resp)
         if pred is None:
           pred = -1
@@ -547,8 +545,6 @@ Possible questions:
 
       elif self.eval_mode == "sc":
         request = datum["Rewritten Problem"]
-        # missing_cnt = _infer_missing_count_from_row(datum, max_count=4)
-        # missing_cnt = len(datum["Heldout Value"])
         heldout = _safe_list_field(datum.get("Heldout Value", "[]"))
         missing_cnt = len(heldout)
 

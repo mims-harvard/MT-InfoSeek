@@ -415,7 +415,7 @@ def _build_prompt(
 
     rules_txt = (sample.raw_rules_text or "").strip()
     if not rules_txt:
-        raise RuntimeError(f"Missing raw_rules text for model {sample.model}, required for dynamic tasks.")
+        raise RuntimeError(f"Missing raw_rules text for model {sample.model}.")
 
     if sample.task_name == "ss_id":
         target_desc = "Target: determine the attractor ID of the true steady-state."
@@ -454,7 +454,6 @@ def _build_prompt(
         )
 
     user = (
-        # f"Number of genes: {sample.n_nodes}\n"
         f"Gene index order for all bitstrings below (left->right): {sample.prompt_gene_index_text}\n"
         f"{target_desc}\n"
         f"{budget_block}"
@@ -1725,7 +1724,7 @@ def main() -> None:
         raise ValueError("--max-num-q-per-turn must be >= 1")
 
     # Register a custom OpenAI-compatible model, then validate the name against
-    # the shared registry (replaces the old hardcoded argparse allowlist).
+    # the shared registry.
     if getattr(args, "model_config", None):
         registered = model_registry.load_model_config_file(args.model_config)
         print(f"Registered custom model from {args.model_config}: {registered}")
@@ -1758,11 +1757,7 @@ def main() -> None:
 
     worlds_tag = "allworlds" if worlds_per_sign <= 0 else f"{worlds_per_sign}worlds"
     default_tasks = ["ss_id", "dyn_attr", "dyn_marker"]
-    include_tasks_norm = (
-        [t.strip() for t in include_tasks.split(",") if t.strip()]
-        if isinstance(include_tasks, str)
-        else list(include_tasks)
-    )
+    include_tasks_norm = list(include_tasks)
     task_tag = "" if include_tasks_norm == default_tasks else f"-tasks-{'-'.join(include_tasks_norm)}"
 
     if args.output_tag:

@@ -24,14 +24,12 @@ class Evaluator:
   Attributes:
     model_name: name of LLM to evaluate
     generation_config: generation config for LLM
-    model_url: model url of LLM
     cache: cache of LLM responses
     cache_file: cache file of LLM responses
     use_cot: whether to use CoT or not
     fs_samples: number of few-shot samples to use
     eval_mode: evaluation mode, one of "mc", "isambig", "fullinfo"
     model_role_name: role name for the model
-    parallel_model_calls: whether to make parallel calls to the model
     vllm_port: port for the VLLM server
   """
 
@@ -44,7 +42,6 @@ class Evaluator:
       fs_samples: int = 0,
       eval_mode: str = "mc",
       model_role_name: str = "assistant",
-      # parallel_model_calls: bool = True,
       vllm_port: int = 8011,
       **kwargs,
   ):
@@ -105,7 +102,6 @@ class Evaluator:
     self.fs_samples = fs_samples
     self.eval_mode = eval_mode
     self.model_role_name = model_role_name
-    # self.parallel_model_calls = parallel_model_calls
     self.vllm_port = vllm_port
     
     self.forbid_alternatives = kwargs.get("forbid_alternatives", False)

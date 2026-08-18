@@ -28,8 +28,9 @@ bash genereg_mt/data_generation/scripts/run_data_gen.sh
 Requires `MODELS_DIR` (path to the Kadelka
 `update_rules_122_models_Kadelka_SciAdv/` clone) and a writable `CACHE_DIR`
 (per-model attractor / basin caches; ~50 MB once populated). Both come from
-`.env`. Output lands under `$DATA_DIR/`; override `--tasks_filename` to
-produce `genereg_mt.jsonl`.
+`.env`. The wrapper already passes `--tasks_filename genereg_mt.jsonl`, so output
+lands at `$DATA_DIR/genereg_mt.jsonl` (the curator's own default is `tasks_new.jsonl`).
+Note this overwrites the released dataset file.
 
 ## Verification
 
@@ -39,6 +40,7 @@ PYTHONPATH=. python verify_k_minimality.py # global minimality (brute force, slo
 PYTHONPATH=. python verify_exhaustiveness.py
 ```
 
-All three default their paths from `.env` (`DATA_DIR`, `MODELS_DIR`,
-`CACHE_DIR`); override with `--jsonl` / `--models` / `--cache` /
-`--tasks_file` as needed.
+All three read `DATA_DIR`, `MODELS_DIR` and `CACHE_DIR` from the environment, so
+export them first (`set -a; source ../../.env; set +a`). Override per script with
+`--jsonl` / `--models` / `--cache` (verify_tasks, verify_exhaustiveness) or
+`--tasks_file` / `--models_dir` / `--cache_dir` (verify_k_minimality).

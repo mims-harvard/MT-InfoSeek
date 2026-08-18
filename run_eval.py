@@ -144,12 +144,13 @@ def parse_args():
                          "(20Q runs Common and THING200)."))
     p.add_argument("--yes", action="store_true",
                    help="Skip the confirmation prompt for --full.")
-    p.add_argument("--budget", default="10", help="Question budget (int or 'k').")
+    p.add_argument("--budget", default="10",
+                   help="Question budget: an integer 0-10. ('k' is accepted by logic_q_mt and genereg_mt only.)")
     p.add_argument("--oracle", default="adversarial",
                    choices=["adversarial", "cooperative", "random"],
                    help="Oracle policy where supported (logic_q_mt, genereg_mt).")
     p.add_argument("--reasoning-effort", default=None,
-                   help="Reasoning effort for gpt-oss / GPT-5 models.")
+                   help="Reasoning effort for gpt-oss and GPT-5.2/5.4 models (logic_q_mt and genereg_mt only).")
     p.add_argument("--max-concurrent", type=int, default=16)
     p.add_argument("--results-dir", default=None,
                    help="Output root (default: ./logs/run_<model>_<data>; reused).")

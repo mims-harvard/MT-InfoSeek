@@ -101,17 +101,9 @@ class ConjunctionRule:
     return word in self.ancestor_words
 
   def list_has_ancestor(self, lst: Iterable[str]):
-    # NEW >>>>>>>>>>>>>>>>>
     if isinstance(lst, set):
       return bool(lst & self.ancestor_set)
     return bool(set(lst) & self.ancestor_set)
-    # <<<<<<<<<<<<<<<<<<<<<
-    # OLD >>>>>>>>>>>>>>>>>
-    # for word in lst:
-    #   if self.has_ancestor(word):
-    #     return True
-    # return False
-    # <<<<<<<<<<<<<<<<<<<
 
   def contradicts(self, lst: Iterable[str]):
     for word in lst:
@@ -122,11 +114,8 @@ class ConjunctionRule:
 
   def __eq__(self, other):
     if isinstance(other, ConjunctionRule):
-      # assert hasattr(other, "leaf_words")
-      # return set(self.leaf_words.keys()) == set(other.leaf_words.keys())
       return self.leaf_set == other.leaf_set
     elif isinstance(other, Iterable):
-      # return set(self.leaf_words.keys()) == set(other)
       return self.leaf_set == set(other)
     else:
       return False
@@ -135,26 +124,19 @@ class ConjunctionRule:
     if not hasattr(self, '_hash'):
         self._hash = hash(frozenset(self.leaf_set))
     return self._hash
-    # return hash(str(self))
 
   def __lt__(self, other):
     if isinstance(other, ConjunctionRule):
-      # assert hasattr(other, "leaf_words")
-      # return set(self.leaf_words.keys()) < set(other.leaf_words.keys())
       return self.leaf_set < other.leaf_set
     elif isinstance(other, Iterable):
-      # return set(self.leaf_words.keys()) < set(other)
       return self.leaf_set < set(other)
     else:
       return False
 
   def __le__(self, other):
     if isinstance(other, ConjunctionRule):
-      # assert hasattr(other, "leaf_words")
-      # return set(self.leaf_words.keys()) <= set(other.leaf_words.keys())
       return self.leaf_set <= other.leaf_set
     elif isinstance(other, Iterable):
-      # return set(self.leaf_words.keys()) <= set(other)
       return self.leaf_set <= set(other)
     else:
       return False
@@ -218,7 +200,7 @@ def has_inferred_contradiction(rule_tree, leaf_set):
   return False
 
 
-# NOTE: Reverted to original version despite ineffciency
+# Expansion is deliberately exhaustive: cheaper pruning schemes drop valid derivations.
 def backderive_nextlayer_rules(
     rule_tree,
     prev_layer_rules: Set[ConjunctionRule],
@@ -248,8 +230,6 @@ def backderive_nextlayer_rules(
       curr_layer_rules_pruned: Set[ConjunctionRule]
       all_query_rules: Set[ConjunctionRule]
   """
-  print()
-  print(max_depth)
   len_break = False
   
   start = time()
@@ -267,10 +247,8 @@ def backderive_nextlayer_rules(
       perword_expansion_rules.append(
           [{prev_layer_word: prev_layer_rule.leaf_words[prev_layer_word]}]
       )
-      # NEW >>>>>>>>>>>>>>>>>
       # NOTE: keep track of words being expanded even if it's continued (for the purpose of creating correct new_derivations)
       prev_layer_words.append(prev_layer_word)
-      # <<<<<<<<<<<<<<<<<<<<<
       # don't continue expand (will be captured by other expansion)
       if prev_layer_rule.leaf_words[prev_layer_word] < tree_depth:
         continue
@@ -284,14 +262,9 @@ def backderive_nextlayer_rules(
             for word in word_expansion
             if word != prev_layer_word
         }
-        # skip expansion if it contains an ancestor word
-        # --> excess information; there's some node we didn't need to expand
-        # (either this node or prev time this came up)
-        # NOTE: if the ancestor appears on another branch, the case where this ancestor is still a leaf will sill pass this filter, so it's fine
-        # NOTE: Disabled due to incomplete derivation coverage issues; performance impact is manageable
-        # if prev_layer_rule.list_has_ancestor(set(word_expansion.keys())):
-        #   continue
-        
+        # No ancestor-word pruning here: it dropped valid derivations, and the
+        # extra expansions are affordable.
+
         # cannot expand (word expansion has a not x, where x in rule,
         # meaning no way to assign to guarantee goal, premise is False so
         # implies doesn't go through)
@@ -299,9 +272,6 @@ def backderive_nextlayer_rules(
           continue
         # NOTE: Add valid expansion
         perword_expansion_rules[-1].append(word_expansion)
-      # ORIGINAL >>>>>>>>>>>>>>>>>
-      # prev_layer_words.append(prev_layer_word)
-      # <<<<<<<<<<<<<<<<<<<<<<<<<<
       
     # take all combinations of per_word_rules for the `prev_layer_rules`
     # [[{a: d1}, {c: d2, d: d2}], [{b: d1}, {c: d2, e: d2}] [{f: d0}]]
@@ -321,24 +291,17 @@ def backderive_nextlayer_rules(
         # can already (directly) derive this is true from an existing rule
         continue
       
-      # NEW >>>>>>>>>>>>>>>>>
       # NOTE: Check for direct self-contradiction in merged leaves (i.e., "x" and "not x" in two `word_expansion` of different `prev_layer_word`s in the same `perword_expansion_rules`)
       # For efficiency, we defer the check for contradictions via inference to after curating the true and false derivations
       new_leaves_set = set(new_leaves.keys())
       if has_self_contradiction(new_leaves_set):
         continue
-      # <<<<<<<<<<<<<<<<<<<<<
       
       new_ancestors = {
           **prev_layer_rule.ancestor_words,
           **prev_layer_rule.leaf_words,
       }
-      # OLD >>>>>>>>>>>>>>>>>
-      # for k in union(expansion):
-      # <<<<<<<<<<<<<<<<<<<<<
-      # NEW >>>>>>>>>>>>>>>>>
       for k in new_leaves:
-      # <<<<<<<<<<<<<<<<<<<<<
         if k in new_ancestors:
           del new_ancestors[k]
       new_derivations = prev_layer_rule.derivation + [
@@ -371,20 +334,6 @@ def backderive_nextlayer_rules(
   # now delete rules which are supersets of other rules
   # only add rules which are subsets of other rules
   ancestor_query_rules_pruned = set()  # if 2 derivations, keep first
-  # ORIGINAL >>>>>>>>>>>>>>>>>
-  # for _, rule in enumerate(all_query_rules):
-  #   # check if any other rule is a subset of rule
-  #   has_subset = False
-  #   for _, rule2 in enumerate(curr_layer_rules):
-  #     if rule == rule2:
-  #       continue
-  #     if rule2 < rule:
-  #       has_subset = True
-  #       break
-  #   if not has_subset:
-  #     ancestor_query_rules_pruned.add(rule)
-  # <<<<<<<<<<<<<<<<<<<<<<<<<<
-  # NEW >>>>>>>>>>>>>>>>>>>
   # Build size-indexed structure for curr_layer_rules
   curr_by_size = {}
   for rule in curr_layer_rules:
@@ -415,39 +364,13 @@ def backderive_nextlayer_rules(
     
     if not has_subset:
       ancestor_query_rules_pruned.add(rule)
-  # <<<<<<<<<<<<<<<<<<<<<<<
   print(f"Time for pruning ancestors: {time() - start:.2f} seconds")
   
   # 2. Remove new rules (curr_layer_rules) that are supersets of any existing rule (all_query_rules --> ancestor_query_rules_pruned)
   curr_layer_rules_pruned = set()  # if 2 derivations, keep first
   start = time()
   st = time()
-  # ORIGINAL >>>>>>>>>>>>>>>>>
-  # existing_rules_list = list(all_query_rules)
-  # <<<<<<<<<<<<<<<<<<<<<<<<<<
-  # NEW >>>>>>>>>>>>>>>>>>>
-  existing_rules_list = list(ancestor_query_rules_pruned)  # NOTE: Efficiency fix
-  # <<<<<<<<<<<<<<<<<<<<<<<
-  # ORIGINAL >>>>>>>>>>>>>>>>>
-  # for r, rule in enumerate(curr_layer_rules):
-  #   # check if any other rule is a subset of rule (rule -> other rule)
-  #   has_subset = False
-    
-  #   for _, rule2 in enumerate(curr_layer_rules + existing_rules_list):
-  #     if rule == rule2:
-  #       continue
-  #     if rule2 < rule:
-  #       has_subset = True
-  #       break
-  #
-  #   if not has_subset:
-  #     curr_layer_rules_pruned.add(rule)
-  #   if r % 1000 == 0:
-  #     print(f"{r} / {len(curr_layer_rules)}")
-  #     print(f"  Time for checking: {time() - st:.2f} seconds")
-  #     st = time()
-  # <<<<<<<<<<<<<<<<<<<<<<<<<<
-  # NEW >>>>>>>>>>>>>>>>>>>
+  existing_rules_list = list(ancestor_query_rules_pruned)
   # Build combined size index
   all_by_size = {size: list(rules) for size, rules in curr_by_size.items()}
   for rule in existing_rules_list:
@@ -481,9 +404,7 @@ def backderive_nextlayer_rules(
     
     if r % 1000 == 0:
       print(f"{r} / {len(curr_layer_rules)}")
-  # <<<<<<<<<<<<<<<<<<<<<<<
     
-  # curr_layer_rules = uniq_query_rules
   print(f"Time for pruning current layer: {time() - start:.2f} seconds")
   start = time()
 
@@ -511,18 +432,8 @@ def get_derivations(rules_dict, max_expansions_per_layer: int):
 
   if rules_dict["query"] not in rules_dict["rules"].nodes:
     return False
-  
-  # y = ruleset.RuleNode(word="y", rules=frozenset({frozenset({"y", "not a", "not b"})}))
-  # a = ruleset.RuleNode(word="a", rules=frozenset({frozenset({"a", "not b", "not e"})}))
-  # b = ruleset.RuleNode(word="b", rules=frozenset({frozenset({"b", "not f"})}))
-  # f = ruleset.RuleNode(word="f", rules=frozenset({}))
-  # e = ruleset.RuleNode(word="e", rules=frozenset({}))
-  # rt = ruleset.RuleTree(nodes={"y":y, "a":a, "b":b, "e":e, "f":f})
-  # _, temp, _ = backderive_nextlayer_rules(rt, {ConjunctionRule({"y":0}, {}, [], "y", 0)}, set(), 5)
-  # print(temp)
-
   if not rules_dict.get("true_derivations", []):
-    # can take 3 mins each, need some more efficient mechanism...
+    # Each derivation pass can take several minutes on deep rule trees.
     print("\n------- Deriving true derivations -------")
     start = time()
     _, rules_dict["true_derivations"], len_break = backderive_nextlayer_rules(
@@ -556,7 +467,6 @@ def get_derivations(rules_dict, max_expansions_per_layer: int):
     post_inferred_filter = len(rules_dict["true_derivations"])
     
     if pre_filter_count != post_inferred_filter:
-      # print(f"Filtered {pre_filter_count - post_self_filter} self-contradictory true derivations")
       print(f"Filtered {pre_filter_count - post_inferred_filter} inferred-contradictory true derivations")
     
   if not rules_dict.get("false_derivations", []):
@@ -593,11 +503,10 @@ def get_derivations(rules_dict, max_expansions_per_layer: int):
     rules_dict["false_derivations"] = [
         rule for rule in rules_dict["false_derivations"]
         if not has_inferred_contradiction(rules_dict["rules"], rule.leaf_set)
-    ]  # NOTE: should use refutation; but here UP is fine
+    ]  # Unit propagation suffices: only self-contradictory leaf sets need to be dropped here.
     post_inferred_filter = len(rules_dict["false_derivations"])
     
     if pre_filter_count != post_inferred_filter:
-      # print(f"Filtered {pre_filter_count - post_self_filter} self-contradictory false derivations")
       print(f"Filtered {pre_filter_count - post_inferred_filter} inferred-contradictory false derivations")
     
   return True
@@ -645,28 +554,3 @@ def get_all_inferrable_facts(rule_tree, true_facts, false_facts):
     all_facts = all_facts.union(curr_facts)
   return all_facts
 
-
-# def load_derivations():
-#   """Compute derivations for all words in RP directory.
-
-#   RP directory contains a list of rules_dicts, each of which contains a query
-#   word and a rule tree. For each rules_dict, we compute all derivations of the
-#   target word, both derivations that imply the target word is true and
-#   derivations that imply the target word is false.
-#   Adds a `true_derivations` and `false_derivations` field to each rules_dict.
-
-#   Returns:
-#     List[Dict[str, Any]] of rules_dicts
-#   """
-#   rules_dicts = []
-#   files_to_rules_dicts = {}
-#   for item_file in glob.glob("SimpleLogic/RP/RP/*.jsonl"):
-#     files_to_rules_dicts[item_file] = []
-#     with open(item_file, "r") as f:
-#       for line in f:
-#         try:
-#           rules_dicts.append(json.loads(line))
-#           files_to_rules_dicts[item_file].append(json.loads(line))
-#         except json.JSONDecodeError:
-#           continue
-#   return rules_dicts

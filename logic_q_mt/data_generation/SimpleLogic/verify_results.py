@@ -27,7 +27,7 @@ def verify_row(data, counter, verbose=True):
     base_forced = forced_value_from_facts(clauses, context, goal)
     if base_forced in (True, False):
         if verbose:
-            print("❌ FAIL: Goal is already known from context.")
+            print("FAIL: Goal is already known from context.")
         if data["k"] not in counter['failed (goal inferred from context)'].keys():
             counter['failed (goal inferred from context)'][data["k"]] = 0
         counter['failed (goal inferred from context)'][data["k"]] += 1
@@ -48,8 +48,7 @@ def verify_row(data, counter, verbose=True):
 
             forced = forced_value_from_facts(clauses, hyp_context, goal)
             if forced == "INFEASIBLE":
-                raise ValueError("Weird inconsistency between checkers")
-                # continue  # if both are goals leads to contradiction; should be rare if hyp_context was satisfiable, but safe
+                raise ValueError("solve_unit_prop and forced_value_from_facts disagree on feasibility of this branch.")
             if forced is None:
                 return None, True  # insufficient: goal not semantically determined in this branch
 
@@ -97,14 +96,14 @@ def verify_row(data, counter, verbose=True):
         table, any_consistent = build_table(qs)
         if table is None:
             if verbose:
-                print(f"❌ FAIL: Some consistent branch for qs={qs} does not determine the goal.")
+                print(f"FAIL: Some consistent branch for qs={qs} does not determine the goal.")
             if data["k"] not in counter['failed (insufficient branch)'].keys():
                 counter['failed (insufficient branch)'][data["k"]] = 0
             counter['failed (insufficient branch)'][data["k"]] += 1
             return False
         if not any_consistent:
             if verbose:
-                print(f"❌ FAIL: All branches for qs={qs} are contradictions (degenerate problem).")
+                print(f"FAIL: All branches for qs={qs} are contradictions (degenerate problem).")
             if data["k"] not in counter['failed (insufficient branch)'].keys():
                 counter['failed (insufficient branch)'][data["k"]] = 0
             counter['failed (insufficient branch)'][data["k"]] += 1
@@ -113,7 +112,7 @@ def verify_row(data, counter, verbose=True):
         # Check 3: Local essentiality (each variable must be essential under consistent assignments)
         if len(qs) > 1 and not essentiality_holds(table, qs):
             if verbose:
-                print(f"❌ FAIL: qs={qs} is sufficient but not minimal (violates essentiality).")
+                print(f"FAIL: qs={qs} is sufficient but not minimal (violates essentiality).")
                 print(f"Ground truth qs: {qs}")
                 print(f"Context: {context}")
                 print(f"Rules: {clauses}")
@@ -129,7 +128,7 @@ def verify_row(data, counter, verbose=True):
             subset = qs[:i] + qs[i+1:]
             if subset and subset_is_sufficient(subset):
                 if verbose:
-                    print(f"❌ FAIL: Subset {subset} is sufficient (Not Minimal).")
+                    print(f"FAIL: Subset {subset} is sufficient (Not Minimal).")
                 if data["k"] not in counter['failed (not minimal)'].keys():
                     counter['failed (not minimal)'][data["k"]] = 0
                 counter['failed (not minimal)'][data["k"]] += 1
@@ -147,14 +146,14 @@ def verify_row(data, counter, verbose=True):
             for subset in itertools.combinations(search_space, k - 1):
                 if subset_is_sufficient(list(subset)):
                     if verbose:
-                        print(f"❌ FAIL: Global minimality violated - subset {list(subset)} of size k-1 is sufficient.")
+                        print(f"FAIL: Global minimality violated - subset {list(subset)} of size k-1 is sufficient.")
                     if data["k"] not in counter['failed (not globally minimal)'].keys():
                         counter['failed (not globally minimal)'][data["k"]] = 0
                     counter['failed (not globally minimal)'][data["k"]] += 1
                     return False
 
     if verbose:
-        print(f"✅ Row Verified (k={data['k'] if 'k' in data else 'N/A'})")
+        print(f"OK: row verified (k={data['k'] if 'k' in data else 'N/A'})")
     if data["k"] not in counter['verified'].keys():
         counter['verified'][data["k"]] = 0
     counter['verified'][data["k"]] += 1

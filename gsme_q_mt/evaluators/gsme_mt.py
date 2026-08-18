@@ -423,9 +423,6 @@ Do not output other formats.
               asked_unique_sets[i].add(v)
 
           # append to conversation
-          # if self.keep_thinking_trace and self.is_local_model(model_name):
-          #   messages[i].append({"role": self.model_role_name, "content": resp})
-          # else:
           messages[i].append({"role": self.model_role_name, "content": ut._strip_thinking(resp, self.model_name)})
           messages[i].append({"role": "user", "content": oracle_text})
 
@@ -493,8 +490,6 @@ Do not output other formats.
       asked_sets_out.append(asked_sorted)
       gt_sets_out.append(held_sorted)
 
-      # var_exact = (asked_set == held_set)
-      # prf1 = ut._prf1(asked_set, held_set)
       
       qmet = ut._qset_metrics(asked_set, held_set)
       var_exact = qmet["qset_exact"]  
@@ -571,7 +566,6 @@ Do not output other formats.
       }
       convos[i].append({"role": "user", "text": "LOG_JSON: " + json.dumps(meta)})
 
-    # return convos, asked_sets_out, batch_correct, think_acc, cot_last, cost_acc, gt_sets_out
     return convos, asked_sets_out, batch_correct, think_acc, cot_last, cost_acc, gt_sets_out, answer_preds_out, metrics_out
 
   # -----------------------------

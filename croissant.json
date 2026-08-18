@@ -51,7 +51,7 @@
   "name": "MT-InfoSeek",
   "description": "A benchmark release for multi-turn information seeking, framed as solving an under-specified constraint satisfaction problem with k unknown variables. This Croissant file documents the public non-clinical subset of MT-InfoSeek v1.0.0, including Logic-Q-MT, GSME-Q-MT, GSME-Q-MT-Ext, GeneReg-MT, and 20-Questions concept lists. ClinGuide-MT, used in the accompanying paper for clinical guideline-based evaluation, is not included in this release and should be documented separately if released. Models are evaluated along three axes: what they ask, when they ask it, and how acquired information affects the final answer.",
   "conformsTo": "http://mlcommons.org/croissant/1.0",
-  "citeAs": "@misc{huang2026mtinfoseek, title={Do LLMs Know What to Ask and When? Evaluating Multi-Turn Information Seeking}, author={Yepeng Huang and Jiawen Zhang and Michelle Dai and Xiaorui Su and Shanghua Gao and Zi Wang and Marinka Zitnik}, year={2026}}",
+  "citeAs": "@misc{huang2026mtinfoseek, title={Do LLMs Know What to Ask and When? Evaluating Multi-Turn Information Seeking}, author={Yepeng Huang and Jiawen Zhang and Michelle Dai and Xiaorui Su and Shanghua Gao and Zi Wang and Marinka Zitnik}, year={2026}, eprint={2608.14808}, archivePrefix={arXiv}, url={https://arxiv.org/abs/2608.14808}}",
   "creator": [
     {
       "@type": "sc:Person",

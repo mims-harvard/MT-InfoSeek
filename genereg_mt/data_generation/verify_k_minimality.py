@@ -4,8 +4,9 @@ Verify that generated GRN tasks are truly k-minimal sufficient.
 
 For each task, we verify:
 1. SUFFICIENCY: At least one of the minimal_sets of size k determines y
-2. GLOBAL MINIMALITY: No (k-1)-element combination of ANY candidate genes is sufficient
-   (including assignments outside subsets of the curated minimal sets)
+2. GLOBAL MINIMALITY: No (k-1)-element combination is sufficient, searched over all
+   non-observed genes for steady-state tasks and over the recorded free bits for
+   dynamic tasks
 
 Usage:
     python verify_k_minimality.py --n_samples 10 --seed 42
@@ -98,7 +99,7 @@ def verify_task(
     
     Checks:
     1. The claimed minimal_sets are sufficient
-    2. No (k-1)-element subset of ALL candidate genes is sufficient (global minimality)
+    2. No (k-1)-element combination of the searchable genes is sufficient (global minimality)
     """
     model_name = task["model"]
     k_min = task["k_min"]
@@ -240,18 +241,15 @@ def main():
     parser.add_argument("--verbose", action="store_true")
     args = parser.parse_args()
     
-    # Load tasks
     print(f"Loading tasks from: {args.tasks_file}")
     with open(args.tasks_file) as f:
         tasks = [json.loads(line) for line in f]
     print(f"Loaded {len(tasks)} tasks")
     
-    # Load models
     print(f"Loading models from: {args.models_dir}")
     models_dict = {m["model"]: m for m in bnu.load_models_with_text(str(args.models_dir))}
     print(f"Loaded {len(models_dict)} models")
     
-    # Sample tasks
     rng = np.random.default_rng(args.seed)
     if args.n_samples > 0 and args.n_samples < len(tasks):
         indices = rng.choice(len(tasks), size=args.n_samples, replace=False)

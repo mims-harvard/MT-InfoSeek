@@ -13,7 +13,7 @@
 # limitations under the License.
 # ==============================================================================
 
-"""Utilities for generating ambiguous questions by holding out 1 word."""
+"""Utilities for generating underspecified problems with k-sufficient question sets."""
 
 import copy
 import itertools as it
@@ -25,65 +25,6 @@ import tqdm
 from SimpleLogic import derivation_new
 from SimpleLogic import ruleset
 from SimpleLogic.horn_sat_utils import parse_clauses, facts_to_assignment, solve_unit_prop, forced_value_via_refutation, CONTRADICTION, INFEASIBLE, negate_lit
-
-
-# def check_sufficiency(rule_tree, context, vars_to_check, target):
-#   """Checks if vars_to_check are sufficient to determine target given context.
-
-#   Args:
-#     rule_tree: RuleTree
-#     context: Set[str] of facts (e.g. {"a", "not b"})
-#     vars_to_check: Set[str] of variable names (e.g. {"c", "d"})
-#     target: str target variable name
-
-#   Returns:
-#     bool: True if for all consistent assignments of vars_to_check, the target's
-#       truth value is determined. False otherwise.
-#   """
-#   var_list = list(vars_to_check)
-#   num_consistent_assignments = 0
-  
-#   # Iterate over all possible truth value assignments for vars_to_check
-#   for values in it.product([True, False], repeat=len(var_list)):
-#     assignment_facts = set()
-#     for i, val in enumerate(values):
-#       if val:
-#         assignment_facts.add(var_list[i])
-#       else:
-#         assignment_facts.add(ruleset.negate(var_list[i]))
-
-#     full_facts = context.union(assignment_facts)
-
-#     # Split into true/false for get_all_inferrable_facts
-#     true_facts = {f for f in full_facts if not f.startswith("not ")}
-#     false_facts = {f for f in full_facts if f.startswith("not ")}
-
-#     # Check for immediate contradiction in the input facts
-#     contradiction = False
-#     for f in true_facts:
-#       if ruleset.negate(f) in full_facts:
-#         contradiction = True
-#         break
-#     if contradiction:
-#       continue  # Vacuously true if the assignment is impossible
-
-#     inferred = derivation_new.get_all_inferrable_facts(rule_tree, true_facts, false_facts)
-
-#     # Check for consistency in inferred facts
-#     for f in inferred:
-#       if ruleset.negate(f) in inferred:
-#         contradiction = True
-#         break
-#     if contradiction:
-#       continue
-    
-#     num_consistent_assignments += 1
-
-#     # If consistent, check if target is determined
-#     if target not in inferred and ruleset.negate(target) not in inferred:
-#       return False
-
-#   return num_consistent_assignments > 0
 
 
 def check_sufficiency(rule_tree, context, vars_to_check, target):
@@ -148,13 +89,12 @@ def make_heldout_ruleset(rules_dict, max_k=4):
   
   Args:
     rules_dict: Dict[str, Any]
-    max_k: int, max size of heldout set to search for (default 1, supports up to 3)
+    max_k: int, max size of the sufficient question set to search for (default 4; 1-4)
   """
   assert max_k in [1, 2, 3, 4], "k_max must be 1, 2, 3, 4."
   assert "not " not in rules_dict["query"]
   
   print("Generating k=1")
-  # UNCHANGED: >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
   # NOTE: Using leafs as keys is fine because in generating the derivations we do BFS and only keep the most shallow derivation for the same leaf set
   true_derivations = {}
   for derive in rules_dict['true_derivations']:
@@ -168,8 +108,6 @@ def make_heldout_ruleset(rules_dict, max_k=4):
     false_derivations[frozenset(derive.leaf_words.keys())] = derive
 
   heldout_set_to_q_depth_expansions = {}
-  # Pre-calculate RuleTree for inference checks
-  # rule_tree = ruleset.RuleTree.deserialize(rules_dict["rules"])
   
   # NOTE: This is actually a loose check -- it finds any (true, false) derivation pairs that shares exactly one variable with opposite signs (does not consider variables that are only assigned in one of the derivations). Though, because of the way derivations are generated (BFS, minimal leaf sets), this must cover all correct pairs. 
   # get combined version (cross product)
@@ -213,8 +151,6 @@ def make_heldout_ruleset(rules_dict, max_k=4):
     if heldout_set not in heldout_set_to_q_depth_expansions:
       heldout_set_to_q_depth_expansions[heldout_set] = {}
       
-    # if differ_word == "anxious" and heldout_set == frozenset({'different', 'bad-tempered', 'hypocritical', 'strange', 'cooperative', 'distinct'}):
-    #   raise ValueError("Debugging")
       
     # add variable with direction that implies query word is true
     heldout_set_to_q_depth_expansions[heldout_set][differ_word] = {
@@ -250,14 +186,12 @@ def make_heldout_ruleset(rules_dict, max_k=4):
       json.dumps(list(heldout_set)): list(heldout_set_to_subset_qs[heldout_set])
       for heldout_set in heldout_set_to_subset_qs
   }
-  # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
   
   # --- Extension for k-sufficient sets ---
   # Initialize with 1-sufficient sets found above
   k_sufficient_sets = {1: []}
   for heldout_set, val in heldout_set_to_q_depth_expansions.items():
     for word, derivations_for_word in val.items():
-      # var_name = word.split("not ")[1] if wor7d.startswith("not ") else word
       assert "not " not in word
       unified_derivations = {
           (word, ): {
@@ -269,7 +203,7 @@ def make_heldout_ruleset(rules_dict, max_k=4):
               'derivation': derivations_for_word['false_derivation'],
           },
       }
-      k_sufficient_sets[1].append((heldout_set, {word}, unified_derivations, unified_derivations))  # heldout_set contains word-values (i.e., can contain "not "), while 
+      k_sufficient_sets[1].append((heldout_set, {word}, unified_derivations, unified_derivations))  # heldout_set holds signed literals (may contain "not "); the query set holds bare variable names
 
   rule_tree_obj = rules_dict['rules']
   if not isinstance(rule_tree_obj, ruleset.RuleTree):
@@ -504,7 +438,7 @@ def make_heldout_ruleset(rules_dict, max_k=4):
     rules_dict['heldout_k_sets'][str(k)] = res_map
 
   # Store invalid questions for each k (generalization of heldout_set_to_subset_qs)
-  # For each context at level k, collect k-sufficient sets from SMALLER contexts (i.e., subsets of this context; same logic as ). These are "too easy" because they don't require all the information in the current context.
+  # For each context at level k, collect k-sufficient sets from SMALLER contexts (i.e., subsets of this context). These are "too easy" because they don't require all the information in the current context.
   #
   # Structure: context_to_invalid_sets[k][context_str] = list of s_sets
   

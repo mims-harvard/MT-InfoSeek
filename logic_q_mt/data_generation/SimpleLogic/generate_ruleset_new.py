@@ -13,7 +13,7 @@
 # limitations under the License.
 # ==============================================================================
 
-"""Generates 1-sufficient sets for the SimpleLogic task."""
+"""Stage 1: generate k-sufficient sets (k = 1..max_k) per ruleset."""
 
 import argparse
 import glob
@@ -89,52 +89,7 @@ def main(arguments) -> None:
       holdout_utils_new.make_heldout_ruleset(rules_dict, max_k=arguments.max_k)
       print(f"\nTOTAL Time to make heldout sets: {time() - start:.2f} seconds\n")
       
-      # CHANGED >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-      # with open(write_file, "a") as wf:
-      #   wf.write(
-      #       json.dumps({
-      #           "rules": rule_tree_rules.serialize(),
-      #           "query": rules_dict["query"],
-      #           "depth": rules_dict["depth"],
-      #           "true_derivations": [
-      #               derive.serialize()
-      #               for derive in rules_dict["true_derivations"]
-      #           ],
-      #           "false_derivations": [
-      #               derive.serialize()
-      #               for derive in rules_dict["false_derivations"]
-      #           ],
-      #           "heldout_set_to_q": rules_dict["heldout_set_to_q"],
-      #           "heldout_set_to_subset_qs": rules_dict[
-      #               "heldout_set_to_subset_qs"
-      #           ],
-      #       })
-      #       + "\n"
-      #   )
-      #   rules_dicts_existing.append(
-      #       json.dumps({
-      #           "rules": rule_tree_rules.serialize(),
-      #           "query": rules_dict["query"],
-      #           "depth": rules_dict["depth"],
-      #           "true_derivations": [
-      #               derive.serialize()
-      #               for derive in rules_dict["true_derivations"]
-      #           ],
-      #           "false_derivations": [
-      #               derive.serialize()
-      #               for derive in rules_dict["false_derivations"]
-      #           ],
-      #           "heldout_set_to_q": rules_dict["heldout_set_to_q"],
-      #           "heldout_set_to_subset_qs": rules_dict[
-      #               "heldout_set_to_subset_qs"
-      #           ],
-      #       })
-      #       + "\n"
-      #   )
-      #   print(f"Wrote {r}/{len(rules_dicts)} to " + write_file)
-      # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
       
-      # ADDED >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
       output_dict = {
           "rules": rule_tree_rules.serialize(),
           "query": rules_dict["query"],
@@ -164,10 +119,7 @@ def main(arguments) -> None:
         wf.write(json.dumps(output_dict) + "\n")
         wf.flush() # Robustness: ensure data is written to disk
         
-        # Add to existing set to avoid re-processing in case of restart (in-memory)
-        rules_dicts_existing.append(json.dumps(output_dict) + "\n")
         print(f"Wrote {r}/{len(rules_dicts)} to " + write_file)
-      # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 
 if __name__ == "__main__":

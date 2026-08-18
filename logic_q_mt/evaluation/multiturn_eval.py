@@ -477,7 +477,7 @@ def special_oracle_logic(clauses: Clauses, base_context: Dict[str, bool], var: s
     else:
         # Choose the "most cooperative" answer:
         #   - Prefer forcing goal to correct value
-        #   - Then prefer smaller closure (less information leaked)
+        #   - Then prefer larger closure (more information revealed)
         #   - Then random tie-break
         best = max(
             cands,
@@ -1041,7 +1041,7 @@ async def run_episode_async(
     seed: int = 42,
 ) -> EpisodeResult:
     """
-    Async version of run_episode for parallel processing with caching.
+    Run one episode to completion, with per-episode caching.
     For oracle_type:
         - "adversarial"/"cooperative": answer according to a world (final target value) and use adversarial/cooperative oracle logic
         - "random": answer according to a specific assignment of sufficient set variable values consistent with a world (return inferrable variable values from world)
@@ -1101,7 +1101,7 @@ async def run_episode_async(
         if verbose:
             print(f"  Turn {turn}/{max_turns}...")
         
-        # Force answer on last turn - use deep copy for thread safety
+        # Force answer on last turn - copy so the forced-answer suffix stays out of history
         current_messages = copy.deepcopy(messages)
         force_answer_prompt_applied = turn == max_turns
         retry_count_before_call = retry_count
@@ -1235,7 +1235,9 @@ async def run_episode_async(
             result.questions_asked.extend(action.questions)
             
             # Append to conversation
-            # NOTE: Use full_response (with cot) for keep_thinking_trace, otherwise use response (CoT already stripped). Note that apply_chat_template strips CoT if the last message is from user, thus changing the role.
+            # NOTE: With keep_thinking_trace the CoT is passed back as `reasoning_content`;
+            # otherwise the stripped response is sent. apply_chat_template drops CoT when the
+            # last message is from the user, which changes the role.
             if keep_thinking_trace and not is_random_policy_model(model_name):
                 if "qwen" in model_name.lower():
                     messages.append({"role": "assistant", "content": response, "reasoning_content": cot})
@@ -1336,19 +1338,12 @@ async def process_episodes_async(
                     history_append_mode=history_append_mode,
                     seed=seed,
                 )
-            # except Exception as e:
-            #     raise
             except Exception as e:
                 print(
                     f"[REQUEST_FAILED] sample={sample.sample_id}, "
                     f"world={world.assignments}: {type(e).__name__}: {e}"
                 )
                 raise
-                # print(f"Error processing episode sample={sample.sample_id}, world={world.assignments}: {e}")
-                # # Return a failed result
-                # result = EpisodeResult(sample_id=sample.sample_id, world=world)
-                # result.budget_violated = True
-                # return result
     
     # Create all tasks
     tasks = [process_with_semaphore(sample, world) for sample, world in episodes]
@@ -1517,7 +1512,7 @@ def main():
     parser.add_argument("--cache-tag", type=str, default="",
                         help="Tag to identify cache files")
     parser.add_argument("--budget", type=str, default="4",
-                        help="Maximum number of turns (k uses sample.k; legacy: 0 means one turn with many questions if --max-num-q-per-turn=1)", choices=["k"] + [str(i) for i in range(0, 21)])
+                        help="Maximum number of turns (`k` uses sample.k; 0 means a single turn in which all remaining attributes may be asked at once)", choices=["k"] + [str(i) for i in range(0, 21)])
     parser.add_argument("--max-num-q-per-turn", type=int, default=1,
                         help="Maximum number of questions allowed in one turn")
     parser.add_argument("--keep-thinking-trace", action="store_true",
@@ -1546,7 +1541,7 @@ def main():
                         choices=["full", "oracle_only"],
                         help="How to append prior turn history into future prompts.")
     parser.add_argument("--dump-turn-prompts", action="store_true",
-                        help="Mark this run as saving per-call prompt messages in cache/output names. LogicQ call_logs already store prompt_messages.")
+                        help="Append a `-dumpprompt` tag to cache and output names. Per-call prompt messages are recorded in the episode logs either way.")
     parser.add_argument("--seed", type=int, default=42, help="Random seed for sampling worlds")
     parser.add_argument("--no-flip", dest="do_flip", action="store_false", default=True, help="Disable flipped episodes evaluation")
     args = parser.parse_args()
@@ -1554,7 +1549,7 @@ def main():
         raise ValueError("--max-num-q-per-turn must be >= 1")
 
     # Register a custom OpenAI-compatible model, then validate the name against
-    # the shared registry (replaces the old hardcoded argparse allowlist).
+    # the shared registry.
     if getattr(args, "model_config", None):
         registered = model_registry.load_model_config_file(args.model_config)
         print(f"Registered custom model from {args.model_config}: {registered}")
@@ -1631,10 +1626,9 @@ def main():
     else:
         flipped_samples = []
         flipped_episodes = []
-        print("Flipping disabled (--no_flip).")
+        print("Flipping disabled (--no-flip).")
     
     # Run evaluation
-    # if args.use_async:
     print(f"Running async with max_concurrent={args.max_concurrent}")
     all_results = asyncio.run(
         process_episodes_async(
@@ -1664,7 +1658,6 @@ def main():
     if args.do_flip:
         print("\n--- Running flipped episodes ---")
         
-        # if args.use_async:
         flipped_results = asyncio.run(
             process_episodes_async(
                 episodes=flipped_episodes,

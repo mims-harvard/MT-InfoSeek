@@ -106,9 +106,7 @@ GPT_COSTS: Dict[str, Dict[str, float]] = {
 GEMINI_COSTS: Dict[str, Dict[str, float]] = {
     "gemini-3.1-pro-preview": {"in": 2.00, "out": 12.00},
     "gemini-3-pro-preview": {"in": 2.00, "out": 12.00},
-    # NOTE: the two model_utils disagreed on this rate (root said 3.00, gsme
-    # said 2.00). Root's value is used as canonical; this affects only the
-    # reported `cost_usd` field, never a metric.
+    # This rate affects only the reported cost_usd field, never a metric.
     "gemini-3-flash-preview": {"in": 0.50, "out": 3.00},
     "gemini-3.1-flash-lite-preview": {"in": 0.25, "out": 1.50},
 }

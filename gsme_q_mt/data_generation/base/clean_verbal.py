@@ -99,7 +99,6 @@ def drop_unassigned_vars_in_variables_block(s: str) -> str:
 
 def process_rewritten(text: str) -> str:
     s = strip_bracket_text(text)
-    # s = drop_unassigned_vars_in_variables_block(s)
     return s
 
 

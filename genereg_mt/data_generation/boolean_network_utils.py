@@ -1,7 +1,7 @@
 """
 Boolean Network Utilities
 =========================
-Clean, efficient functions for Boolean network analysis.
+Attractor enumeration, basin-map caching, and minimal k-sufficient set search.
 """
 
 import os
@@ -442,7 +442,7 @@ def find_attractors_pyboolnet(F: List, I: List, var_names: List[str],
     
     # Prefix variable names that start with digits (NuSMV requirement)
     import re
-    # Match word boundaries followed by digit-starting identifiers
+    # NuSMV rejects leading digits; prefix every digit that starts a word
     bnet_str = re.sub(r'\b(\d)', r'v_\1', bnet_str)
     
     # Sanitize non-ASCII characters (e.g., Greek letters)
@@ -473,7 +473,7 @@ def find_attractors_pyboolnet(F: List, I: List, var_names: List[str],
     primes = fe.bnet2primes(bnet_str)
     
     # Compute attractors (synchronous update)
-    # Note: PyBoolNet has max_output=1000 default, we increase it
+    # max_output caps how many attractors PyBoolNet returns
     result = attr.compute_attractors(primes, "synchronous", max_output=max_output)
     
     # PyBoolNet returns a dict with 'attractors' key containing tuple of attractor dicts
@@ -588,7 +588,7 @@ def find_all_attractors(models: List[Dict], method: str = 'auto',
         method: 'bruteforce', 'sat', 'pyboolnet', or 'auto'
         max_bruteforce: Threshold for auto method selection
         compute_basins: Compute basin mapping (bruteforce only)
-        verbose: Print progress
+        verbose: Print per-model attractor counts (per-model progress lines print regardless)
         timeout_seconds: Timeout per model in seconds (None = no timeout)
         skip_models: List of model names to skip
         max_nodes: Skip models with more than this many nodes
@@ -1711,134 +1711,3 @@ def compute_or_load_model_cache(
     )
     save_model_cache(cache, cache_path, overwrite=True)
     return cache
-
-
-def feedback_core_genes(model: Dict) -> List[int]:
-    """Heuristic: genes that lie in non-trivial feedback (SCCs of size>1 or self-loops).
-
-    This is useful for identifying large networks whose fixed points may be controlled by
-    a small effective core.
-    """
-    n = len(model["var"])
-    F, I = model["F"], model["I"]
-    # Build dependency graph: edge u->v if u appears as a regulator of v
-    adj = [[] for _ in range(n)]
-    for v in range(n):
-        for u in I[v]:
-            adj[int(u)].append(v)
-
-    # Kosaraju SCC
-    rev = [[] for _ in range(n)]
-    for u in range(n):
-        for v in adj[u]:
-            rev[v].append(u)
-
-    seen = [False]*n
-    order = []
-
-    def dfs1(u):
-        seen[u]=True
-        for v in adj[u]:
-            if not seen[v]:
-                dfs1(v)
-        order.append(u)
-
-    for u in range(n):
-        if not seen[u]:
-            dfs1(u)
-
-    comp = [-1]*n
-    comps = []
-    def dfs2(u, cid):
-        comp[u]=cid
-        comps[cid].append(u)
-        for v in rev[u]:
-            if comp[v]==-1:
-                dfs2(v,cid)
-
-    for u in reversed(order):
-        if comp[u]==-1:
-            cid=len(comps)
-            comps.append([])
-            dfs2(u,cid)
-
-    core = set()
-    # SCC size>1
-    for c in comps:
-        if len(c) > 1:
-            core.update(c)
-
-    # self-loops: u regulates itself
-    for v in range(n):
-        if v in [int(u) for u in I[v]]:
-            core.add(v)
-
-    return sorted(core)
-
-
-def enumerate_fixed_points_via_core(
-    model: Dict,
-    *,
-    core_genes: Optional[List[int]] = None,
-    max_core: int = 22,
-) -> List[int]:
-    """Enumerate fixed points by brute-forcing only a small feedback core.
-
-    Works best when the feedback core size is small (<= max_core), even if n is large.
-
-    Method:
-      1) Choose a core set C (SCC/self-loop heuristic by default).
-      2) Enumerate assignments to C (2^|C|).
-      3) For each assignment, iterate synchronous update from the partially-fixed state,
-         but **only** to settle feed-forward nodes (nodes outside C). Since outside-C can still
-         depend on C, this converges quickly if the outside graph is mostly acyclic.
-      4) Accept states that satisfy x = F(x) (fixed point check).
-
-    Note: This is a heuristic acceleration; it's exact when the chosen core contains all
-    feedback necessary for fixed points (often true for SCC-based cores).
-    """
-    n = len(model["var"])
-    F, I = model["F"], model["I"]
-    if core_genes is None:
-        core_genes = feedback_core_genes(model)
-    core_genes = list(core_genes)
-
-    if len(core_genes) > max_core:
-        return []
-
-    # Precompute for fast update
-    core_set = set(core_genes)
-    # We'll brute-force core assignment and run a few steps to settle others, then verify fixed point exactly.
-    fps: List[int] = []
-    # positions order in core bits
-    core_pos = core_genes
-
-    # Build mask for core
-    core_mask = 0
-    for gi in core_pos:
-        core_mask |= 1 << int(gi)
-
-    # Enumerate all core assignments
-    for a in range(1 << len(core_pos)):
-        state = 0
-        for j, gi in enumerate(core_pos):
-            if (a >> j) & 1:
-                state |= 1 << int(gi)
-
-        # Iterate a bounded number of steps to try to settle non-core nodes
-        # (If outside graph has no cycles, it converges in <=n steps.)
-        for _ in range(n + 5):
-            nxt = sync_update(F, I, state, n)
-            # Keep core clamped to the chosen assignment
-            nxt = (nxt & ~core_mask) | (state & core_mask)
-            if nxt == state:
-                break
-            state = nxt
-
-        # Verify exact fixed point (no clamping now)
-        if sync_update(F, I, state, n) == state:
-            fps.append(int(state))
-
-    # Deduplicate
-    fps = sorted(set(fps))
-    return fps

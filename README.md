@@ -1,7 +1,7 @@
 # MT-InfoSeek
 
 [![Project Page](https://img.shields.io/badge/Project_Page-MT--InfoSeek-2ea44f)](https://zitniklab.hms.harvard.edu/MT-InfoSeek)
-![Paper](https://img.shields.io/badge/arXiv-coming_soon-red)
+[![Paper](https://img.shields.io/badge/arXiv-2608.14808-red)](https://arxiv.org/abs/2608.14808)
 [![Dataset](https://img.shields.io/badge/Dataset-MT--InfoSeek-yellow)](data/)
 [![Code License](https://img.shields.io/badge/Code_License-Apache_2.0-blue)](LICENSE)
 
@@ -35,6 +35,10 @@ OPENAI_API_KEY=... .venv/bin/python run_eval.py --datasets all --model gpt-5-min
 Use Azure OpenAI environment variables instead of `OPENAI_API_KEY` if needed.
 For `--datasets all`, `gpt-5-mini` is also the default 20Q examiner and offline
 judge.
+
+The models we evaluated are OpenAI, Gemini, Qwen, and gpt-oss. Anthropic
+(Claude) request paths exist in the code but were not used in the paper and are
+untested; expect to adjust the token limits before using them.
 
 #### Local models we evaluated (example: `Qwen/Qwen3.5-4B`)
 
@@ -77,8 +81,11 @@ Each dataset has an env-var-driven shell script. For example:
 
 ```bash
 source .venv/bin/activate
-MODEL=gpt-5-mini EVAL_MODE=mc bash logic_q_mt/scripts/run_singleturn.sh
+MODEL=gpt-5-mini EVAL_MODE=mc DATA_FILE=data/smoke/logic_q_mt.csv bash logic_q_mt/scripts/run_singleturn.sh
 ```
+
+These per-dataset scripts default to the **full** released split, so pass
+`DATA_FILE=data/smoke/<file>` for a smoke run.
 
 See each dataset's README for the full knob list and the regeneration
 pipeline:
@@ -137,9 +144,13 @@ run-time knobs.
 
 ```bibtex
 @misc{huang2026mtinfoseek,
-  title  = {Do LLMs Know What to Ask and When? Evaluating Multi-Turn Information Seeking},
-  author = {Yepeng Huang and Jiawen Zhang and Michelle Dai and Xiaorui Su and Shanghua Gao and Zi Wang and Marinka Zitnik},
-  year   = {2026},
+  title         = {Do LLMs Know What to Ask and When? Evaluating Multi-Turn Information Seeking},
+  author        = {Yepeng Huang and Jiawen Zhang and Michelle Dai and Xiaorui Su and Shanghua Gao and Zi Wang and Marinka Zitnik},
+  year          = {2026},
+  eprint        = {2608.14808},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.AI},
+  url           = {https://arxiv.org/abs/2608.14808},
 }
 ```
 

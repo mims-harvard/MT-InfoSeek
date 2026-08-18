@@ -29,3 +29,8 @@ mlcroissant>=1.0
 
 # Notebooks (logic_q_mt/data_generation/data_postprocessing.ipynb)
 jupyter>=1.0
+
+# ClinGuide-MT curation pipeline (clinguide_mt/datagen)
+pillow>=10.0
+anytree>=2.12
+pydantic>=2.0

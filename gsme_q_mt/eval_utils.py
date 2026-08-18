@@ -162,7 +162,6 @@ def compute_metrics(df, eval_mode):
 
     # cost + pred set
     cost_pack = get_cost_stats_from_results(df)
-    # pred_set_stats = pred_set_size_stats(df)
 
     # oe metrics (optional)
     mt_metrics = {}
