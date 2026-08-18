@@ -6,6 +6,8 @@ The curated ClinGuide-MT algorithms are **not redistributed**: this pipeline is 
 construction is reproducible from guideline sources you supply yourself. Stage 1 emits raw vision
 output that must be curated by hand into the `TreeNode` schema before Stage 2 will consume it, and
 `config.make_client()` is a stub you must implement with your own LLM credentials.
+The format example inside the Stage 1 vision prompt is synthetic and does not come from
+any specific guideline; it only demonstrates the JSON shape the stage should return.
 
 ## Pipeline Overview
 
