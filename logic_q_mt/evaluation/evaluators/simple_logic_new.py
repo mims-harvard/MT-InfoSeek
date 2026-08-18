@@ -170,7 +170,9 @@ Is Alice {goal}?""",
 
     # Per-example system prompts are built in make_batches (they embed the rules).
     self.system_prompt = None
-    self.user_prompt = self.prompts[self.eval_mode]["user_prompt"]["non_fs"]
+    self.user_prompt = self.prompts[self.eval_mode]["user_prompt"][
+        "fs" if self.fs_samples > 0 else "non_fs"
+    ]
 
     self.batch_size = batch_size
 
